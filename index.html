@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Froll.net - FROLL/BNB</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Favicon -->
+    <link rel="icon" href="frollnet48.png" type="image/png">
+</head>
+<body>
+    <!-- Header -->
+    <header class="navbar" style="background-color: #28a745; color: white;">
+        <img src="web48.png" alt="FrollSwap Logo" class="logo">
+        <div class="nav-links">
+            <a href="https://t.me/FortuneRolls" target="_blank">Join Telegram</a>
+            <a href="https://x.com/FortuneRolls" target="_blank">Follow X</a>
+        </div>
+        <!-- Thêm dòng hiển thị giá FROLL/USD -->
+        <div class="vin-price">
+            <strong>1 FROLL = <span id="froll-to-usd">Loading...</span> USD</strong>
+        </div>
+    </header>
+    
+    <!-- Connect Wallet Interface -->
+    <div id="connect-interface" class="interface">
+        <h1>Welcome to FrollSwap!</h1>
+        <p>Swap your FROLL and BNB tokens easily, quickly, and securely.</p>
+        
+        <!-- Thêm thông tin về FROLL -->
+        <div class="token-info">
+            <p><strong>FROLL Token:</strong> 1,000,000 Max Supply</p>
+            <p><strong>Contract Address:</strong> 
+                <span id="froll-contract">0x7783cBC17d43F936DA1C1D052E4a33a9FfF774c1</span> 
+                <button onclick="copyAddress()" class="copy-button">📋 Copy</button>
+            </p>
+            <p><a href="https://bscscan.com/token/0x7783cBC17d43F936DA1C1D052E4a33a9FfF774c1" target="_blank">🔍 View on BscScan</a></p>
+        </div>
+        
+        <button id="connect-wallet" class="button">Connect Wallet</button>
+    </div>
+    
+    <!-- Swap Interface -->
+    <div id="swap-interface" class="interface" style="display: none;">
+        <header class="swap-header">
+            <div id="wallet-address" class="wallet-address"></div>
+            <button id="disconnect-wallet" class="button">Disconnect Wallet</button>
+        </header>
+        <h1>Swap</h1>
+        <div class="swap-container">
+            <!-- From Token -->
+            <div class="token-input">
+                <img id="from-token-logo" src="froll24.png" alt="From Token">
+                <div>
+                    <p id="from-token-info">FROLL: 0.0000</p>
+                    <input type="number" id="from-amount" placeholder="0.0">
+                </div>
+                <button id="max-button" class="button">Max</button>
+            </div>
+
+            <!-- Swap Direction -->
+            <button id="swap-direction" class="swap-direction">↔️</button>
+
+            <!-- To Token -->
+            <div class="token-input">
+                <img id="to-token-logo" src="bnb24.png" alt="To Token">
+                <div>
+                    <p id="to-token-info">BNB: 0.0000</p>
+                    <input type="text" id="to-amount" placeholder="0.0" disabled>
+                </div>
+            </div>
+        </div>
+        <!-- Swap Details -->
+        <div class="swap-details">
+            <p id="gas-fee">Estimated Gas Fee: ~0.0005 BNB</p>
+        </div>
+
+        <!-- Swap Button -->
+        <button id="swap-now" class="button">Swap Now</button>
+    </div>
+
+    <!-- JavaScript để copy địa chỉ token -->
+    <script>
+        function copyAddress() {
+            const address = document.getElementById("froll-contract").textContent;
+            navigator.clipboard.writeText(address).then(() => {
+                alert("FROLL contract address copied!");
+            });
+        }
+    </script>
+    
+    <!-- Include Ethers.js -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <!-- Include App.js -->
+    <script src="app.js"></script>
+</body>
+</html>
