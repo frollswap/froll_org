@@ -1,168 +1,119 @@
-/* === Global Reset === */
-* {
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #121212;
+  color: #f0f0f0;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
 }
 
-body {
-  background: rgba(255, 255, 255, 0.95);
-  color: #222;
-  text-align: center;
+a {
+  color: #00bfff;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+.main-container {
+  max-width: 900px;
+  margin: auto;
   padding: 20px;
 }
 
-/* === Logo === */
 .logo-container {
   margin-top: 20px;
 }
-
 .logo {
   width: 64px;
   height: 64px;
-  margin-bottom: 10px;
 }
 
-/* === Price & Wallet === */
 .price-container {
-  margin-bottom: 30px;
+  margin-top: 10px;
+  font-size: 1.2em;
+  color: #00ffae;
 }
 
-.price-text {
-  font-size: 1.6em;
-  font-weight: bold;
-  color: #FFD700;
+.token-info, .game-banner, .guide, .footer {
+  background-color: #1e1e1e;
+  padding: 20px;
+  border-radius: 12px;
+  margin: 20px 0;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
 }
 
-.price-container p {
-  font-size: 1.05em;
-  color: #0066cc;
-  font-weight: bold;
-  margin-top: 6px;
-  word-break: break-word;
+.token-info h1,
+.game-banner h2,
+.guide h2 {
+  margin-top: 0;
+  color: #ffd700;
 }
 
-/* === Section Wrapper === */
-section {
-  background: transparent;
-  margin: 30px auto;
-  max-width: 600px;
-  padding: 0 10px;
+.button {
+  padding: 12px 24px;
+  margin-top: 15px;
+  font-size: 1em;
+  border: none;
+  border-radius: 8px;
+  background-color: #00bfff;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.button:hover {
+  background-color: #009fdc;
+}
+
+ul, ol {
   text-align: left;
-}
-
-section h1,
-section h2 {
-  text-align: center;
-  margin-bottom: 15px;
-  font-size: 1.3em;
-}
-
-section p,
-section li {
-  font-size: 0.95em;
-  margin-bottom: 8px;
-}
-
-section ul,
-section ol {
+  max-width: 600px;
+  margin: auto;
   padding-left: 20px;
 }
 
-/* === Token Info Links === */
-.token-info a {
-  color: #0077cc;
-  text-decoration: none;
-}
-
-.token-info a:hover {
-  text-decoration: underline;
-}
-
-/* === Buttons === */
-.button {
-  display: block;
-  width: fit-content;
-  margin: 20px auto 0 auto;
-  padding: 12px 24px;
-  background-color: #1a73e8;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 1.1em;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.button:hover {
-  background-color: #125ab3;
-}
-
-/* === Game Banner === */
-.game-banner img.game-image {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto 15px auto;
-  border-radius: 10px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-}
-
-/* === Copy Text === */
-.copy {
-  cursor: pointer;
-  color: #0077cc;
-  font-weight: bold;
-  text-decoration: underline;
-  word-break: break-word;
-}
-
-.copy:hover {
-  color: #cc5500;
-}
-
-/* === Notes === */
 .note {
+  margin-top: 10px;
   font-style: italic;
-  color: #006400;
-  margin-top: 12px;
-  font-size: 0.95em;
+  color: #90ee90;
 }
 
-/* === Footer === */
-.footer {
-  text-align: center;
-  margin-top: 40px;
-  font-size: 0.95em;
+.copy {
+  color: #87cefa;
+  cursor: pointer;
 }
-
-.footer a {
-  color: #333;
-  margin: 0 8px;
-  text-decoration: none;
-}
-
-.footer a:hover {
+.copy:hover {
   text-decoration: underline;
 }
 
-/* === Swap & Dice UI === */
-#swap-interface, #dice-interface {
-  margin-top: 30px;
-}
-
-input[type="number"] {
-  font-size: 1em;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 10px;
+.game-image {
   width: 100%;
-  box-sizing: border-box;
+  max-width: 480px;
+  border-radius: 10px;
+  margin-top: 10px;
 }
 
-hr {
-  border: none;
-  border-top: 1px solid #ccc;
+.footer {
+  font-size: 0.95em;
+}
+.footer a {
+  margin: 0 8px;
+}
+
+#swap-interface,
+#dice-interface {
+  display: none;
+  padding: 20px;
+}
+
+@media screen and (max-width: 768px) {
+  .main-container {
+    padding: 10px;
+  }
+  .button {
+    width: 100%;
+  }
+  ul, ol {
+    padding-left: 10px;
+  }
 }
