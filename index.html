@@ -1,82 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FROLL.org - Dice & Swap</title>
-  <link rel="icon" href="froll_48.png" type="image/png">
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FROLL.org – Dice & Swap</title>
+  <link rel="icon" href="froll_48.png" type="image/png" />
+  <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="Play the fair and transparent blockchain-based dice game with FROLL. No VC, No pre-mine, just fun and trustless gaming.">
 </head>
 <body>
-  <!-- Header -->
-  <header class="navbar">
-    <img src="froll_48.png" alt="FROLL Logo" class="logo">
-    <span id="froll-price" class="price">Loading FROLL price...</span>
-  </header>
 
-  <!-- Token Info Section -->
-  <section class="token-info">
-    <h1>FROLL Token Information</h1>
-    <p><strong>Contract:</strong> 0xB4d562A8f811CE7F134a1982992Bd153902290BC</p>
-    <p><strong>Symbol:</strong> FROLL</p>
-    <p><strong>Decimals:</strong> 18</p>
-    <p><strong>Total Supply:</strong> 1,000,000 FROLL</p>
-    <p><strong>View on VicScan:</strong> <a href="https://vicscan.xyz/token/0xB4d562A8f811CE7F134a1982992Bd153902290BC" target="_blank">Click here</a></p>
-    <button id="show-swap" class="button">🔁 Trade FROLL/VIC</button>
-  </section>
+  <!-- Main Container -->
+  <div class="main-container">
 
-  <!-- Game Banner -->
-  <section class="game-banner">
-    <h2>🎲 Even or Odd Game – Bet on your luck!</h2>
-    <img src="dice_game_banner.png" alt="Dice Game" class="game-image">
-    <button id="show-dice" class="button">🎮 Play Dice Now</button>
-  </section>
+    <!-- Logo Centered -->
+    <div class="logo-container">
+      <img src="froll_48.png" alt="FROLL Logo" class="logo" />
+    </div>
 
-  <!-- How to Play -->
-  <section class="guide">
-    <h2>📖 How to Play</h2>
-    <ul>
-      <li>1. Connect your wallet (MetaMask, Viction...)</li>
-      <li>2. Swap VIC ↔ FROLL if needed</li>
-      <li>3. Choose even or odd, place your bet</li>
-      <li>4. Roll the dice and claim your reward instantly!</li>
-    </ul>
-  </section>
+    <!-- FROLL Price -->
+    <div class="price-container">
+      <span id="froll-price" class="price-text">Loading FROLL price...</span>
+    </div>
 
-  <!-- Social Section -->
-  <footer class="footer">
-    <p>🌐 Join the FROLL Community:</p>
-    <a href="https://t.me/FortuneRolls" target="_blank">Telegram</a>
-    <a href="https://x.com/FortuneRolls" target="_blank">Twitter/X</a>
-    <a href="https://www.facebook.com/frollpage" target="_blank">Facebook</a>
-  </footer>
+    <!-- Token Info -->
+    <section class="token-info">
+      <h1>FROLL Token Information</h1>
+      <p><strong>Contract:</strong> 0xB4d562A8f811CE7F134a1982992Bd153902290BC</p>
+      <p><strong>Symbol:</strong> FROLL</p>
+      <p><strong>Decimals:</strong> 18</p>
+      <p><strong>Total Supply:</strong> 1,000,000 FROLL</p>
+      <p><strong>View on VicScan:</strong> <a href="https://vicscan.xyz/token/0xB4d562A8f811CE7F134a1982992Bd153902290BC" target="_blank">Click here</a></p>
+      <button id="show-swap" class="button">🔁 Trade FROLL/VIC</button>
+    </section>
 
-  <!-- Swap Interface (hidden until triggered) -->
-  <div id="swap-interface" style="display:none">
-    <!-- Nội dung swap như frollswap sẽ nhúng từ app.js -->
+    <!-- Game Banner -->
+    <section class="game-banner">
+      <h2>🎲 Even or Odd – Bet with FROLL</h2>
+      <img src="dice_game_banner.png" alt="Dice Game Banner" class="game-image" />
+      <button id="show-dice" class="button">🎮 Play Dice Now</button>
+    </section>
+
+    <!-- How to Play -->
+    <section class="guide">
+      <h2>📖 How to Play</h2>
+      <ul>
+        <li>Connect your wallet (MetaMask, Viction...)</li>
+        <li>Swap VIC ↔ FROLL</li>
+        <li>Select Even or Odd, then place your bet</li>
+        <li>Roll the dice and win instantly</li>
+      </ul>
+    </section>
+
+    <!-- Social -->
+    <footer class="footer">
+      <p>🌐 Join the FROLL Community:</p>
+      <a href="https://t.me/FortuneRolls" target="_blank">Telegram</a> | 
+      <a href="https://x.com/FortuneRolls" target="_blank">Twitter/X</a> | 
+      <a href="https://www.facebook.com/frollpage" target="_blank">Facebook</a>
+    </footer>
+
+    <!-- Hidden Interfaces -->
+    <div id="swap-interface" style="display:none"></div>
+    <div id="dice-interface" style="display:none"></div>
+    
   </div>
 
-  <!-- Dice Interface (hidden until triggered) -->
-  <div id="dice-interface" style="display:none">
-    <!-- Giao diện chơi xóc đĩa sẽ xử lý bằng app.js -->
-  </div>
-
-  <!-- Load App Scripts -->
+  <!-- Script to fetch VIC price & calculate FROLL -->
   <script>
-    // Hiển thị giá FROLL = giá VIC x 100 (lấy từ Binance)
     async function fetchFrollPrice() {
       try {
-        const response = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT");
-        const data = await response.json();
+        const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT");
+        const data = await res.json();
         const vicPrice = parseFloat(data.price);
-        const frollPrice = (vicPrice * 100).toFixed(4);
-        document.getElementById("froll-price").innerText = `1 FROLL = $${frollPrice}`;
+        const frollPrice = (vicPrice * 100).toFixed(2);
+        document.getElementById("froll-price").innerText = `1 FROLL = $${frollPrice} USD`;
       } catch (e) {
         document.getElementById("froll-price").innerText = "FROLL price: N/A";
       }
     }
     fetchFrollPrice();
   </script>
+
+  <!-- Load App Script -->
   <script src="app.js"></script>
 </body>
 </html>
