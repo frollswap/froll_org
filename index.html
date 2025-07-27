@@ -2,17 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FROLL.org – Dice & Swap</title>
   <link rel="icon" href="froll_48.png" type="image/png" />
   <link rel="stylesheet" href="style.css" />
   <meta name="description" content="Play the fair and transparent blockchain-based dice game with FROLL. No VC, No pre-mine, just fun and trustless gaming.">
 </head>
 <body>
-
-  <!-- Main Container -->
   <div class="main-container">
-
     <!-- Logo Centered -->
     <div class="logo-container">
       <img src="froll_48.png" alt="FROLL Logo" class="logo" />
@@ -26,11 +23,11 @@
     <!-- Token Info -->
     <section class="token-info">
       <h1>FROLL Token Information</h1>
-      <p><strong>Contract:</strong> 0xB4d562A8f811CE7F134a1982992Bd153902290BC</p>
+      <p><strong>Contract:</strong> <span class="copy" onclick="copyText('0xB4d562A8f811CE7F134a1982992Bd153902290BC')">0xB4d562A8f811CE7F134a1982992Bd153902290BC</span></p>
       <p><strong>Symbol:</strong> FROLL</p>
       <p><strong>Decimals:</strong> 18</p>
       <p><strong>Total Supply:</strong> 1,000,000 FROLL</p>
-      <p><strong>View on VicScan:</strong> <a href="https://vicscan.xyz/token/0xB4d562A8f811CE7F134a1982992Bd153902290BC" target="_blank">Click here</a></p>
+      <p><strong>View on VicScan:</strong> <span class="copy" onclick="copyText('https://vicscan.xyz/token/0xB4d562A8f811CE7F134a1982992Bd153902290BC')">https://vicscan.xyz/token/...</span></p>
       <button id="show-swap" class="button">🔁 Trade FROLL/VIC</button>
     </section>
 
@@ -46,27 +43,59 @@
       <h2>📖 How to Play</h2>
       <ul>
         <li>Connect your wallet (MetaMask, Viction...)</li>
-        <li>Swap VIC ↔ FROLL</li>
-        <li>Select Even or Odd, then place your bet</li>
-        <li>Roll the dice and win instantly</li>
+        <li>Choose a table to set bet limits</li>
+        <li>Minimum bet: <strong>0.001 FROLL</strong> | Max: <strong>50× minimum</strong></li>
+        <li>Place your bet (in FROLL) on Even or Odd</li>
+        <li>Roll the dice — Win FROLL instantly if correct!</li>
       </ul>
+      <p class="note">🎯 Results are generated and verified on-chain — 100% transparent and tamper-proof. No one can interfere with the outcome.</p>
+    </section>
+
+    <!-- How to Get FROLL -->
+    <section class="guide">
+      <h2>🛠 How to Get FROLL</h2>
+      <ol>
+        <li>1️⃣ Buy <strong>USDT</strong> on Binance / MEXC / HTX / Dex-Trade</li>
+        <li>2️⃣ Swap USDT → VIC (on any exchange)</li>
+        <li>3️⃣ Withdraw VIC to <strong>MetaMask</strong></li>
+        <li>4️⃣ Open <a href="https://froll.org" target="_blank">https://froll.org</a></li>
+        <li>5️⃣ Tap “Buy FROLL” → Swap VIC for FROLL</li>
+        <li>Or buy directly on <a href="https://dex-trade.com/spot/trading/FROLLUSDT" target="_blank">Dex-Trade (FROLL/USDT)</a></li>
+      </ol>
+    </section>
+
+    <!-- Add Network -->
+    <section class="guide">
+      <h2>🧩 Add Viction Network to MetaMask</h2>
+      <p><strong>Network:</strong> Viction</p>
+      <p><strong>RPC:</strong> <span class="copy" onclick="copyText('https://rpc.viction.xyz')">https://rpc.viction.xyz</span></p>
+      <p><strong>Chain ID:</strong> <span class="copy" onclick="copyText('88')">88</span></p>
+      <p><strong>Symbol:</strong> VIC</p>
+      <p><strong>Explorer:</strong> <span class="copy" onclick="copyText('https://vicscan.xyz')">https://vicscan.xyz</span></p>
+    </section>
+
+    <!-- Add FROLL Token -->
+    <section class="guide">
+      <h2>🔔 Add FROLL Token to MetaMask</h2>
+      <p><strong>Contract:</strong> <span class="copy" onclick="copyText('0xB4d562A8f811CE7F134a1982992Bd153902290BC')">0xB4d562A8f811CE7F134a1982992Bd153902290BC</span></p>
+      <p><strong>Symbol:</strong> FROLL</p>
+      <p><strong>Decimals:</strong> 18</p>
     </section>
 
     <!-- Social -->
     <footer class="footer">
       <p>🌐 Join the FROLL Community:</p>
-      <a href="https://t.me/FortuneRolls" target="_blank">Telegram</a> | 
-      <a href="https://x.com/FortuneRolls" target="_blank">Twitter/X</a> | 
+      <a href="https://t.me/FortuneRolls" target="_blank">Telegram</a> |
+      <a href="https://x.com/FortuneRolls" target="_blank">Twitter/X</a> |
       <a href="https://www.facebook.com/frollpage" target="_blank">Facebook</a>
     </footer>
 
     <!-- Hidden Interfaces -->
     <div id="swap-interface" style="display:none"></div>
     <div id="dice-interface" style="display:none"></div>
-    
   </div>
 
-  <!-- Script to fetch VIC price & calculate FROLL -->
+  <!-- Scripts -->
   <script>
     async function fetchFrollPrice() {
       try {
@@ -80,9 +109,12 @@
       }
     }
     fetchFrollPrice();
-  </script>
 
-  <!-- Load App Script -->
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+      alert(`Copied: ${text}`);
+    }
+  </script>
   <script src="app.js"></script>
 </body>
 </html>
