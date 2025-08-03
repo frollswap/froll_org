@@ -1,149 +1,50 @@
-/* Reset và cấu hình chung */
+/* ===== Reset & Fonts ===== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-  background-color: #0e0e1b;
-  color: white;
-  padding: 20px;
-  text-align: center;
-}
-
-.main-container {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-/* Header */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.logo {
-  height: 48px;
-}
-
-.price-display {
+  background: #0f0f0f;
+  color: #fff;
   font-size: 16px;
-  font-weight: bold;
-  color: white;
-}
-/* Nút chính */
-button {
-  background-color: #ff3366;
-  color: white;
-  padding: 12px 24px;
-  margin: 10px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background 0.3s;
-}
-
-button:hover {
-  background-color: #cc2952;
-}
-
-/* Giao diện chính */
-.main-interface h1 {
-  margin-bottom: 20px;
-}
-
-/* Phần hướng dẫn */
-.instructions {
-  text-align: left;
-  margin: 30px 0;
-  background: rgba(255, 255, 255, 0.05);
+  line-height: 1.5;
   padding: 20px;
-  border-radius: 12px;
 }
 
-.instructions ul {
-  list-style: none;
-}
-
-.instructions li {
-  margin: 10px 0;
-  font-size: 15px;
-}
-
-.token-info {
-  font-family: monospace;
-  font-size: 13px;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 3px 6px;
-  border-radius: 6px;
-}
-/* Community Links */
-.community-links {
-  margin: 20px 0;
-}
-
-.community-links a {
-  color: #00ccff;
-  margin: 0 10px;
+a {
+  color: #4dd0e1;
   text-decoration: none;
-  font-weight: bold;
 }
-
-.community-links a:hover {
+a:hover {
   text-decoration: underline;
 }
 
-/* Giao diện ẩn mặc định */
-.hidden {
-  display: none;
+/* ===== Layout ===== */
+.main-container {
+  max-width: 720px;
+  margin: auto;
+  padding-bottom: 100px;
 }
 
-/* Swap Box */
-.swap-box, .dice-box {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 20px;
-  border-radius: 10px;
-  margin-top: 20px;
+.logo-container {
+  text-align: center;
+  margin-bottom: 10px;
 }
 
-.swap-box input,
-.dice-box input,
-.swap-box select {
-  padding: 10px;
-  margin: 10px 0;
-  width: 80%;
-  border-radius: 6px;
-  border: none;
-  font-size: 15px;
+.logo {
+  width: 48px;
+  height: 48px;
 }
 
-.swap-box p, .dice-box p {
-  margin-top: 10px;
-  font-size: 14px;
-  color: #ccc;
+.price-container {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-/* Dice Buttons */
-.bet-buttons button {
-  margin: 10px;
-}
-
-.dice-actions button {
-  margin: 5px;
-}
-
-/* Wallet Connect */
-.wallet-connect {
-  margin-top: 40px;
-}
-
-#walletAddress {
-  font-size: 14px;
-  margin-top: 10px;
-  color: #aaa;
+.price-text {
+  font-size: 18px;
+  font-weight: bold;
 }
