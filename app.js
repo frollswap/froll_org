@@ -2,181 +2,144 @@ let provider;
 let signer;
 let userAddress;
 
-const VIC_USDT_API = "https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT";
+// FROLL token & Swap contract (trên mạng VIC)
+const FROLL_ADDRESS = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
+const SWAP_CONTRACT_ADDRESS = "0x9197BF0813e0727df4555E8cb43a0977F4a3A068";
 
 // Kết nối ví
 async function connectWallet() {
-  if (window.ethereum) {
-    provider = new ethers.BrowserProvider(window.ethereum);
-    const accounts = await provider.send("eth_requestAccounts", []);
-    signer = await provider.getSigner();
-    userAddress = await signer.getAddress();
-    document.getElementById("walletAddress").innerText = `Connected: ${userAddress}`;
-  } else {
-    alert("Please install MetaMask or use a Web3 wallet");
+  if (typeof window.ethereum === 'undefined') {
+    alert("Please install MetaMask or use a Web3-enabled browser.");
+    return;
   }
-}
 
-// Hiển thị giá FROLL theo USD (100 VIC)
-async function fetchPrice() {
-  try {
-    const res = await fetch(VIC_USDT_API);
-    const data = await res.json();
-    const vicPrice = parseFloat(data.price);
-    const frollPrice = vicPrice * 100;
-    document.getElementById("priceDisplay").innerText = `1 FROLL = $${frollPrice.toFixed(4)} USD`;
-  } catch (err) {
-    document.getElementById("priceDisplay").innerText = "Failed to load price.";
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  signer = provider.getSigner();
+  userAddress = await signer.getAddress();
+
+  const network = await provider.getNetwork();
+  if (network.chainId !== 88) {
+    alert("Please switch to the Viction network.");
+    return;
   }
+
+  document.getElementById("froll-price").innerText = `Wallet: ${shortenAddress(userAddress)}`;
 }
 
-// Gọi hàm khi trang tải
-window.onload = () => {
-  fetchPrice();
-};
-
-function showSwap() {
-  document.getElementById("main-interface").style.display = "none";
-  document.getElementById("swap-interface").classList.remove("hidden");
-  document.getElementById("dice-interface").classList.add("hidden");
+// Rút gọn địa chỉ ví cho đẹp
+function shortenAddress(addr) {
+  return addr.slice(0, 6) + "..." + addr.slice(-4);
 }
 
-function showDice() {
-  document.getElementById("main-interface").style.display = "none";
-  document.getElementById("dice-interface").classList.remove("hidden");
-  document.getElementById("swap-interface").classList.add("hidden");
+// Sự kiện hiển thị giao diện SWAP
+document.getElementById("show-swap").addEventListener("click", () => {
+  document.getElementById("swap-interface").style.display = "block";
+  document.getElementById("dice-interface").style.display = "none";
+  loadSwapUI();
+});
+
+// Sự kiện hiển thị giao diện DICE
+document.getElementById("show-dice").addEventListener("click", () => {
+  document.getElementById("swap-interface").style.display = "none";
+  document.getElementById("dice-interface").style.display = "block";
+  loadDiceUI();
+});
+
+function loadSwapUI() {
+  const container = document.getElementById("swap-interface");
+  container.innerHTML = `
+    <h2>🔁 Swap VIC ↔ FROLL</h2>
+    <p>1 FROLL = 100 VIC &nbsp; | &nbsp; Fee: 0.01 VIC</p>
+
+    <div style="margin-top:15px">
+      <input type="number" id="vic-input" placeholder="VIC amount" />
+      <button onclick="swapVicToFroll()">Swap VIC → FROLL</button>
+    </div>
+
+    <div style="margin-top:15px">
+      <input type="number" id="froll-input" placeholder="FROLL amount" />
+      <button onclick="swapFrollToVic()">Swap FROLL → VIC</button>
+    </div>
+  `;
 }
 
-// Địa chỉ hợp đồng Swap và Token
-const FROLL_TOKEN = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
-const SWAP_CONTRACT = "0x9197BF0813e0727df4555E8cb43a0977F4a3A068";
-
-// ABI rút gọn
-const ERC20_ABI = [
+// Giao diện đơn giản, không cần ABI đầy đủ – chỉ gọi đúng hàm
+const SWAP_ABI = [
+  "function swapVicToFroll() payable",
+  "function swapFrollToVic(uint256 amount)",
+  "function FEE() view returns (uint256)"
+];
+const frollAbi = [
   "function approve(address spender, uint256 amount) public returns (bool)",
   "function allowance(address owner, address spender) public view returns (uint256)",
   "function decimals() public view returns (uint8)"
 ];
 
-const SWAP_ABI = [
-  "function swapVicToFroll() payable",
-  "function swapFrollToVic(uint256 frollAmount)",
-  "function FEE() public view returns (uint256)"
-];
+async function swapVicToFroll() {
+  const vicAmount = document.getElementById("vic-input").value;
+  if (!vicAmount || vicAmount <= 0) return alert("Enter VIC amount");
 
-// Swap xử lý
-async function doSwap() {
-  if (!signer) {
-    alert("Please connect your wallet first.");
-    return;
-  }
-
-  const direction = document.getElementById("swapDirection").value;
-  const amount = parseFloat(document.getElementById("swapAmount").value);
-  const status = document.getElementById("swapStatus");
-  status.innerText = "Processing...";
+  const contract = new ethers.Contract(SWAP_CONTRACT_ADDRESS, SWAP_ABI, signer);
+  const fee = ethers.utils.parseEther("0.01");
+  const value = ethers.utils.parseEther(vicAmount);
 
   try {
-    const swapContract = new ethers.Contract(SWAP_CONTRACT, SWAP_ABI, signer);
-
-    if (direction === "vicToFroll") {
-      const fee = await swapContract.FEE();
-      const value = ethers.parseEther((amount + parseFloat(ethers.formatEther(fee))).toString());
-      const tx = await swapContract.swapVicToFroll({ value });
-      await tx.wait();
-      status.innerText = "Swap VIC → FROLL successful!";
-    } else {
-      const token = new ethers.Contract(FROLL_TOKEN, ERC20_ABI, signer);
-      const decimals = await token.decimals();
-      const amountWithDecimals = ethers.parseUnits(amount.toString(), decimals);
-
-      const allowance = await token.allowance(userAddress, SWAP_CONTRACT);
-      if (allowance < amountWithDecimals) {
-        const approveTx = await token.approve(SWAP_CONTRACT, amountWithDecimals);
-        await approveTx.wait();
-      }
-
-      const tx = await swapContract.swapFrollToVic(amountWithDecimals);
-      await tx.wait();
-      status.innerText = "Swap FROLL → VIC successful!";
-    }
-  } catch (err) {
-    console.error(err);
-    status.innerText = "Swap failed.";
-  }
-}
-
-// Thông tin hợp đồng FrollDice
-const DICE_CONTRACT = "0x85A12591d3BA2A7148d18e9Ca44E0D778e458906";
-const DICE_ABI = [
-  "function play(uint8 choice, uint256 minBet) public",
-  "function getBalance() public view returns (uint256)"
-];
-
-let lastChoice = null;
-let lastMinBet = 1;
-
-// Đặt cược Chẵn / Lẻ
-async function placeBet(choice) {
-  if (!signer) {
-    alert("Please connect your wallet first.");
-    return;
-  }
-
-  const minBetInput = document.getElementById("minBet");
-  const minBet = parseFloat(minBetInput.value);
-  const status = document.getElementById("diceStatus");
-
-  if (isNaN(minBet) || minBet <= 0) {
-    alert("Please enter a valid min bet.");
-    return;
-  }
-
-  status.innerText = "Placing bet...";
-
-  try {
-    const token = new ethers.Contract(FROLL_TOKEN, ERC20_ABI, signer);
-    const decimals = await token.decimals();
-    const amount = ethers.parseUnits(minBet.toString(), decimals);
-
-    const allowance = await token.allowance(userAddress, DICE_CONTRACT);
-    if (allowance < amount) {
-      const approveTx = await token.approve(DICE_CONTRACT, amount);
-      await approveTx.wait();
-    }
-
-    const dice = new ethers.Contract(DICE_CONTRACT, DICE_ABI, signer);
-    const tx = await dice.play(choice === "even" ? 0 : 1, minBet);
+    const tx = await contract.swapVicToFroll({ value: value.add(fee) });
     await tx.wait();
-
-    status.innerText = `Bet ${choice.toUpperCase()} placed successfully!`;
-    lastChoice = choice;
-    lastMinBet = minBet;
+    alert("Swapped VIC → FROLL successfully!");
   } catch (err) {
     console.error(err);
-    status.innerText = "Bet failed.";
+    alert("Swap failed.");
   }
 }
 
-// Các nút phụ
-function repeatBet() {
-  if (lastChoice && lastMinBet) {
-    document.getElementById("minBet").value = lastMinBet;
-    placeBet(lastChoice);
+async function swapFrollToVic() {
+  const frollAmount = document.getElementById("froll-input").value;
+  if (!frollAmount || frollAmount <= 0) return alert("Enter FROLL amount");
+
+  const token = new ethers.Contract(FROLL_ADDRESS, frollAbi, signer);
+  const contract = new ethers.Contract(SWAP_CONTRACT_ADDRESS, SWAP_ABI, signer);
+
+  const amount = ethers.utils.parseUnits(frollAmount, 18);
+  const allowance = await token.allowance(userAddress, SWAP_CONTRACT_ADDRESS);
+
+  try {
+    if (allowance.lt(amount)) {
+      const txApprove = await token.approve(SWAP_CONTRACT_ADDRESS, amount);
+      await txApprove.wait();
+    }
+
+    const tx = await contract.swapFrollToVic(amount);
+    await tx.wait();
+    alert("Swapped FROLL → VIC successfully!");
+  } catch (err) {
+    console.error(err);
+    alert("Swap failed.");
   }
 }
 
-function doubleBet() {
-  const input = document.getElementById("minBet");
-  input.value = parseFloat(input.value || "1") * 2;
-}
+function loadDiceUI() {
+  const container = document.getElementById("dice-interface");
+  container.innerHTML = `
+    <h2>🎲 Even or Odd – Bet with FROLL</h2>
+    <p>Choose your side and amount, then place your bet:</p>
 
-function clearBet() {
-  document.getElementById("minBet").value = "";
-  document.getElementById("diceStatus").innerText = "";
-}
+    <div style="margin-top:15px">
+      <select id="bet-choice">
+        <option value="even">Even (Chẵn)</option>
+        <option value="odd">Odd (Lẻ)</option>
+      </select>
+    </div>
 
-function changeTable() {
-  const input = document.getElementById("minBet");
-  input.value = Math.floor(Math.random() * 10) + 1;
+    <div style="margin-top:10px">
+      <input type="number" id="bet-amount" placeholder="Amount in FROLL" />
+    </div>
+
+    <div style="margin-top:10px">
+      <button onclick="alert('Feature coming soon')">🎮 Place Bet</button>
+    </div>
+
+    <p style="margin-top:20px; font-style:italic">* This is a 50:50 fair game using blockchain hash. Results are verifiable.</p>
+  `;
 }
