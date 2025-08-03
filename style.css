@@ -48,3 +48,132 @@ a:hover {
   font-size: 18px;
   font-weight: bold;
 }
+
+/* ===== Buttons ===== */
+.button {
+  display: inline-block;
+  background-color: #2196f3;
+  color: #fff;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 10px 0;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.button:hover {
+  background-color: #1976d2;
+}
+
+/* ===== Token Info ===== */
+.token-info {
+  background-color: #1e1e1e;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 0 10px rgba(33, 150, 243, 0.3);
+}
+
+.token-info h1 {
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+.token-info p {
+  margin-bottom: 8px;
+}
+
+.copy {
+  color: #4dd0e1;
+  cursor: pointer;
+}
+.copy:hover {
+  text-decoration: underline;
+}
+/* ===== Dice Game Banner ===== */
+.game-banner {
+  background-color: #212121;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 30px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+}
+
+.game-banner h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.game-image {
+  width: 100%;
+  border-radius: 12px;
+  margin: 10px 0;
+}
+
+/* ===== Guide Sections ===== */
+.guide {
+  background-color: #1a1a1a;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.05);
+}
+
+.guide h2 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: #4dd0e1;
+}
+
+.guide ul,
+.guide ol {
+  margin-left: 20px;
+  margin-bottom: 10px;
+}
+
+.guide li {
+  margin-bottom: 6px;
+}
+
+.note {
+  font-style: italic;
+  color: #ccc;
+}
+
+/* ===== Footer ===== */
+.footer {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 14px;
+  color: #aaa;
+}
+/* ===== Hidden Interfaces (Swap & Dice) ===== */
+#swap-interface,
+#dice-interface {
+  background-color: #111;
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 600px) {
+  .button {
+    width: 100%;
+    font-size: 15px;
+  }
+
+  .game-image {
+    max-height: 200px;
+    object-fit: cover;
+  }
+
+  .main-container {
+    padding: 10px;
+  }
+}
