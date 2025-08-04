@@ -23,11 +23,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const balances = { VIC: 0, FROLL: 0 };
 
     const FROLL_CONTRACT_ADDRESS = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
+    const FROLLSWAP_CONTRACT_ADDRESS = "0x9197BF0813e0727df4555E8cb43a0977F4a3A068";
 
     // 📌 ABI của FROLL Token (Chỉ lấy phần cần thiết)
     const frollABI = [
         "function balanceOf(address owner) view returns (uint256)",
         "function decimals() view returns (uint8)"
+    ];
+
+    // 📌 ABI của Hợp đồng Swap FROLL/VIC
+    const frollSwapABI = [
+        "function swapVicToFroll() payable",
+        "function swapFrollToVic(uint256 frollAmount) external"
     ];
 
     // 📌 Kết nối ví
@@ -43,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
             signer = provider.getSigner();
             walletAddress = await signer.getAddress();
 
-            console.log("🔗 Kết nối thành công, địa chỉ ví:", walletAddress);
+            console.log("🔗 Wallet connected successfully, address:", walletAddress);
 
             frollTokenContract = new ethers.Contract(FROLL_CONTRACT_ADDRESS, frollABI, provider);
 
@@ -57,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
             swapInterface.style.display = "block";
             walletAddressEl.textContent = walletAddress;
         } catch (error) {
-            console.error("❌ Lỗi khi kết nối ví:", error);
+            console.error("❌ Error connecting wallet:", error);
             alert("❌ Unable to connect wallet. Please try again!");
         }
     }
@@ -74,7 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
             section.style.display = "block";
         });
         walletAddressEl.textContent = "Not Connected";
-        console.log("🔴 Người dùng đã ngắt kết nối ví.");
+        console.log("🔴 Wallet disconnected.");
         alert("❌ Wallet disconnected!");
     });
 
@@ -94,12 +101,12 @@ document.addEventListener("DOMContentLoaded", function () {
         fromBalance.textContent = parseFloat(balances[fromToken]).toFixed(18);
         toBalance.textContent = parseFloat(balances[toToken]).toFixed(18);
 
-        console.log("✅ Cập nhật số dư:", balances);
+        console.log("✅ Balances updated:", balances);
     }
 
     // 📌 Xử lý hoán đổi chiều swap
     swapDirectionButton.addEventListener("click", async () => {
-        console.log("🔄 Đảo hướng swap...");
+        console.log("🔄 Swap direction...");
         [fromToken, toToken] = [toToken, fromToken];
         fromTokenSymbol.textContent = fromToken;
         toTokenSymbol.textContent = toToken;
@@ -157,6 +164,7 @@ maxButton.addEventListener("click", async () => {
 // ==============================
 // 🔹 HANDLE SWAP TRANSACTION WHEN "SWAP NOW" BUTTON IS CLICKED
 // ==============================
+
 document.addEventListener("DOMContentLoaded", function () {
     const swapNowButton = document.getElementById("swap-now");
     const fromAmountInput = document.getElementById("from-amount");
@@ -169,7 +177,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let walletAddress;
     let provider;
     let signer;
-    
+
     if (!swapNowButton) {
         console.error("❌ Swap Now button not found.");
         return;
@@ -200,11 +208,6 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log(`🔄 Swapping: ${fromAmount} ${fromTokenSymbol.textContent.trim()}`);
 
             // ✅ Connect to Swap Contract
-            const FROLLSWAP_CONTRACT_ADDRESS = "0x9197BF0813e0727df4555E8cb43a0977F4a3A068";
-            const frollSwapABI = [
-                "function swapVicToFroll() payable",
-                "function swapFrollToVic(uint256 frollAmount) external"
-            ];
             const frollSwapContract = new ethers.Contract(FROLLSWAP_CONTRACT_ADDRESS, frollSwapABI, signer);
 
             let tx;
@@ -223,11 +226,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
                 // ✅ Swap FROLL → VIC (approval required first)
-                const FROLL_CONTRACT_ADDRESS = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
-                const frollABI = [
-                    "function approve(address spender, uint256 amount) external returns (bool)"
-                ];
-                const frollTokenContract = new ethers.Contract(FROLL_CONTRACT_ADDRESS, frollABI, signer);
+                const frollTokenContract = new ethers.Contract(FROLL_CONTRACT_ADDRESS, ["function approve(address spender, uint256 amount) external returns (bool)"], signer);
 
                 // ✅ Approve before swapping
                 const frollAmount = ethers.utils.parseUnits(fromAmount.toString(), 18);
@@ -247,77 +246,9 @@ document.addEventListener("DOMContentLoaded", function () {
             alert("✅ Swap successful!");
             await updateBalances();
             console.log("✅ Balance updated successfully!");
-
         } catch (error) {
             console.error("❌ Swap failed:", error);
             alert("❌ Swap failed! Please try again.");
         }
     });
-
-    // 📌 Max Button - Must Swap All
-    maxButton.addEventListener("click", async function () {
-        await connectWallet();
-
-        const fromToken = fromTokenSymbol.textContent.trim();
-        let maxAmount;
-        if (fromToken === "VIC") {
-            maxAmount = await provider.getBalance(walletAddress);
-            maxAmount = ethers.utils.formatEther(maxAmount);
-        } else {
-            const frollTokenContract = new ethers.Contract(
-                "0xB4d562A8f811CE7F134a1982992Bd153902290BC",
-                ["function balanceOf(address owner) view returns (uint256)"],
-                signer
-            );
-            maxAmount = await frollTokenContract.balanceOf(walletAddress);
-            maxAmount = ethers.utils.formatUnits(maxAmount, 18);
-        }
-
-        fromAmountInput.value = parseFloat(maxAmount).toFixed(18); // Show full precision
-        updateSwapOutput();
-    });
-
-    // 📌 Auto Update Swap Output
-    fromAmountInput.addEventListener("input", updateSwapOutput);
-
-    function updateSwapOutput() {
-        const fromToken = fromTokenSymbol.textContent.trim();
-        let inputAmount = parseFloat(fromAmountInput.value) || 0;
-        let outputAmount = 0;
-
-        if (fromToken === "VIC") {
-            let effectiveVicAmount = inputAmount - 0.01; // Subtract fee
-            outputAmount = effectiveVicAmount > 0 ? effectiveVicAmount / 100 : 0;
-        } else {
-            outputAmount = inputAmount * 100 - 0.01;
-        }
-
-        toAmountInput.value = outputAmount > 0 ? outputAmount.toFixed(18) : "0.000000000000000000";
-    }
-
-    // 📌 Update Balances
-    async function updateBalances() {
-        try {
-            if (!walletAddress || !provider) return;
-
-            const frollTokenContract = new ethers.Contract(
-                "0xB4d562A8f811CE7F134a1982992Bd153902290BC",
-                ["function balanceOf(address owner) view returns (uint256)"],
-                signer
-            );
-
-            const vicBalance = await provider.getBalance(walletAddress);
-            const frollBalance = await frollTokenContract.balanceOf(walletAddress);
-
-            // Convert balances
-            let vicBalanceFormatted = ethers.utils.formatEther(vicBalance);
-            let frollBalanceFormatted = ethers.utils.formatUnits(frollBalance, 18);
-
-            fromBalance.textContent = parseFloat(vicBalanceFormatted).toFixed(18);
-            toBalance.textContent = parseFloat(frollBalanceFormatted).toFixed(18);
-            console.log("✅ Updated Balances:", { VIC: vicBalanceFormatted, FROLL: frollBalanceFormatted });
-        } catch (error) {
-            console.error("❌ Error updating balance:", error);
-        }
-    }
 });
