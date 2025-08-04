@@ -1,111 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FROLL.org – Play & Swap</title>
-  <link rel="icon" href="froll_48.png" type="image/png" />
-  <link rel="stylesheet" href="style.css" />
-  <meta name="description" content="Play Even/Odd dice game or swap VIC ↔ FROLL on-chain. 100% decentralized. No VC. No tricks. Just fun and fairness.">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Froll.org - Swap & Play</title>
+
+    <!-- Logo cho trình duyệt -->
+    <link rel="icon" type="image/png" href="images/logo64.png">
+
+    <!-- Kết nối CSS -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="main-container">
+<!-- GÓI TOÀN BỘ TRANG HOME -->
+<div id="home-page">
 
-    <!-- Logo & Price -->
-    <div class="logo-container">
-      <img src="froll_48.png" alt="FROLL Logo" class="logo" />
+    <!-- Thanh điều hướng (Hiển thị giá FROLL) -->
+    <nav>
+        <div class="nav-left">
+            <img src="images/logo128.png" alt="Lottery Logo" class="nav-logo">
+        </div>
+
+        <div class="price">
+            <span id="froll-price">1 FROLL = Loading... USD</span>
+        </div>
+    </nav>
+
+    <!-- Khu vực Trade FROLL -->
+    <section id="trade-froll-section">
+        <button id="trade-froll-btn" class="button">Swap FROLL/VIC 🔥</button>
+    </section>
+
+    
+    <!-- Swap Interface -->
+<div id="swap-interface" class="interface hidden">
+    <!-- Header: Hiển thị địa chỉ ví -->
+    <header class="swap-header">
+        <button id="disconnect-wallet" class="button">Disconnect Wallet</button>
+        <div id="wallet-address" class="wallet-address">Not Connected</div>
+    </header>
+
+    <!-- Tiêu đề Swap -->
+    <h1>Swap</h1>
+
+    <!-- Swap Container -->
+    <div class="swap-wrapper">
+        <!-- From Token (VIC / FROLL) -->
+        <div class="token-input">
+            <p class="token-symbol" id="from-token-symbol">VIC</p>
+            <div class="token-info">
+                <img id="from-token-logo" src="images/vic24.png" alt="VIC Token">
+                <p><span id="from-balance">0.0000</span></p>
+                <button id="max-button" class="button">Max</button>
+            </div>
+            <input type="number" id="from-amount" placeholder="0.0">
+        </div>
+
+        <!-- Swap Direction (↔️) -->
+        <button id="swap-direction" class="swap-direction">↔️</button>
+
+        <!-- To Token (FROLL / VIC) -->
+        <div class="token-input">
+            <p class="token-symbol" id="to-token-symbol">FROLL</p>
+            <div class="token-info">
+                <img id="to-token-logo" src="images/froll24.png" alt="FROLL Token">
+                <p><span id="to-balance">0.0000</span></p>
+            </div>
+            <input type="text" id="to-amount" placeholder="0.0" disabled>
+        </div>
     </div>
-    <div class="price-container">
-      <span id="froll-price" class="price-text">Loading FROLL price...</span>
-      <!-- ví sẽ được hiển thị bằng app.js -->
+
+    <!-- Swap Details -->
+    <div class="swap-details">
+        <p id="transaction-fee">Transaction Fee: 0.01 VIC</p>
+        <p id="gas-fee">Estimated Gas Fee: ~0.000029 VIC</p>
     </div>
 
-    <!-- Main Buttons -->
-    <section class="token-info">
-      <h1>FROLL Token Information</h1>
-      <p><strong>Contract:</strong> <span class="copy" onclick="copyText('0xB4d562A8f811CE7F134a1982992Bd153902290BC')">0xB4d562A8f811CE7F134a1982992Bd153902290BC</span></p>
-      <p><strong>Symbol:</strong> FROLL | <strong>Decimals:</strong> 18 | <strong>Total Supply:</strong> 1,000,000</p>
-      <p><strong>View on VicScan:</strong> <span class="copy" onclick="copyText('https://vicscan.xyz/token/0xB4d562A8f811CE7F134a1982992Bd153902290BC')">https://vicscan.xyz/token/...</span></p>
-      <button id="show-swap" class="button">🔁 Swap VIC ↔ FROLL</button>
-    </section>
+    <!-- Swap Button -->
+    <button id="swap-now" class="button">Swap Now</button>
+</div>
 
-    <!-- Dice Game -->
-    <section class="game-banner">
-      <h2>🎲 Even or Odd – Bet with FROLL</h2>
-      <img src="dice_game_banner.png" alt="Dice Game Banner" class="game-image" />
-      <button id="show-dice" class="button">🎮 Play Dice Now</button>
-    </section>
+<!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="js/countdown.js" defer></script>
+    <script type="module" src="/js/app.js"></script>
 
-    <!-- Guides -->
-    <section class="guide">
-      <h2>📖 How to Play</h2>
-      <ul>
-        <li>Connect your wallet (MetaMask or Viction)</li>
-        <li>Choose Even or Odd, enter FROLL amount</li>
-        <li>Smart contract will verify result</li>
-        <li>Win 2× if you guess correctly!</li>
-      </ul>
-      <p class="note">100% on-chain logic. No one can interfere. Completely fair & transparent.</p>
-    </section>
+    <script>
+    // 📌 URL Binance API để lấy giá VIC theo USD
+    const BINANCE_API_URL = "https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT";
 
-    <section class="guide">
-      <h2>🛠 How to Get FROLL</h2>
-      <ol>
-        <li>1️⃣ Buy USDT on Binance / MEXC / HTX</li>
-        <li>2️⃣ Swap to VIC, withdraw to MetaMask</li>
-        <li>3️⃣ Open <strong>froll.org</strong> and connect wallet</li>
-        <li>4️⃣ Tap “Swap” → Convert VIC → FROLL</li>
-        <li>Or buy on <a href="https://dex-trade.com/spot/trading/FROLLUSDT" target="_blank">Dex-Trade</a></li>
-      </ol>
-    </section>
+    // 🔄 Hàm cập nhật giá FROLL
+    async function updateFrollPrice() {
+        try {
+            const response = await fetch(BINANCE_API_URL);
+            const data = await response.json();
 
-    <section class="guide">
-      <h2>🧩 Add Viction Network</h2>
-      <p><strong>RPC:</strong> <span class="copy" onclick="copyText('https://rpc.viction.xyz')">https://rpc.viction.xyz</span></p>
-      <p><strong>Chain ID:</strong> <span class="copy" onclick="copyText('88')">88</span></p>
-      <p><strong>Symbol:</strong> VIC | <strong>Explorer:</strong> <span class="copy" onclick="copyText('https://vicscan.xyz')">vicscan.xyz</span></p>
-    </section>
+            if (!data || !data.price) {
+                throw new Error("Không lấy được giá VIC từ Binance API");
+            }
 
-    <section class="guide">
-      <h2>🔔 Add FROLL Token</h2>
-      <p><strong>Contract:</strong> <span class="copy" onclick="copyText('0xB4d562A8f811CE7F134a1982992Bd153902290BC')">0xB4d562A8f811CE7F134a1982992Bd153902290BC</span></p>
-      <p><strong>Symbol:</strong> FROLL | <strong>Decimals:</strong> 18</p>
-    </section>
+            const vicPrice = parseFloat(data.price); // Giá VIC theo USD
+            const frollPrice = vicPrice * 100; // 1 FROLL = 100 VIC
 
-    <!-- Community Links -->
-    <footer class="footer">
-      <p>🌐 Join the FROLL Community:</p>
-      <a href="https://t.me/FortuneRolls" target="_blank">Telegram</a> |
-      <a href="https://x.com/FortuneRolls" target="_blank">Twitter/X</a> |
-      <a href="https://www.facebook.com/frollpage" target="_blank">Facebook</a>
-    </footer>
-
-    <!-- Hidden interfaces (hiện khi người dùng bấm nút) -->
-    <div id="swap-interface" style="display:none"></div>
-    <div id="dice-interface" style="display:none"></div>
-  </div>
-
-  <!-- Scripts -->
-  <script>
-    async function fetchFrollPrice() {
-      try {
-        const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT");
-        const data = await res.json();
-        const vicPrice = parseFloat(data.price);
-        const frollPrice = (vicPrice * 100).toFixed(2);
-        document.getElementById("froll-price").innerText = `1 FROLL = $${frollPrice} USD`;
-      } catch {
-        document.getElementById("froll-price").innerText = "FROLL price: N/A";
-      }
+            // Hiển thị giá trên thanh điều hướng
+            document.getElementById("froll-price").textContent = `1 FROLL = ${frollPrice.toFixed(2)} USD`;
+        } catch (error) {
+            console.error("❌ Lỗi khi cập nhật giá FROLL:", error);
+            document.getElementById("froll-price").textContent = "Price unavailable";
+        }
     }
-    fetchFrollPrice();
 
-    function copyText(text) {
-      navigator.clipboard.writeText(text);
-      alert(`Copied: ${text}`);
-    }
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <script src="app.js"></script>
+    // 🚀 Gọi ngay khi trang tải
+    document.addEventListener("DOMContentLoaded", updateFrollPrice);
+
+    // 🔄 Cập nhật mỗi 60 giây
+    setInterval(updateFrollPrice, 60000);
+    </script>
+
 </body>
 </html>
