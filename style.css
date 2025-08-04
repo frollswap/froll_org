@@ -6,7 +6,7 @@
 }
 
 body {
-  background-color: #ffffff; /* Nền trắng */
+  background-color: #ffffff;
   font-family: Arial, sans-serif;
   color: #111;
   padding: 20px;
@@ -15,7 +15,7 @@ body {
 .main-container {
   max-width: 900px;
   margin: 0 auto;
-  background-color: rgba(255, 255, 255, 0.95); /* nền trắng mờ nhẹ */
+  background-color: rgba(255, 255, 255, 0.95);
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
@@ -35,7 +35,7 @@ body {
 
 .price {
   font-size: 18px;
-  color: #333;
+  color: #222;
   background: #f2f2f2;
   padding: 6px 12px;
   border-radius: 6px;
@@ -59,7 +59,7 @@ h1, h2 {
 p.tagline {
   font-size: 18px;
   margin-bottom: 20px;
-  color: #666;
+  color: #555;
 }
 
 .home-buttons button {
@@ -77,18 +77,18 @@ p.tagline {
   background-color: #339dff;
 }
 
-.how-to ul {
-  list-style: none;
-  padding-left: 0;
-  margin-bottom: 24px;
+/* Setup Guide */
+.setup-guide p span {
+  color: #0066cc;
+  text-decoration: underline;
 }
 
-.how-to li {
-  margin-bottom: 10px;
-  font-size: 16px;
-  color: #444;
+.setup-guide span:hover {
+  cursor: pointer;
+  color: #004999;
 }
 
+/* Community Links */
 .community-links a {
   display: inline-block;
   background-color: #eee;
@@ -104,12 +104,7 @@ p.tagline {
   background-color: #ddd;
 }
 
-/* Swap Interface */
-.token-info {
-  margin-bottom: 20px;
-  color: #555;
-}
-
+/* Swap & Dice UI */
 .input-group {
   margin-bottom: 15px;
 }
@@ -143,7 +138,6 @@ p.tagline {
   color: #fff;
   border: none;
   padding: 12px 24px;
-  margin-right: 10px;
   font-size: 16px;
   border-radius: 8px;
   cursor: pointer;
@@ -167,7 +161,6 @@ p.tagline {
   background-color: #aaa;
 }
 
-/* Dice Game */
 .dice-video {
   width: 100%;
   border-radius: 10px;
@@ -197,7 +190,7 @@ p.tagline {
   text-align: center;
 }
 
-/* Wallet Connect */
+/* Wallet */
 .wallet-status {
   margin-top: 30px;
   text-align: center;
@@ -226,7 +219,7 @@ p.tagline {
   background-color: #857eff;
 }
 
-/* Responsive (Mobile) */
+/* Responsive */
 @media (max-width: 600px) {
   .home-buttons button,
   .swap-buttons button,
