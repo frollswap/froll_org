@@ -1,14 +1,17 @@
 let provider, signer, userAddress;
 const frollAddress = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
 const diceAddress = "0x85A12591d3BA2A7148d18e9Ca44E0D778e458906";
-const frollAbi = [ // shortened for clarity
+
+const frollAbi = [
   "function approve(address spender, uint256 amount) external returns (bool)",
   "function allowance(address owner, address spender) external view returns (uint256)",
   "function balanceOf(address owner) external view returns (uint256)",
   "function decimals() view returns (uint8)"
 ];
+
 const diceAbi = [
-  "function placeBet(uint256 minBet, bool isEven, uint256 amount) external",
+  "function selectTable(uint256 _minBet) external",
+  "function play(uint256 amount, bool guessEven) external",
   "function getBalance() external view returns (uint256)"
 ];
 
@@ -22,7 +25,8 @@ async function connectWallet() {
   await provider.send("eth_requestAccounts", []);
   signer = provider.getSigner();
   userAddress = await signer.getAddress();
-  document.getElementById("wallet-status").textContent = userAddress.slice(0, 6) + "..." + userAddress.slice(-4);
+  document.getElementById("wallet-status").textContent =
+    userAddress.slice(0, 6) + "..." + userAddress.slice(-4);
 }
 
 function showDice() {
@@ -42,44 +46,59 @@ async function setMinBet() {
     alert("Please enter a valid minimum bet.");
     return;
   }
-  alert(`Table set to minimum bet: ${min} FROLL`);
+
+  if (!signer || !userAddress) {
+    alert("Please connect your wallet first.");
+    return;
+  }
+
+  const froll = new ethers.Contract(frollAddress, frollAbi, signer);
+  const decimals = await froll.decimals();
+  const minInWei = ethers.utils.parseUnits(min.toString(), decimals);
+
+  const dice = new ethers.Contract(diceAddress, diceAbi, signer);
+  try {
+    const tx = await dice.selectTable(minInWei);
+    await tx.wait();
+    alert(`✅ Table set: Min Bet = ${min} FROLL`);
+  } catch (err) {
+    console.error(err);
+    alert("❌ Failed to set table.");
+  }
 }
 
 async function placeBet(type) {
   const min = parseFloat(document.getElementById("minBetInput").value);
   const amount = parseFloat(document.getElementById("betAmount").value);
   if (!signer || !userAddress) {
-    alert("Connect wallet first.");
+    alert("Please connect wallet first.");
     return;
   }
-  if (isNaN(min) || isNaN(amount) || amount < min || amount <= 0) {
-    alert("Invalid bet or minimum value.");
+  if (isNaN(min) || isNaN(amount) || amount <= 0 || amount < min) {
+    alert("Invalid amount or below min bet.");
     return;
   }
 
   const froll = new ethers.Contract(frollAddress, frollAbi, signer);
+  const dice = new ethers.Contract(diceAddress, diceAbi, signer);
   const decimals = await froll.decimals();
   const amountInWei = ethers.utils.parseUnits(amount.toString(), decimals);
 
+  // Approve FROLL if needed
   const allowance = await froll.allowance(userAddress, diceAddress);
   if (allowance.lt(amountInWei)) {
     const approveTx = await froll.approve(diceAddress, ethers.constants.MaxUint256);
     await approveTx.wait();
   }
 
-  const dice = new ethers.Contract(diceAddress, diceAbi, signer);
-  const isEven = type === "even";
   try {
-    const tx = await dice.placeBet(
-      ethers.utils.parseUnits(min.toString(), decimals),
-      isEven,
-      amountInWei
-    );
+    const isEven = type === "even";
+    const tx = await dice.play(amountInWei, isEven);
     await tx.wait();
-    document.getElementById("dice-result").textContent = "🎉 Bet placed successfully!";
-  } catch (e) {
-    console.error(e);
-    document.getElementById("dice-result").textContent = "❌ Bet failed.";
+    document.getElementById("dice-result").textContent = "🎉 Bet placed! Await result...";
+  } catch (err) {
+    console.error(err);
+    document.getElementById("dice-result").textContent = "❌ Failed to place bet.";
   }
 }
 
