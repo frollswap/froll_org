@@ -1,22 +1,20 @@
 let provider;
 let signer;
 let userAddress;
+let selectedSide;
+let currentBet = 0;
 
-const frollAddress = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
-const swapAddress = "0x9197BF0813e0727df4555E8cb43a0977F4a3A068";
-const diceAddress = "0x85A12591d3BA2A7148d18e9Ca44E0D778e458906";
+const frollAddress = "0xB4d562A8f811CE7F134a1982992Bd153902290BC"; // Địa chỉ hợp đồng FROLL
+const diceAddress = "0x85A12591d3BA2A7148d18e9Ca44E0D778e458906"; // Địa chỉ hợp đồng FrollDice
 
-const frollAbi = [ // Chỉ cần fragment
-  "function approve(address spender, uint amount) public returns (bool)",
-  "function allowance(address owner, address spender) public view returns (uint)",
+const frollAbi = [
+  "function transferFrom(address sender, address recipient, uint256 amount) external returns (bool)",
+  "function transfer(address recipient, uint256 amount) external returns (bool)",
   "function balanceOf(address account) external view returns (uint256)"
 ];
-const swapAbi = [
-  "function swapVicToFroll() external payable",
-  "function swapFrollToVic(uint amount) external",
-];
 const diceAbi = [
-  "function play(uint minBet, bool betOnEven) external",
+  "function selectTable(uint256 _minBet) external",
+  "function play(uint256 amount, bool guessEven) external",
   "function getBalance() external view returns (uint256)"
 ];
 
@@ -27,6 +25,7 @@ async function connectWallet() {
     signer = provider.getSigner();
     userAddress = await signer.getAddress();
     document.getElementById("walletAddress").innerText = userAddress.slice(0, 6) + "..." + userAddress.slice(-4);
+    updateFrollBalance();
     updateFrollPrice();
   } else {
     alert("Please install MetaMask or use Viction wallet");
@@ -35,16 +34,76 @@ async function connectWallet() {
 
 document.getElementById("connectBtn").onclick = connectWallet;
 
-function showSwap() {
-  hideAll();
-  document.getElementById("swap-interface").classList.remove("hidden");
+async function updateFrollBalance() {
+  const froll = new ethers.Contract(frollAddress, frollAbi, signer);
+  const balance = await froll.balanceOf(userAddress);
+  document.getElementById("frollBalance").innerText = `FROLL Balance: ${ethers.utils.formatUnits(balance, 18)}`;
 }
-function showDice() {
-  hideAll();
-  document.getElementById("dice-interface").classList.remove("hidden");
+
+function selectTable() {
+  const minBet = document.getElementById("minBet").value;
+  if (!minBet) return alert("Please enter a valid min bet amount.");
+
+  const diceContract = new ethers.Contract(diceAddress, diceAbi, signer);
+  diceContract.selectTable(ethers.utils.parseUnits(minBet, 18))
+    .then(tx => tx.wait())
+    .then(() => {
+      alert("Table selected successfully!");
+      document.getElementById("selectTable").style.display = "none";
+      document.getElementById("gameControls").classList.remove("hidden");
+    })
+    .catch(e => alert("Failed to select table."));
 }
+
+function chooseSide(side) {
+  selectedSide = side;
+  alert(`You selected ${side.toUpperCase()}`);
+}
+
+function placeBet() {
+  if (!selectedSide) return alert("Please select Even or Odd.");
+  const minBet = document.getElementById("minBet").value;
+  if (!minBet) return alert("Please enter a valid bet amount.");
+
+  const froll = new ethers.Contract(frollAddress, frollAbi, signer);
+  const dice = new ethers.Contract(diceAddress, diceAbi, signer);
+  const betAmount = ethers.utils.parseUnits(minBet, 18);
+
+  // Approve FROLL transfer
+  froll.approve(diceAddress, betAmount).then(tx => tx.wait())
+    .then(() => {
+      return dice.play(betAmount, selectedSide === "even");
+    })
+    .then(tx => tx.wait())
+    .then(() => {
+      alert("Bet placed successfully!");
+      document.getElementById("minBet").value = "";  // Clear bet input after placing
+    })
+    .catch(e => alert("Bet failed"));
+}
+
+function repeatBet() {
+  document.getElementById("minBet").value = currentBet;
+  placeBet();
+}
+
+function clearBet() {
+  document.getElementById("minBet").value = "";
+}
+
+function doubleBet() {
+  const currentAmount = document.getElementById("minBet").value;
+  if (currentAmount) {
+    document.getElementById("minBet").value = currentAmount * 2;
+  }
+}
+
+function changeTable() {
+  document.getElementById("gameControls").classList.add("hidden");
+  document.getElementById("selectTable").style.display = "block";
+}
+
 function hideAll() {
-  document.getElementById("swap-interface").classList.add("hidden");
   document.getElementById("dice-interface").classList.add("hidden");
 }
 
@@ -58,71 +117,4 @@ async function updateFrollPrice() {
   } catch (e) {
     document.getElementById("priceDisplay").innerText = "Unable to fetch price";
   }
-}
-
-async function swap() {
-  if (!signer) return alert("Connect wallet first");
-  const direction = document.getElementById("swapDirection").value;
-  const amount = document.getElementById("swapAmount").value;
-  const swapContract = new ethers.Contract(swapAddress, swapAbi, signer);
-
-  if (direction === "vicToFroll") {
-    const fee = ethers.utils.parseEther("0.01");
-    const vicAmount = ethers.utils.parseEther((amount * 100 + 0.01).toString());
-    try {
-      const tx = await swapContract.swapVicToFroll({ value: vicAmount });
-      await tx.wait();
-      alert("Swap successful!");
-    } catch (e) {
-      alert("Swap failed");
-    }
-  } else {
-    const token = new ethers.Contract(frollAddress, frollAbi, signer);
-    const decimals = 18;
-    const frollAmount = ethers.utils.parseUnits(amount.toString(), decimals);
-    const allowance = await token.allowance(userAddress, swapAddress);
-
-    if (allowance.lt(frollAmount)) {
-      const approveTx = await token.approve(swapAddress, frollAmount);
-      await approveTx.wait();
-    }
-
-    try {
-      const tx = await swapContract.swapFrollToVic(frollAmount);
-      await tx.wait();
-      alert("Swap successful!");
-    } catch (e) {
-      alert("Swap failed");
-    }
-  }
-}
-
-async function placeBet() {
-  if (!signer) return alert("Connect wallet first");
-  const minBet = document.getElementById("minBet").value;
-  const betSide = window.selectedSide;
-  if (!betSide || !minBet) return alert("Select side and enter minBet");
-
-  const froll = new ethers.Contract(frollAddress, frollAbi, signer);
-  const dice = new ethers.Contract(diceAddress, diceAbi, signer);
-  const decimals = 18;
-  const betAmount = ethers.utils.parseUnits(minBet.toString(), decimals);
-  const allowance = await froll.allowance(userAddress, diceAddress);
-  if (allowance.lt(betAmount)) {
-    const tx = await froll.approve(diceAddress, betAmount);
-    await tx.wait();
-  }
-
-  try {
-    const tx = await dice.play(minBet, betSide === "even");
-    await tx.wait();
-    alert("Bet placed!");
-  } catch (e) {
-    alert("Bet failed");
-  }
-}
-
-function chooseSide(side) {
-  window.selectedSide = side;
-  alert(`You selected ${side.toUpperCase()}`);
 }
