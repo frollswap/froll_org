@@ -1,150 +1,109 @@
+/* Toàn bộ giao diện */
 body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background-color: #111;
-  color: white;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    text-align: center;
 }
 
-.main-container {
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 20px;
-  text-align: center;
+/* Container chính */
+.container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-.logo-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 10px;
+/* Header */
+.header {
+    background-color: #28a745;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
 }
 
-.logo {
-  width: 40px;
-  height: 40px;
+.header h1 {
+    margin: 0;
+    font-size: 24px;
 }
 
-.price {
-  font-size: 18px;
-  font-weight: bold;
+/* Kết nối ví */
+#connectButton {
+    padding: 10px 20px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
 }
 
-.nav {
-  margin-bottom: 20px;
+#connectButton:hover {
+    background-color: #0056b3;
 }
 
-.nav button {
-  padding: 8px 16px;
-  background-color: #08f;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
+/* Wallet Info */
+#walletInfo {
+    margin-top: 10px;
 }
 
-#walletAddress {
-  display: block;
-  margin-top: 8px;
-  font-size: 14px;
-  color: #aaa;
+/* Form cược */
+.bet-form {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
 }
 
-.home-buttons button {
-  width: 200px;
-  padding: 12px;
-  margin: 10px;
-  background-color: #444;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-.home-buttons button:hover {
-  background-color: #666;
+.bet-form h2 {
+    font-size: 20px;
+    color: #333;
 }
 
-.hidden {
-  display: none;
+.bet-form input,
+.bet-form select,
+.bet-form button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
-.swap-box,
-.dice-box {
-  background-color: #222;
-  padding: 20px;
-  border-radius: 12px;
-  margin-top: 20px;
+.bet-form button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
 }
 
-.swap-box input,
-.dice-box input,
-.swap-box select {
-  width: 80%;
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
+.bet-form button:hover {
+    background-color: #0056b3;
 }
 
-.swap-box button,
-.dice-box button {
-  padding: 10px 20px;
-  background-color: #06c;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  margin: 10px 5px;
-  cursor: pointer;
+/* Kết quả cược */
+#resultContainer {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.dice-buttons button {
-  width: 100px;
+#resultContainer h2 {
+    font-size: 20px;
+    color: #333;
 }
 
-.back-btn {
-  margin-top: 20px;
+#betResult {
+    font-size: 18px;
+    color: #28a745;
 }
 
-.instructions {
-  margin-top: 40px;
-  text-align: left;
-  background-color: #1b1b1b;
-  padding: 20px;
-  border-radius: 12px;
-}
-
-.instructions h3 {
-  margin-top: 0;
-  color: #0cf;
-}
-
-.instructions ul {
-  padding-left: 20px;
-}
-
-.social {
-  margin-top: 30px;
-}
-
-.social a {
-  margin: 0 10px;
-  color: #0af;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.dice-video {
-  margin-top: 20px;
-}
-
-video {
-  width: 100%;
-  border-radius: 12px;
-  border: 2px solid #333;
+#winLossMessage {
+    font-size: 18px;
+    color: #d9534f;
 }
