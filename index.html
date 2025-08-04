@@ -1,46 +1,46 @@
-<!-- Dice Game Interface -->
-<div id="dice-interface" class="hidden">
-  <h2>Even / Odd Dice</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Froll Dice Game</title>
+    <link rel="icon" href="froll_48.png" type="image/png" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.0.0/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header and Wallet Connection -->
+        <div class="header">
+            <h1>Welcome to Froll Dice Game</h1>
+            <button id="connectButton" onclick="connectWallet()">Connect Wallet</button>
+            <div id="walletInfo" style="display: none;">
+                <p id="walletAddress"></p>
+                <p id="walletBalance"></p>
+            </div>
+        </div>
 
-  <!-- Wallet Info -->
-  <div class="wallet-info">
-    <span id="walletAddress"></span>
-    <span id="frollBalance">FROLL Balance: 0</span>
-  </div>
+        <!-- Bet Form -->
+        <div class="bet-form">
+            <h2>Place Your Bet</h2>
+            <label for="betAmount">Bet Amount (FROLL):</label>
+            <input type="number" id="betAmount" min="0.001" step="0.001" placeholder="Enter your bet amount">
+            <label for="betChoice">Choose Even or Odd:</label>
+            <select id="betChoice">
+                <option value="0">Even</option>
+                <option value="1">Odd</option>
+            </select>
+            <button id="betButton" onclick="placeBet()">Place Bet</button>
+        </div>
 
-  <!-- Choose Table -->
-  <div id="selectTable">
-    <h3>Select Table</h3>
-    <input type="number" id="minBet" placeholder="Enter min bet" />
-    <button onclick="selectTable()">Select Table</button>
-  </div>
-
-  <!-- Game Controls -->
-  <div id="gameControls" class="hidden">
-    <h3>Place Bet</h3>
-    <div class="bet-options">
-      <button onclick="chooseSide('even')">Even</button>
-      <button onclick="chooseSide('odd')">Odd</button>
+        <!-- Result -->
+        <div id="resultContainer" style="display: none;">
+            <h2>Bet Result</h2>
+            <p id="betResult"></p>
+            <p id="winLossMessage"></p>
+        </div>
     </div>
-    <button onclick="placeBet()">Place Bet</button>
 
-    <div class="action-buttons">
-      <button onclick="repeatBet()">Repeat Bet</button>
-      <button onclick="clearBet()">Clear Bet</button>
-      <button onclick="doubleBet()">Double Bet</button>
-      <button onclick="changeTable()">Change Table</button>
-    </div>
-  </div>
-
-  <!-- Dice Animation -->
-  <div class="dice-video">
-    <video id="diceVideo" autoplay muted loop>
-      <source src="dice-loop.mp4" type="video/mp4" />
-    </video>
-  </div>
-
-  <!-- Back Button -->
-  <div class="back-btn">
-    <button onclick="hideAll()">Back</button>
-  </div>
-</div>
+    <script src="app.js"></script>
+</body>
+</html>
