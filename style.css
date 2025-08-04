@@ -1,9 +1,15 @@
 /* General Styles */
 body {
   font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+  background-color: rgba(255, 255, 255, 0.9); /* Nền trắng trong suốt */
   margin: 0;
   padding: 0;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  flex-direction: column;
 }
 
 .main-container {
@@ -11,6 +17,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
   padding: 20px;
 }
 
@@ -20,100 +27,139 @@ body {
 }
 
 .logo {
-  width: 48px;
-  height: 48px;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 20px;
+}
+
+.price-container {
+  margin-bottom: 20px;
+}
+
+.price-text {
+  font-size: 20px;
+  font-weight: bold;
 }
 
 h1 {
   color: #333;
-  font-size: 24px;
+  font-size: 28px;
   margin-top: 10px;
 }
 
 p {
   color: #666;
-}
-
-.wallet-info {
-  margin-bottom: 20px;
-}
-
-#connect-wallet-btn {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-#connect-wallet-btn:hover {
-  background-color: #0056b3;
-}
-
-.wallet-details {
-  margin-top: 10px;
-}
-
-.wallet-details p {
   font-size: 16px;
 }
 
-.function-buttons {
-  margin-top: 30px;
-  display: flex;
-  justify-content: center;
+.token-info, .guide {
+  margin-top: 20px;
+  width: 80%;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.8); /* Background white with slight transparency */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-button {
+.token-info h1, .guide h2 {
+  color: #333;
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+
+.token-info p, .guide p, .guide ul, .guide ol {
+  color: #555;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.copy {
+  color: #007bff;
+  cursor: pointer;
+}
+
+.copy:hover {
+  text-decoration: underline;
+}
+
+.button {
   background-color: #28a745;
   color: white;
   padding: 15px 30px;
   border: none;
   border-radius: 5px;
-  margin: 5px;
-  cursor: pointer;
+  margin: 10px;
   font-size: 16px;
+  cursor: pointer;
 }
 
-button:hover {
+.button:hover {
   background-color: #218838;
 }
 
-#table-selection {
+.game-banner {
+  margin-top: 40px;
   text-align: center;
-  width: 100%;
-  margin-top: 20px;
 }
 
-#table-selection p {
-  font-size: 18px;
+.game-image {
+  width: 70%;
+  max-width: 400px;
+  height: auto;
+  margin-bottom: 20px;
+  border-radius: 8px;
 }
 
-#bet-amount {
-  padding: 10px;
-  margin: 10px;
+footer {
+  text-align: center;
+  margin-top: 40px;
+}
+
+footer p {
   font-size: 16px;
-  width: 200px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
 }
 
-#select-table-btn {
-  padding: 10px 20px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  background-color: #007bff;
-  color: white;
+footer a {
+  text-decoration: none;
+  color: #007bff;
+  margin: 0 10px;
 }
 
-#select-table-btn:hover {
-  background-color: #0056b3;
+footer a:hover {
+  text-decoration: underline;
 }
 
-#min-bet, #max-bet {
-  font-weight: bold;
-  color: #28a745;
+/* Hidden interfaces (shown when user clicks buttons) */
+#swap-interface, #dice-interface {
+  display: none;
+}
+
+footer .footer {
+  margin-top: 50px;
+}
+
+/* Adjustments for mobile */
+@media (max-width: 768px) {
+  .main-container {
+    padding: 10px;
+  }
+
+  .logo {
+    width: 80px;
+    height: 80px;
+  }
+
+  .game-image {
+    width: 90%;
+  }
+
+  .token-info, .guide {
+    width: 90%;
+  }
+
+  .button {
+    width: 100%;
+    padding: 12px;
+  }
 }
