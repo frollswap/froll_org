@@ -97,24 +97,24 @@
             const data = await response.json();
 
             if (!data || !data.price) {
-                throw new Error("Không lấy được giá VIC từ Binance API");
+                throw new Error("Unable to retrieve VIC price from Binance API");
             }
 
-            const vicPrice = parseFloat(data.price); // Giá VIC theo USD
+            const vicPrice = parseFloat(data.price); // VIC price in USD
             const frollPrice = vicPrice * 100; // 1 FROLL = 100 VIC
 
-            // Hiển thị giá trên thanh điều hướng
+            // Update price in the navigation bar
             document.getElementById("froll-price").textContent = `1 FROLL = ${frollPrice.toFixed(2)} USD`;
         } catch (error) {
-            console.error("❌ Lỗi khi cập nhật giá FROLL:", error);
+            console.error("❌ Error updating FROLL price:", error);
             document.getElementById("froll-price").textContent = "Price unavailable";
         }
     }
 
-    // 🚀 Gọi ngay khi trang tải
+    // 🚀 Call immediately when page loads
     document.addEventListener("DOMContentLoaded", updateFrollPrice);
 
-    // 🔄 Cập nhật mỗi 60 giây
+    // 🔄 Update every 60 seconds
     setInterval(updateFrollPrice, 60000);
 </script>
 
