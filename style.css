@@ -1,161 +1,101 @@
 body {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #111;
-  color: #fff;
+  font-family: Arial, sans-serif;
+  background-color: #0e0e0e;
+  color: white;
 }
 
-.container {
-  max-width: 600px;
-  margin: 0 auto;
+.main-container {
+  max-width: 480px;
+  margin: auto;
   padding: 20px;
   text-align: center;
 }
 
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .logo {
   width: 64px;
-  margin: 20px auto;
+  height: 64px;
 }
 
-.price {
-  font-size: 18px;
-  margin-bottom: 20px;
-  color: #0f0;
+.button-group {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.main-button {
+button {
+  padding: 12px;
+  font-size: 16px;
   background-color: #ff4757;
-  color: #fff;
+  color: white;
   border: none;
-  padding: 14px 24px;
-  font-size: 18px;
   border-radius: 10px;
   cursor: pointer;
-  margin: 10px auto;
-  display: block;
-  transition: background 0.3s;
-}
-.main-button:hover {
-  background-color: #e84118;
 }
 
-.card {
-  background-color: #222;
-  padding: 20px;
-  margin: 20px 0;
-  border-radius: 14px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+button:hover {
+  background-color: #ff6b81;
 }
 
-.card h3 {
-  margin-top: 0;
-  color: #f1c40f;
+.hidden {
+  display: none;
 }
 
-.info-list {
-  list-style: none;
-  padding: 0;
-  margin: 10px 0;
-}
-.info-list li {
-  margin: 6px 0;
+.section {
+  margin-top: 20px;
 }
 
-.copy-box {
-  background: #333;
-  padding: 3px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  display: inline-block;
-  color: #0ff;
-}
-.copy-box:hover {
-  background: #444;
+input[type="number"] {
+  padding: 10px;
+  width: 80%;
+  font-size: 16px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
 }
 
-.dice-banner {
-  width: 100%;
-  border-radius: 12px;
-  margin-top: 12px;
+.bet-buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.wallet-info {
+  background-color: #1e1e1e;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 15px;
+  font-size: 14px;
 }
 
 footer {
-  margin-top: 30px;
+  margin-top: 50px;
   font-size: 14px;
   color: #aaa;
 }
-footer .socials a {
-  margin: 0 8px;
-  color: #1e90ff;
+
+.socials {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.socials a {
+  color: #ffcb00;
   text-decoration: none;
 }
-footer .socials a:hover {
-  text-decoration: underline;
-}
 
-/* Dice Game Section */
-.section {
-  display: none;
-}
-.section.active {
-  display: block;
-}
-
-.dice-video {
-  width: 100%;
-  max-width: 480px;
-  border-radius: 12px;
-  margin: 20px auto;
-  display: block;
-}
-
-.dice-controls {
-  margin-top: 20px;
-}
-
-.input-group {
-  margin: 12px 0;
-}
-.input-group label {
-  display: block;
-  margin-bottom: 6px;
+#game-result {
+  margin-top: 15px;
+  font-size: 16px;
   font-weight: bold;
-}
-.input-group input {
-  width: 80%;
-  padding: 10px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  background: #333;
-  color: #fff;
-}
-
-.bet-buttons button {
-  margin: 10px 8px;
-  padding: 12px 20px;
-  font-size: 16px;
-  background-color: #3498db;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-}
-.bet-buttons button:hover {
-  background-color: #2980b9;
-}
-
-.result-area {
-  margin-top: 20px;
-  font-size: 18px;
-  color: #0f0;
-  min-height: 24px;
-}
-
-.back-home button {
-  margin-top: 24px;
-  background-color: #888;
-  color: #fff;
-}
-.back-home button:hover {
-  background-color: #aaa;
 }
