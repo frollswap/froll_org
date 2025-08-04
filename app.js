@@ -1,101 +1,78 @@
-const frollTokenAddress = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
-const diceContractAddress = "0x85A12591d3BA2A7148d18e9Ca44E0D778e458906";
+let provider, signer, walletAddress;
+let frollTokenContract;
 
-let provider, signer, frollToken, diceContract, userAddress;
-
-const frollAbi = [
-  "function balanceOf(address) view returns (uint256)",
-  "function transferFrom(address sender, address recipient, uint256 amount) returns (bool)",
-  "function decimals() view returns (uint8)"
-];
-
-const diceAbi = [
-  "function selectTable(uint256 _minBet) external",
-  "function play(uint256 amount, bool guessEven) external",
-  "function playerTable(address) view returns (uint256 minBet, uint256 maxBet)",
-  "function froll() view returns (address)"
-];
-
+// Kết nối ví
 async function connectWallet() {
-  if (window.ethereum) {
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    signer = provider.getSigner();
-    userAddress = await signer.getAddress();
-    document.getElementById("wallet-address").innerText = userAddress;
+    if (!window.ethereum) {
+        alert("❌ Please install MetaMask or use a Web3 browser!");
+        return;
+    }
 
-    frollToken = new ethers.Contract(frollTokenAddress, frollAbi, signer);
-    diceContract = new ethers.Contract(diceContractAddress, diceAbi, signer);
+    try {
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = provider.getSigner();
+        walletAddress = await signer.getAddress();
+        console.log("🔗 Connected wallet:", walletAddress);
+        
+        // Cập nhật địa chỉ ví và số dư
+        document.getElementById("wallet-address").textContent = walletAddress;
+        
+        // Hiển thị số dư FROLL
+        frollTokenContract = new ethers.Contract("0xB4d562A8f811CE7F134a1982992Bd153902290BC", ["function balanceOf(address) view returns (uint256)"], provider);
+        const frollBalance = await frollTokenContract.balanceOf(walletAddress);
+        document.getElementById("froll-balance").textContent = `FROLL Balance: ${ethers.utils.formatUnits(frollBalance, 18)}`;
+        
+        // Hiển thị số dư VIC
+        const vicBalance = await provider.getBalance(walletAddress);
+        document.getElementById("vic-balance").textContent = `VIC Balance: ${ethers.utils.formatEther(vicBalance)}`;
 
-    updateBalances();
-    showDice();
-  } else {
-    alert("Please install MetaMask or use a Web3-compatible wallet.");
-  }
+        // Hiển thị giao diện xóc đĩa
+        document.getElementById("home-page").style.display = "none";
+        document.getElementById("dice-interface").style.display = "block";
+    } catch (error) {
+        console.error("❌ Error connecting wallet:", error);
+        alert("❌ Could not connect wallet!");
+    }
 }
 
-async function updateBalances() {
-  if (!signer) return;
-
-  const froll = await frollToken.balanceOf(userAddress);
-  const vic = await provider.getBalance(userAddress);
-
-  const frollFormatted = ethers.utils.formatUnits(froll, 18);
-  const vicFormatted = ethers.utils.formatEther(vic);
-
-  document.getElementById("wallet-balances").innerText = `FROLL: ${frollFormatted} | VIC: ${vicFormatted}`;
+// Chức năng chọn bàn chơi
+function setMinBet() {
+    const minBet = parseFloat(document.getElementById("minBetInput").value);
+    if (isNaN(minBet) || minBet <= 0) {
+        alert("❌ Invalid minimum bet!");
+        return;
+    }
+    alert(`✅ Minimum bet set to ${minBet} FROLL`);
 }
 
-function showDice() {
-  document.getElementById("home").classList.add("hidden");
-  document.getElementById("dice-interface").classList.remove("hidden");
+// Chức năng đặt cược
+function placeBet(guess) {
+    const minBet = parseFloat(document.getElementById("minBetInput").value);
+    const betAmount = parseFloat(document.getElementById("betAmount").value);
+    if (isNaN(betAmount) || betAmount < minBet) {
+        alert(`❌ Bet must be greater than or equal to ${minBet} FROLL`);
+        return;
+    }
+    
+    const diceResult = Math.random() < 0.5 ? "even" : "odd";
+    const win = guess === diceResult;
+    
+    document.getElementById("dice-result").textContent = `Result: ${diceResult} - You ${win ? 'Win' : 'Lose'}!`;
+    
+    if (win) {
+        alert(`✅ You won!`);
+    } else {
+        alert(`❌ You lost!`);
+    }
 }
 
-function showHome() {
-  document.getElementById("home").classList.remove("hidden");
-  document.getElementById("dice-interface").classList.add("hidden");
+// Chức năng quay lại màn hình chính
+function disconnectWallet() {
+    document.getElementById("home-page").style.display = "block";
+    document.getElementById("dice-interface").style.display = "none";
+    document.getElementById("wallet-address").textContent = "Not Connected";
+    document.getElementById("froll-balance").textContent = "FROLL Balance: 0";
+    document.getElementById("vic-balance").textContent = "VIC Balance: 0";
 }
 
-async function setMinBet() {
-  const minBetInput = document.getElementById("minBetInput").value;
-  if (!minBetInput) return alert("Enter min bet");
-
-  const minBetWei = ethers.utils.parseUnits(minBetInput, 18);
-  try {
-    const tx = await diceContract.selectTable(minBetWei);
-    await tx.wait();
-    alert("Table set!");
-  } catch (err) {
-    console.error(err);
-    alert("Error setting table");
-  }
-}
-
-async function placeBet(type) {
-  const betAmountInput = document.getElementById("betAmount").value;
-  if (!betAmountInput) return alert("Enter bet amount");
-
-  const betWei = ethers.utils.parseUnits(betAmountInput, 18);
-  const guessEven = type === "even";
-
-  try {
-    const approveTx = await frollToken.transferFrom(userAddress, diceContractAddress, betWei);
-    await approveTx.wait();
-
-    const playTx = await diceContract.play(betWei, guessEven);
-    const receipt = await playTx.wait();
-
-    const log = receipt.events.find(e => e.event === "Played");
-    const win = log.args.win;
-    const resultEven = log.args.resultEven;
-
-    let msg = `🎲 Result: ${resultEven ? "Even" : "Odd"}\n`;
-    msg += win ? "✅ You Win!" : "❌ You Lose!";
-    document.getElementById("dice-result").innerText = msg;
-
-    updateBalances();
-  } catch (err) {
-    console.error(err);
-    alert("Bet failed");
-  }
-}
