@@ -1,6 +1,6 @@
 /* ==========================
-   🔹 CẤU HÌNH CHUNG CHO TRANG
-   ========================== */
+   🔹 GENERAL STYLES
+========================== */
 
 /* Reset mặc định cho trình duyệt */
 * {
@@ -24,28 +24,6 @@ h1 {
     margin: 20px 0;
     color: #007bff; /* Màu xanh đậm tạo điểm nhấn */
 }
-
-/* Tiêu đề phụ */
-h2 {
-    font-size: 22px;
-    font-weight: bold;
-    margin: 15px 0;
-    color: #222; /* Màu đen đậm để chuyên nghiệp hơn */
-}
-
-/* Liên kết (mặc định) */
-a {
-    color: #007bff; /* Màu xanh sáng */
-    text-decoration: none;
-    font-weight: bold;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-/* ==========================
-   🔹 LOGO & GIÁ FROLL
-   ========================== */
 
 /* Thanh điều hướng */
 nav {
@@ -75,9 +53,185 @@ nav {
     border-radius: 5px;
     background: rgba(255, 255, 255, 0.8); /* Nền trắng mờ để dễ nhìn hơn */
 }
-/* ==============================
-   🔹 CHÂN TRANG (FOOTER NAVIGATION)
-   ============================== */
+
+/* ==========================
+   🔹 SWAP INTERFACE STYLES
+========================== */
+
+/* Toàn bộ giao diện Swap */
+#swap-interface {
+    text-align: center;
+    padding: 20px;
+    background: transparent; /* Nền trong suốt */
+}
+
+/* Header Swap (Nút Disconnect & Địa chỉ ví) */
+.swap-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* Nút Disconnect Wallet */
+#disconnect-wallet {
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    background-color: #ff4d4d; /* Màu đỏ nổi bật */
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+    width: 220px;
+    text-align: center;
+}
+#disconnect-wallet:hover {
+    background-color: #e60000;
+}
+
+/* Địa chỉ ví người dùng */
+#wallet-address {
+    font-size: 18px;
+    font-weight: bold;
+    color: #007bff; /* Màu xanh dương */
+    margin-top: 8px;
+}
+
+/* Tiêu đề "Swap" */
+#swap-interface h1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 20px 0;
+    color: #333; /* Màu chữ đậm */
+}
+
+/* ==========================
+   🔹 SWAP WRAPPER STYLES
+========================== */
+
+/* Gom nhóm hai khoang token và nút mũi tên */
+.swap-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 600px;
+    gap: 20px; /* Khoảng cách giữa các thành phần */
+    position: relative;
+    margin: 20px auto;
+}
+
+/* HAI KHOANG TOKEN (FROLL / VIC) */
+.token-input {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    min-width: 45%;
+}
+
+/* Mã ký hiệu token (VIC / FROLL) */
+.token-symbol {
+    font-size: 18px;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 5px;
+}
+
+/* Bố cục bên trong mỗi khoang */
+.token-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Logo token */
+.token-info img {
+    width: 40px;
+    height: 40px;
+}
+
+/* Nút MAX */
+#max-button {
+    font-size: 14px;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+#max-button:hover {
+    background-color: #0056b3;
+}
+
+/* Ô nhập số lượng token */
+.token-input input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 18px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+/* Nút mũi tên swap */
+#swap-direction {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 50%;
+    border: none;
+    background-color: #4CAF50; /* Xanh lá */
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+#swap-direction:hover {
+    background-color: #3e8e41;
+}
+
+/* ==========================
+   🔹 SWAP BUTTON STYLES
+========================== */
+
+.swap-details {
+    margin: 20px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+#swap-now {
+    font-size: 18px;
+    font-weight: bold;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    background-color: #ff9800; /* Màu cam nổi bật */
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+    display: block;
+    margin: 30px auto;
+}
+#swap-now:hover {
+    background-color: #e68a00;
+}
+
+/* ==========================
+   🔹 FOOTER STYLES
+========================== */
 
 footer {
     background: #008CBA; /* Màu xanh tươi sáng */
@@ -129,8 +283,19 @@ footer {
     margin-top: 5px;
 }
 
-/* Responsive: Chỉnh cho điện thoại */
+/* ==========================
+   🔹 RESPONSIVE MOBILE STYLES
+========================== */
+
 @media (max-width: 768px) {
+    #swap-direction {
+        font-size: 20px;
+    }
+
+    .swap-wrapper {
+        flex-direction: column;
+    }
+
     .social-links {
         flex-direction: column;
         gap: 10px;
@@ -144,373 +309,4 @@ footer {
     .footer-rights {
         font-size: 12px;
     }
-}
-
-/* ==============================
-   🔹 NÚT NGẮT KẾT NỐI
-   ============================== */
-.disconnect-btn {
-    background: #d32f2f;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.3s;
-    margin-bottom: 10px;
-}
-
-.disconnect-btn:hover {
-    opacity: 0.8;
-}
-
-/* ==============================
-   🔹 HIỂN THỊ ĐỊA CHỈ VÍ & SỐ DƯ
-   ============================== */
-.wallet-info {
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    display: inline-block;
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 16px;
-}
-
-.wallet-info span {
-    font-weight: bold;
-    color: #d32f2f;
-}
-
-/* ==========================
-   🔥 TRADE FROLL BUTTON
-   ========================== */
-#trade-froll-section {
-    text-align: center;
-    margin: 0; /* Xóa khoảng cách */
-    padding: 5px 0; /* Giữ khoảng cách nhỏ để dễ đọc */
-}
-
-/* Nút Trade FROLL */
-#trade-froll-btn {
-    font-size: 24px; /* Chữ lớn hơn giá FROLL */
-    font-weight: bold;
-    color: #FF9800; /* Màu cam */
-    background: transparent; /* Nền trong suốt */
-    border: none;
-    cursor: pointer;
-    display: inline-block;
-    transition: color 0.3s ease-in-out, transform 0.2s ease-in-out;
-    font-family: 'Arial', sans-serif;
-}
-
-/* Hiệu ứng khi rê chuột */
-#trade-froll-btn:hover {
-    color: #E65100; /* Màu cam đậm hơn */
-    transform: scale(1.05); /* Phóng to nhẹ */
-}
-
-/* Hiệu ứng khi bấm */
-#trade-froll-btn:active {
-    transform: scale(0.95); /* Thu nhỏ nhẹ */
-}
-
-/* ==========================
-   📱 RESPONSIVE CHO MOBILE
-   ========================== */
-@media (max-width: 768px) {
-    #trade-froll-btn {
-        font-size: 22px; /* Chữ nhỏ hơn một chút trên mobile */
-    }
-}
-
-/* ==============================
-   🔹 SWAP INTERFACE (Ẩn/Mở giao diện Swap)
-   ============================== */
-/* Ẩn giao diện Swap mặc định */
-#swap-interface {
-    display: none;
-}
-
-/* Khi kết nối ví, hiển thị giao diện Swap */
-#swap-interface.active {
-    display: block;
-}
-
-/* Ẩn trang chủ khi bấm nút "Trade FROLL" */
-.hidden {
-    display: none !important;
-}
-
-
-/* ============================== */
-/* 🔹 GIAO DIỆN SWAP - CĂN CHỈNH CHUẨN */
-/* ============================== */
-
-/* 🔲 Toàn bộ giao diện Swap */
-#swap-interface {
-    text-align: center;
-    padding: 20px;
-    background: transparent; /* Nền trong suốt */
-}
-
-/* 🔹 Header Swap (Nút Disconnect & Địa chỉ ví) */
-.swap-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-/* 🔘 Nút "Disconnect Wallet" */
-#disconnect-wallet {
-    font-size: 16px;
-    font-weight: bold;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    background-color: #ff4d4d; /* Màu đỏ nổi bật */
-    color: white;
-    cursor: pointer;
-    transition: 0.3s;
-    width: 220px;
-    text-align: center;
-}
-#disconnect-wallet:hover {
-    background-color: #e60000;
-}
-
-/* 🔹 Địa chỉ ví người dùng */
-#wallet-address {
-    font-size: 18px;
-    font-weight: bold;
-    color: #007bff; /* Màu xanh dương */
-    margin-top: 8px;
-}
-
-/* 🔹 Tiêu đề "Swap" */
-#swap-interface h1 {
-    font-size: 24px;
-    font-weight: bold;
-    margin: 20px 0;
-    color: #333; /* Màu chữ đậm */
-}
-
-/* ============================== */
-/* 🔹 KHU VỰC SWAP (TOKEN + MŨI TÊN) */
-/* ============================== */
-
-/* 🔲 Gom nhóm hai khoang token và nút mũi tên */
-.swap-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    max-width: 600px;
-    gap: 20px; /* Khoảng cách giữa các thành phần */
-    position: relative;
-    margin: 20px auto;
-}
-
-/* 🔄 TRÊN MÁY TÍNH: XẾP NGANG */
-@media (min-width: 769px) {
-    .swap-wrapper {
-        flex-direction: row;
-    }
-    #swap-direction {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-    }
-}
-
-/* 📱 TRÊN ĐIỆN THOẠI: XẾP DỌC */
-@media (max-width: 768px) {
-    .swap-wrapper {
-        flex-direction: column;
-    }
-    #swap-direction {
-        position: relative;
-        margin: 10px 0; /* Khoảng cách giữa 2 khoang */
-    }
-}
-
-/* 🔲 HAI KHOANG TOKEN (FROLL / VIC) */
-.token-input {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    min-width: 45%;
-}
-
-/* 🔘 Mã ký hiệu token (VIC / FROLL) */
-.token-symbol {
-    font-size: 18px;
-    font-weight: bold;
-    color: #222;
-    margin-bottom: 5px;
-}
-
-/* 🔹 Bố cục bên trong mỗi khoang */
-.token-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* 🔘 Logo token */
-.token-info img {
-    width: 40px;
-    height: 40px;
-}
-
-/* 🔘 Số dư token */
-.token-info p {
-    font-size: 16px;
-    font-weight: bold;
-    color: #555;
-}
-
-/* 🔘 Nút MAX */
-#max-button {
-    font-size: 14px;
-    padding: 6px 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    transition: 0.3s;
-}
-#max-button:hover {
-    background-color: #0056b3;
-}
-
-/* 🔲 Ô nhập số lượng token */
-.token-input input {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    font-size: 18px;
-    text-align: center;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-}
-
-/* 🔄 NÚT MŨI TÊN SWAP */
-#swap-direction {
-    width: 50px;
-    height: 50px;
-    font-size: 24px;
-    font-weight: bold;
-    border-radius: 50%;
-    border: none;
-    background-color: #4CAF50; /* Xanh lá */
-    color: white;
-    cursor: pointer;
-    transition: 0.3s;
-}
-#swap-direction:hover {
-    background-color: #3e8e41;
-}
-
-/* ============================== */
-/* 🔹 CHI TIẾT GIAO DỊCH */
-/* ============================== */
-
-/* 🔽 Swap Details */
-.swap-details {
-    margin: 20px 0;
-    font-size: 14px;
-    color: #666;
-}
-
-/* 🔘 Nút "Swap Now" */
-#swap-now {
-    font-size: 18px;
-    font-weight: bold;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    background-color: #ff9800; /* Màu cam nổi bật */
-    color: white;
-    cursor: pointer;
-    transition: 0.3s;
-    display: block;
-    margin: 30px auto;
-}
-#swap-now:hover {
-    background-color: #e68a00;
-}
-
-/* 📱 Điều chỉnh kích thước địa chỉ ví trên điện thoại */
-@media (max-width: 768px) {
-    #wallet-address {
-        font-size: 14px; /* Chữ nhỏ hơn trên điện thoại */
-        word-break: break-all; /* Nếu dài quá thì tự xuống dòng */
-    }
-}
-
-/* Chỉnh màu chữ Swap */
-h1 {
-    color: #007bff; /* Màu xanh */
-    font-weight: bold; /* Chữ đậm */
-}
-
-/* Hiệu ứng nút mũi tên đảo chiều */
-#swap-direction {
-    font-size: 24px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.3s ease-in-out;
-}
-
-#swap-direction:hover {
-    transform: rotate(180deg);
-}
-
-/* Điều chỉnh layout theo thiết bị */
-@media (max-width: 768px) {
-    .swap-wrapper {
-        display: flex;
-        flex-direction: column; /* Điện thoại: dọc */
-        align-items: center;
-    }
-
-    #swap-direction {
-        transform: rotate(90deg); /* Mũi tên theo chiều dọc */
-    }
-}
-
-@media (min-width: 769px) {
-    .swap-wrapper {
-        display: flex;
-        flex-direction: row; /* Máy tính: ngang */
-        justify-content: center;
-        align-items: center;
-    }
-
-    #swap-direction {
-        transform: rotate(0deg); /* Mặc định chiều ngang */
-    }
-}
-
-/* Cải thiện độ nét logo token */
-.token-info img {
-    width: 40px; /* Kích thước cố định */
-    height: 40px;
-    border-radius: 50%; /* Làm tròn hình ảnh */
-    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.2); /* Đổ bóng giúp nổi bật */
-    object-fit: contain; /* Hiển thị ảnh rõ nét */
 }
