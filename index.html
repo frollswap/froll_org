@@ -2,87 +2,82 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FROLL.org – Play & Swap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FROLL.org – Dice Game</title>
   <link rel="icon" href="froll_48.png" type="image/png" />
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 </head>
 <body>
   <div class="main-container">
 
-    <!-- Logo + Price -->
+    <!-- Logo & Price -->
     <div class="logo-container">
       <img src="froll_48.png" alt="FROLL Logo" class="logo" />
-      <h2 id="froll-price">1 FROLL = Loading...</h2>
+      <h1>FROLL.org</h1>
+      <div id="froll-price" class="froll-price">Loading price...</div>
     </div>
 
-    <!-- Buttons -->
-    <div class="button-group">
-      <button onclick="window.location.href='https://lottery.vin'">Swap FROLL/VIC</button>
-      <button onclick="showDice()">Play Dice Now</button>
+    <!-- Wallet Info -->
+    <div class="wallet-section">
+      <button id="connect-button" onclick="connectWallet()">🔌 Connect Wallet</button>
+      <div id="wallet-address" class="wallet-address"></div>
+      <div id="wallet-balances" class="wallet-balances"></div>
     </div>
 
-    <!-- Dice Interface -->
-    <div id="dice-interface" class="hidden">
+    <!-- Main Buttons -->
+    <div class="main-buttons">
+      <a href="https://lottery.vin" target="_blank"><button class="main-button">Swap FROLL/VIC</button></a>
+      <button onclick="showDiceGame()" class="main-button">Play Dice Now</button>
+    </div>
+
+    <!-- Add Network -->
+    <div class="network-guide">
+      <h2>📲 Add VIC Network & FROLL Token</h2>
+      <p>Before playing, please add VIC chain and FROLL token to your MetaMask:</p>
+      <button onclick="addVICNetwork()">Add VIC Network</button>
+      <button onclick="addFROLLToken()">Add FROLL Token</button>
+    </div>
+
+    <!-- Dice Game Interface -->
+    <div id="dice-interface" class="section hidden">
       <h2>🎲 Dice Game – Even or Odd</h2>
+      <img src="dice_game_banner.png" alt="Dice Game" class="dice-banner" />
 
-      <!-- Connect Wallet -->
-      <div class="wallet-info">
-        <p><strong>Address:</strong> <span id="wallet-address">Not connected</span></p>
-        <p><strong>FROLL Balance:</strong> <span id="froll-balance">0</span></p>
-        <p><strong>VIC Balance:</strong> <span id="vic-balance">0</span></p>
-        <button onclick="connectWallet()">Connect Wallet</button>
-      </div>
-
-      <!-- Table Select -->
-      <div class="section">
-        <label>Table Min Bet (FROLL):</label>
-        <input type="number" id="minBetInput" placeholder="e.g., 1" />
-        <button onclick="selectTable()">Select Table</button>
-      </div>
-
-      <!-- Game Play -->
-      <div class="section">
-        <label>Bet Amount (FROLL):</label>
-        <input type="number" id="betAmount" placeholder="e.g., 2" />
-        <div class="bet-buttons">
-          <button onclick="playDice(true)">Bet Even</button>
-          <button onclick="playDice(false)">Bet Odd</button>
+      <div class="dice-controls">
+        <div class="input-group">
+          <label>Table Min Bet (FROLL):</label>
+          <input type="number" id="minBetInput" placeholder="e.g., 1" />
+          <button onclick="setMinBet()">Set Table</button>
         </div>
-        <div id="game-result"></div>
-      </div>
 
-      <!-- Back Button -->
-      <div class="section">
-        <button onclick="showHome()">← Back to Home</button>
+        <div class="input-group">
+          <label>Bet Amount (FROLL):</label>
+          <input type="number" id="betAmount" placeholder="Enter amount" />
+        </div>
+
+        <div class="bet-buttons">
+          <button onclick="placeBet('even')">Bet on Even</button>
+          <button onclick="placeBet('odd')">Bet on Odd</button>
+        </div>
+
+        <div id="dice-result" class="result-area"></div>
+
+        <div class="back-home">
+          <button onclick="showHome()">← Back to Home</button>
+        </div>
       </div>
     </div>
 
     <!-- Footer -->
-    <footer>
-      <p>🌐 Join the Community</p>
-      <div class="socials">
-        <a href="https://t.me/FortuneRolls" target="_blank">Telegram</a>
-        <a href="#" target="_blank">Twitter</a>
-        <a href="#" target="_blank">Facebook</a>
-      </div>
-    </footer>
+    <div class="footer">
+      <p>🌐 Join us: 
+        <a href="https://t.me/FortuneRolls" target="_blank">Telegram</a> | 
+        <a href="https://twitter.com/FrollOfficial" target="_blank">Twitter</a> | 
+        <a href="https://facebook.com/FrollGame" target="_blank">Facebook</a>
+      </p>
+    </div>
   </div>
-
-  <script>
-    async function updatePrice() {
-      try {
-        const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT");
-        const data = await res.json();
-        const vicPrice = parseFloat(data.price);
-        const frollPrice = vicPrice * 100;
-        document.getElementById("froll-price").textContent = `1 FROLL = $${frollPrice.toFixed(2)} USD`;
-      } catch (err) {
-        document.getElementById("froll-price").textContent = "1 FROLL = ...";
-      }
-    }
-    updatePrice();
-  </script>
 
   <script src="app.js"></script>
 </body>
