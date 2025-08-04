@@ -10,17 +10,16 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header and Wallet Connection -->
         <div class="header">
             <h1>Welcome to Froll Dice Game</h1>
             <button id="connectButton" onclick="connectWallet()">Connect Wallet</button>
             <div id="walletInfo" style="display: none;">
                 <p id="walletAddress"></p>
-                <p id="walletBalance"></p>
+                <p id="walletBalanceFROLL"></p>
+                <p id="walletBalanceVIC"></p>
             </div>
         </div>
 
-        <!-- Bet Form -->
         <div class="bet-form">
             <h2>Place Your Bet</h2>
             <label for="betAmount">Bet Amount (FROLL):</label>
@@ -33,7 +32,6 @@
             <button id="betButton" onclick="placeBet()">Place Bet</button>
         </div>
 
-        <!-- Result -->
         <div id="resultContainer" style="display: none;">
             <h2>Bet Result</h2>
             <p id="betResult"></p>
