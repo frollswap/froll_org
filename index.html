@@ -1,120 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FROLL.org – Swap & Dice</title>
-
-    <!-- Logo cho trình duyệt -->
-    <link rel="icon" href="froll_48.png" type="image/png">
-
-    <!-- Kết nối CSS -->
-    <link rel="stylesheet" href="style.css">
-
-    <script>
-        // Cập nhật giá FROLL theo VIC từ Binance API
-        async function updateFrollPrice() {
-            const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT");
-            const data = await res.json();
-            const vicPrice = parseFloat(data.price);
-            const frollPrice = vicPrice * 100;
-            document.getElementById("froll-price").textContent = `1 FROLL ≈ $${frollPrice.toFixed(2)} USD`;
-        }
-        updateFrollPrice();
-    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FROLL.org – Play & Swap</title>
+  <link rel="icon" href="froll_48.png" type="image/png" />
+  <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="Play Even/Odd dice game or swap VIC ↔ FROLL on-chain. 100% decentralized. No VC. No tricks. Just fun and fairness.">
 </head>
 <body>
-    <div class="container">
-        <!-- Logo -->
-        <img src="froll_48.png" alt="FROLL Logo" class="logo">
+  <div class="main-container">
 
-        <!-- FROLL Price -->
-        <h2 id="froll-price" class="price">1 FROLL ≈ Loading... USD</h2>
-
-        <!-- Swap Button -->
-        <button class="main-button" onclick="window.location.href='https://lottery.vin'">Swap FROLL/VIC</button>
-
-        <!-- Kết nối Ví và Hiển thị Địa chỉ Ví + Số dư -->
-        <div class="card">
-            <h3>🔗 Connect Wallet</h3>
-            <button id="connect-wallet-btn" class="button" onclick="connectWallet()">Connect Wallet</button>
-            <p id="wallet-address">Not Connected</p>
-            <p id="vic-balance">VIC Balance: 0</p>
-            <p id="froll-balance">FROLL Balance: 0</p>
-        </div>
-
-        <!-- Chọn Bàn Xóc Đĩa -->
-        <div class="card">
-            <h3>🎲 Dice Game – Even or Odd</h3>
-            <img src="dice_game_banner.png" alt="Dice Game" class="dice-banner">
-            <button id="play-dice-btn" class="main-button" onclick="playDice()">Play Dice Now</button>
-        </div>
-
-        <!-- Footer -->
-        <footer>
-            <p>🌐 Join the Community</p>
-            <div class="socials">
-                <a href="https://t.me/FortuneRolls" target="_blank">Telegram</a>
-                <a href="#" target="_blank">Twitter</a>
-                <a href="#" target="_blank">Facebook</a>
-            </div>
-        </footer>
+    <!-- Logo & Price -->
+    <div class="logo-container">
+      <img src="froll_48.png" alt="FROLL Logo" class="logo" />
+      <div class="price" id="priceDisplay">Loading price...</div>
     </div>
 
-    <!-- Swap Interface (ẩn mặc định) -->
-    <div id="swap-interface" class="section hidden">
-        <h2>🔁 Swap FROLL / VIC</h2>
-        <div class="swap-controls">
-            <div class="input-group">
-                <label>From:</label>
-                <select id="swap-direction" onchange="updateSwapUI()">
-                    <option value="vic-to-froll">VIC → FROLL</option>
-                    <option value="froll-to-vic">FROLL → VIC</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>Amount:</label>
-                <input type="number" id="swap-amount" placeholder="Enter amount" oninput="calculateSwapOutput()">
-            </div>
-            <div class="input-group">
-                <label>You'll receive:</label>
-                <div id="swap-result">0</div>
-            </div>
-            <div class="swap-buttons">
-                <button onclick="executeSwap()">Swap</button>
-            </div>
-            <div class="back-home">
-                <button onclick="disconnectWallet(); showHome()">← Back to Home</button>
-            </div>
-        </div>
+    <!-- Wallet & Navigation -->
+    <div class="nav">
+      <button id="connectBtn">Connect Wallet</button>
+      <span id="walletAddress"></span>
     </div>
 
-    <!-- Dice Game Interface (ẩn mặc định) -->
-    <div id="dice-interface" class="section hidden">
-        <h2>🎲 Dice Game – Even or Odd</h2>
-        <video src="dice-loop.mp4" autoplay loop muted class="dice-video"></video>
-
-        <div class="dice-controls">
-            <div class="input-group">
-                <label>Table Min Bet (FROLL):</label>
-                <input type="number" id="minBetInput" placeholder="e.g., 1">
-                <button onclick="setMinBet()">Set Table</button>
-            </div>
-            <div class="input-group">
-                <label>Bet Amount (FROLL):</label>
-                <input type="number" id="betAmount" placeholder="Enter amount">
-            </div>
-            <div class="bet-buttons">
-                <button onclick="placeBet('even')">Bet on Even</button>
-                <button onclick="placeBet('odd')">Bet on Odd</button>
-            </div>
-            <div id="dice-result" class="result-area"></div>
-            <div class="back-home">
-                <button onclick="disconnectWallet(); showHome()">← Back to Home</button>
-            </div>
-        </div>
+    <!-- Home Buttons -->
+    <div class="home-buttons" id="home-buttons">
+      <button onclick="showSwap()">Swap FROLL/VIC</button>
+      <button onclick="showDice()">Play Dice Now</button>
     </div>
 
-    <script src="app.js"></script>
+    <!-- Swap Interface -->
+    <div id="swap-interface" class="hidden">
+      <h2>Swap FROLL & VIC</h2>
+
+      <div class="swap-box">
+        <label for="swapDirection">Direction:</label>
+        <select id="swapDirection">
+          <option value="vicToFroll">VIC → FROLL</option>
+          <option value="frollToVic">FROLL → VIC</option>
+        </select>
+
+        <input type="number" id="swapAmount" placeholder="Amount" />
+        <button onclick="swap()">Swap</button>
+      </div>
+
+      <div class="back-btn">
+        <button onclick="hideAll()">Back</button>
+      </div>
+    </div>
+
+    <!-- Dice Interface -->
+    <div id="dice-interface" class="hidden">
+      <h2>Even / Odd Dice</h2>
+
+      <div class="dice-box">
+        <label for="minBet">Min Bet (FROLL):</label>
+        <input type="number" id="minBet" placeholder="Enter min bet" />
+
+        <div class="dice-buttons">
+          <button onclick="chooseSide('even')">Even</button>
+          <button onclick="chooseSide('odd')">Odd</button>
+        </div>
+
+        <button onclick="placeBet()">Place Bet</button>
+        <div class="dice-video">
+          <video id="diceVideo" autoplay muted loop>
+            <source src="dice-loop.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+
+      <div class="back-btn">
+        <button onclick="hideAll()">Back</button>
+      </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="instructions">
+      <h3>How to Use FROLL.org</h3>
+      <ul>
+        <li>🎲 Choose a game or swap.</li>
+        <li>🔗 Connect your Web3 wallet (MetaMask or Viction).</li>
+        <li>💱 Swap 100 VIC ↔ 1 FROLL anytime.</li>
+        <li>⚖️ Play Even/Odd and win double!</li>
+        <li>📱 For mobile: use built-in wallet browser.</li>
+      </ul>
+    </div>
+
+    <!-- Social Links -->
+    <div class="social">
+      <a href="https://t.me/FortuneRolls" target="_blank">Telegram</a>
+      <a href="https://twitter.com/FrollLottery" target="_blank">Twitter</a>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.ethers.io/lib/ethers-5.6.umd.min.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
