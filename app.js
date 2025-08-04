@@ -3,7 +3,6 @@
 // ==============================
 
 document.addEventListener("DOMContentLoaded", function () {
-    // Lấy các phần tử quan trọng từ giao diện
     const tradeButton = document.getElementById("trade-froll-btn");  // Nút "Swap FROLL/VIC"
     const swapInterface = document.getElementById("swap-interface"); // Giao diện Swap
     const walletAddressEl = document.getElementById("wallet-address"); // Khu vực hiển thị địa chỉ ví
@@ -46,23 +45,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
             provider = new ethers.providers.Web3Provider(window.ethereum);
-            await provider.send("eth_requestAccounts", []);
+            await provider.send("eth_requestAccounts", []); // Yêu cầu kết nối với tài khoản MetaMask
             signer = provider.getSigner();
-            walletAddress = await signer.getAddress();
+            walletAddress = await signer.getAddress(); // Lấy địa chỉ ví
 
             console.log("🔗 Wallet connected successfully, address:", walletAddress);
 
             frollTokenContract = new ethers.Contract(FROLL_CONTRACT_ADDRESS, frollABI, provider);
 
-            await updateBalances();
+            await updateBalances(); // Cập nhật số dư VIC và FROLL
             
             // Ẩn các giao diện khác, hiển thị Swap Interface
             document.querySelectorAll("#home-page, .results, .check-hash, .guide-section, #check-ticket-section, .froll-info, .winning-hash, .lottery-froll, .lotto-froll, .roulette-froll, footer").forEach(section => {
                 section.style.display = "none";
             });
             swapInterface.classList.remove("hidden");
-            swapInterface.style.display = "block";
-            walletAddressEl.textContent = walletAddress;
+            swapInterface.style.display = "block"; // Hiển thị giao diện swap
+            walletAddressEl.textContent = walletAddress; // Hiển thị địa chỉ ví
         } catch (error) {
             console.error("❌ Error connecting wallet:", error);
             alert("❌ Unable to connect wallet. Please try again!");
@@ -71,16 +70,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 📌 Xử lý khi người dùng bấm nút "Swap FROLL/VIC"
     if (tradeButton) {
-        tradeButton.addEventListener("click", connectWallet);
+        tradeButton.addEventListener("click", connectWallet); // Kết nối ví khi bấm nút "Swap FROLL/VIC"
     }
 
     // 📌 Xử lý khi người dùng bấm nút "Disconnect Wallet"
     disconnectButton.addEventListener("click", function () {
-        swapInterface.style.display = "none";
+        swapInterface.style.display = "none"; // Ẩn giao diện swap
         document.querySelectorAll("#home-page, .results, .check-hash, .guide-section, #check-ticket-section, .froll-info, .winning-hash, .lottery-froll, .lotto-froll, .roulette-froll, footer").forEach(section => {
-            section.style.display = "block";
+            section.style.display = "block"; // Hiển thị lại giao diện home
         });
-        walletAddressEl.textContent = "Not Connected";
+        walletAddressEl.textContent = "Not Connected"; // Thông báo không kết nối ví
         console.log("🔴 Wallet disconnected.");
         alert("❌ Wallet disconnected!");
     });
@@ -112,13 +111,13 @@ document.addEventListener("DOMContentLoaded", function () {
         toTokenSymbol.textContent = toToken;
         [fromTokenLogo.src, toTokenLogo.src] = [toTokenLogo.src, fromTokenLogo.src];
         
-        await updateBalances();
+        await updateBalances(); // Cập nhật lại số dư khi đảo chiều
     });
 
     // 🚀 Tự động kết nối nếu trước đó đã kết nối
     document.addEventListener("DOMContentLoaded", async () => {
         if (window.ethereum && (await window.ethereum.request({ method: "eth_accounts" })).length > 0) {
-            await connectWallet();
+            await connectWallet(); // Tự động kết nối nếu ví đã được kết nối trước đó
         }
     });
 });
