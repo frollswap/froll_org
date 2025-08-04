@@ -6,15 +6,19 @@
 }
 
 body {
-  background-color: #121212;
+  background-color: #ffffff; /* Nền trắng */
   font-family: Arial, sans-serif;
-  color: #ffffff;
+  color: #111;
   padding: 20px;
 }
 
 .main-container {
   max-width: 900px;
   margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.95); /* nền trắng mờ nhẹ */
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
 }
 
 /* Header */
@@ -31,10 +35,11 @@ body {
 
 .price {
   font-size: 18px;
-  color: white;
-  background: #444;
+  color: #333;
+  background: #f2f2f2;
   padding: 6px 12px;
   border-radius: 6px;
+  font-weight: bold;
 }
 
 /* Home Screen */
@@ -48,17 +53,18 @@ body {
 
 h1, h2 {
   margin-bottom: 16px;
+  color: #222;
 }
 
 p.tagline {
   font-size: 18px;
   margin-bottom: 20px;
-  color: #ccc;
+  color: #666;
 }
 
 .home-buttons button {
-  background-color: #ffcc00;
-  color: #000;
+  background-color: #007bff;
+  color: #fff;
   border: none;
   padding: 12px 24px;
   margin: 8px;
@@ -68,7 +74,7 @@ p.tagline {
 }
 
 .home-buttons button:hover {
-  background-color: #ffd633;
+  background-color: #339dff;
 }
 
 .how-to ul {
@@ -80,26 +86,28 @@ p.tagline {
 .how-to li {
   margin-bottom: 10px;
   font-size: 16px;
+  color: #444;
 }
 
 .community-links a {
   display: inline-block;
-  background-color: #333;
-  color: #fff;
+  background-color: #eee;
+  color: #333;
   padding: 10px 16px;
   margin: 6px;
   border-radius: 6px;
   text-decoration: none;
+  font-weight: bold;
 }
 
 .community-links a:hover {
-  background-color: #555;
+  background-color: #ddd;
 }
 
 /* Swap Interface */
 .token-info {
   margin-bottom: 20px;
-  color: #ccc;
+  color: #555;
 }
 
 .input-group {
@@ -117,18 +125,21 @@ p.tagline {
   width: 100%;
   padding: 10px;
   font-size: 15px;
-  border: none;
+  border: 1px solid #ccc;
   border-radius: 6px;
+  background-color: #fafafa;
 }
 
 #swap-result {
   padding: 10px;
-  background-color: #222;
+  background-color: #f0f0f0;
   border-radius: 6px;
+  font-weight: bold;
+  color: #000;
 }
 
 .swap-buttons button {
-  background-color: #00c853;
+  background-color: #28a745;
   color: #fff;
   border: none;
   padding: 12px 24px;
@@ -139,12 +150,12 @@ p.tagline {
 }
 
 .swap-buttons button:hover {
-  background-color: #00e676;
+  background-color: #34c26c;
 }
 
 .back-home button {
   margin-top: 20px;
-  background-color: #555;
+  background-color: #888;
   color: #fff;
   border: none;
   padding: 10px 18px;
@@ -153,7 +164,7 @@ p.tagline {
 }
 
 .back-home button:hover {
-  background-color: #777;
+  background-color: #aaa;
 }
 
 /* Dice Game */
@@ -164,7 +175,7 @@ p.tagline {
 }
 
 .bet-buttons button {
-  background-color: #2196f3;
+  background-color: #ff5722;
   color: #fff;
   border: none;
   padding: 12px 24px;
@@ -175,13 +186,13 @@ p.tagline {
 }
 
 .bet-buttons button:hover {
-  background-color: #42a5f5;
+  background-color: #ff7043;
 }
 
 .result-area {
   margin-top: 20px;
   font-size: 18px;
-  color: #ffeb3b;
+  color: #d32f2f;
   font-weight: bold;
   text-align: center;
 }
@@ -193,14 +204,16 @@ p.tagline {
 }
 
 #wallet-address,
-#wallet-balance {
-  margin-top: 10px;
-  font-size: 14px;
-  color: #aaa;
+#wallet-vic,
+#wallet-froll {
+  margin-top: 8px;
+  font-size: 15px;
+  color: #444;
+  font-weight: bold;
 }
 
 #connect-button {
-  background-color: #ff5722;
+  background-color: #6c63ff;
   color: #fff;
   border: none;
   padding: 10px 20px;
@@ -210,10 +223,10 @@ p.tagline {
 }
 
 #connect-button:hover {
-  background-color: #ff7043;
+  background-color: #857eff;
 }
 
-/* Responsive */
+/* Responsive (Mobile) */
 @media (max-width: 600px) {
   .home-buttons button,
   .swap-buttons button,
@@ -231,5 +244,13 @@ p.tagline {
 
   .logo {
     height: 36px;
+  }
+
+  body {
+    padding: 12px;
+  }
+
+  .main-container {
+    padding: 16px;
   }
 }
