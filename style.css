@@ -1,0 +1,338 @@
+/* RESET & BASE FONT */
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+/* NAVBAR */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: #fff;
+}
+
+.logo {
+    height: 40px;
+    display: block;
+    max-width: 100%;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.froll-price {
+    font-weight: bold;
+    color: #ffffff;
+    font-size: 18px;
+    margin-left: 10px;
+    white-space: nowrap;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #fff;
+    margin-left: 15px;
+    font-size: 14px;
+}
+
+.nav-links a:hover {
+    text-decoration: underline;
+}
+
+/* INTERFACE BLOCKS */
+.interface {
+    max-width: 640px;
+    margin: 40px auto;
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+/* Ẩn giao diện home nếu #swap-interface đang hiển thị */
+#swap-interface:not([style*="display: none"]) ~ #connect-interface,
+#swap-interface:not([style*="display: none"]) ~ #new-content {
+    display: none !important;
+}
+
+/* HEADINGS */
+h1 {
+    font-size: 28px;
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 22px;
+    color: #007bff;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* PARAGRAPH */
+p {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+/* BUTTON */
+.button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 12px 24px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    margin-top: 10px;
+}
+
+.button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.button:active {
+    background-color: #004085;
+    transform: scale(0.97);
+}
+
+/* HOME CONTENT */
+#new-content {
+    background: #ffffffdd;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: left;
+    margin-top: 0;
+}
+
+#new-content h2 {
+    font-size: 20px;
+    color: #007bff;
+    text-align: center;
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+.feature-list li {
+    padding: 8px 0;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.feature-list code,
+.copyable {
+    background-color: #eef3fc;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    cursor: pointer;
+    display: inline-block;
+    color: #007bff;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.copyable:hover {
+    color: #d9534f;
+    text-decoration: underline;
+}
+
+/* LINKS */
+a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    color: #d9534f;
+    text-decoration: underline;
+}
+
+/* SWAP INTERFACE */
+.swap-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    gap: 20px;
+}
+
+.token-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 45%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f1f1f1;
+}
+
+.token-input img {
+    height: 24px;
+    width: 24px;
+}
+
+.token-input input {
+    flex-grow: 1;
+    border: none;
+    background: none;
+    font-size: 16px;
+    color: #333;
+}
+
+.token-input input:focus {
+    outline: none;
+}
+
+.token-input .button {
+    margin-left: -5px;
+}
+
+.swap-direction {
+    font-size: 24px;
+    color: #007bff;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.swap-direction:hover {
+    transform: rotate(180deg);
+}
+
+.swap-details {
+    text-align: left;
+    font-size: 14px;
+    color: #555;
+    margin-top: 20px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .interface {
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .swap-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .token-input {
+        width: 100%;
+    }
+
+    .feature-list li,
+    .feature-list code,
+    .copyable {
+        font-size: 14px;
+    }
+}
+
+/* FADE-IN */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ECOSYSTEM SECTION */
+.ecosystem-section {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #f1f9ff;
+    border-radius: 10px;
+    border-left: 5px solid #007bff;
+}
+
+.ecosystem-section h3 {
+    color: #007bff;
+    font-size: 18px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.ecosystem-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.ecosystem-links a {
+    display: inline-block;
+    padding: 10px 16px;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.ecosystem-links a:hover {
+    background-color: #0056b3;
+}
+
+/* COPYABLE BOX STYLES (for RPC, Chain ID, Contract...) */
+.copyable-box {
+    display: block;
+    background-color: #eef3fc;
+    border: 1px solid #cce0ff;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 5px 0;
+    font-family: monospace;
+    color: #007bff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    word-break: break-all;
+}
+
+.copyable-box:hover {
+    color: #d9534f;
+    background-color: #e6f0ff;
+    text-decoration: underline;
+}
+
+/* REMOVE SECTION SEPARATOR IN HOME INTERFACE */
+#new-content hr {
+    display: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+#new-content > *:first-child {
+    margin-top: 0;
+}
+
+#new-content > *:last-child {
+    margin-bottom: 0;
+}
