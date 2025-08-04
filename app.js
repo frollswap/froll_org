@@ -1,36 +1,52 @@
-let provider, signer, userAddress;
-const frollAddress = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
-const diceAddress = "0x85A12591d3BA2A7148d18e9Ca44E0D778e458906";
+const frollTokenAddress = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
+const diceContractAddress = "0x85A12591d3BA2A7148d18e9Ca44E0D778e458906";
+
+let provider, signer, frollToken, diceContract, userAddress;
 
 const frollAbi = [
-  "function approve(address spender, uint256 amount) external returns (bool)",
-  "function allowance(address owner, address spender) external view returns (uint256)",
-  "function balanceOf(address owner) external view returns (uint256)",
+  "function balanceOf(address) view returns (uint256)",
+  "function transferFrom(address sender, address recipient, uint256 amount) returns (bool)",
   "function decimals() view returns (uint8)"
 ];
 
 const diceAbi = [
   "function selectTable(uint256 _minBet) external",
   "function play(uint256 amount, bool guessEven) external",
-  "function getBalance() external view returns (uint256)"
+  "function playerTable(address) view returns (uint256 minBet, uint256 maxBet)",
+  "function froll() view returns (address)"
 ];
 
 async function connectWallet() {
-  if (!window.ethereum) {
-    alert("Please install MetaMask or use a Web3 browser");
-    return;
-  }
+  if (window.ethereum) {
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    signer = provider.getSigner();
+    userAddress = await signer.getAddress();
+    document.getElementById("wallet-address").innerText = userAddress;
 
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  await provider.send("eth_requestAccounts", []);
-  signer = provider.getSigner();
-  userAddress = await signer.getAddress();
-  document.getElementById("wallet-status").textContent =
-    userAddress.slice(0, 6) + "..." + userAddress.slice(-4);
+    frollToken = new ethers.Contract(frollTokenAddress, frollAbi, signer);
+    diceContract = new ethers.Contract(diceContractAddress, diceAbi, signer);
+
+    updateBalances();
+    showDice();
+  } else {
+    alert("Please install MetaMask or use a Web3-compatible wallet.");
+  }
+}
+
+async function updateBalances() {
+  if (!signer) return;
+
+  const froll = await frollToken.balanceOf(userAddress);
+  const vic = await provider.getBalance(userAddress);
+
+  const frollFormatted = ethers.utils.formatUnits(froll, 18);
+  const vicFormatted = ethers.utils.formatEther(vic);
+
+  document.getElementById("wallet-balances").innerText = `FROLL: ${frollFormatted} | VIC: ${vicFormatted}`;
 }
 
 function showDice() {
-  connectWallet();
   document.getElementById("home").classList.add("hidden");
   document.getElementById("dice-interface").classList.remove("hidden");
 }
@@ -41,78 +57,45 @@ function showHome() {
 }
 
 async function setMinBet() {
-  const min = parseFloat(document.getElementById("minBetInput").value);
-  if (isNaN(min) || min <= 0) {
-    alert("Please enter a valid minimum bet.");
-    return;
-  }
+  const minBetInput = document.getElementById("minBetInput").value;
+  if (!minBetInput) return alert("Enter min bet");
 
-  if (!signer || !userAddress) {
-    alert("Please connect your wallet first.");
-    return;
-  }
-
-  const froll = new ethers.Contract(frollAddress, frollAbi, signer);
-  const decimals = await froll.decimals();
-  const minInWei = ethers.utils.parseUnits(min.toString(), decimals);
-
-  const dice = new ethers.Contract(diceAddress, diceAbi, signer);
+  const minBetWei = ethers.utils.parseUnits(minBetInput, 18);
   try {
-    const tx = await dice.selectTable(minInWei);
+    const tx = await diceContract.selectTable(minBetWei);
     await tx.wait();
-    alert(`✅ Table set: Min Bet = ${min} FROLL`);
+    alert("Table set!");
   } catch (err) {
     console.error(err);
-    alert("❌ Failed to set table.");
+    alert("Error setting table");
   }
 }
 
 async function placeBet(type) {
-  const min = parseFloat(document.getElementById("minBetInput").value);
-  const amount = parseFloat(document.getElementById("betAmount").value);
-  if (!signer || !userAddress) {
-    alert("Please connect wallet first.");
-    return;
-  }
-  if (isNaN(min) || isNaN(amount) || amount <= 0 || amount < min) {
-    alert("Invalid amount or below min bet.");
-    return;
-  }
+  const betAmountInput = document.getElementById("betAmount").value;
+  if (!betAmountInput) return alert("Enter bet amount");
 
-  const froll = new ethers.Contract(frollAddress, frollAbi, signer);
-  const dice = new ethers.Contract(diceAddress, diceAbi, signer);
-  const decimals = await froll.decimals();
-  const amountInWei = ethers.utils.parseUnits(amount.toString(), decimals);
-
-  // Approve FROLL if needed
-  const allowance = await froll.allowance(userAddress, diceAddress);
-  if (allowance.lt(amountInWei)) {
-    const approveTx = await froll.approve(diceAddress, ethers.constants.MaxUint256);
-    await approveTx.wait();
-  }
+  const betWei = ethers.utils.parseUnits(betAmountInput, 18);
+  const guessEven = type === "even";
 
   try {
-    const isEven = type === "even";
-    const tx = await dice.play(amountInWei, isEven);
-    await tx.wait();
-    document.getElementById("dice-result").textContent = "🎉 Bet placed! Await result...";
+    const approveTx = await frollToken.transferFrom(userAddress, diceContractAddress, betWei);
+    await approveTx.wait();
+
+    const playTx = await diceContract.play(betWei, guessEven);
+    const receipt = await playTx.wait();
+
+    const log = receipt.events.find(e => e.event === "Played");
+    const win = log.args.win;
+    const resultEven = log.args.resultEven;
+
+    let msg = `🎲 Result: ${resultEven ? "Even" : "Odd"}\n`;
+    msg += win ? "✅ You Win!" : "❌ You Lose!";
+    document.getElementById("dice-result").innerText = msg;
+
+    updateBalances();
   } catch (err) {
     console.error(err);
-    document.getElementById("dice-result").textContent = "❌ Failed to place bet.";
+    alert("Bet failed");
   }
-}
-
-function disconnectWallet() {
-  provider = null;
-  signer = null;
-  userAddress = null;
-  document.getElementById("wallet-status").textContent = "";
-  showHome();
-}
-
-function copyText(el) {
-  const text = el.textContent;
-  navigator.clipboard.writeText(text);
-  el.classList.add("copied");
-  setTimeout(() => el.classList.remove("copied"), 1500);
 }
