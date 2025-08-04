@@ -59,30 +59,38 @@ p {
   font-size: 16px;
 }
 
-.game-interface {
-  text-align: center;
-  width: 100%;
+.function-buttons {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
 }
 
-.table-btn {
+button {
   background-color: #28a745;
   color: white;
-  padding: 10px 20px;
+  padding: 15px 30px;
   border: none;
   border-radius: 5px;
   margin: 5px;
   cursor: pointer;
+  font-size: 16px;
 }
 
-.table-btn:hover {
+button:hover {
   background-color: #218838;
 }
 
-#betting-interface {
-  margin-top: 30px;
+#table-selection {
+  text-align: center;
+  width: 100%;
+  margin-top: 20px;
 }
 
-#betting-interface input {
+#table-selection p {
+  font-size: 18px;
+}
+
+#bet-amount {
   padding: 10px;
   margin: 10px;
   font-size: 16px;
@@ -91,51 +99,21 @@ p {
   border: 1px solid #ccc;
 }
 
-#place-bet-btn,
-#reset-bet-btn {
+#select-table-btn {
   padding: 10px 20px;
   margin-top: 10px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-}
-
-#place-bet-btn {
-  background-color: #28a745;
-  color: white;
-}
-
-#place-bet-btn:hover {
-  background-color: #218838;
-}
-
-#reset-bet-btn {
-  background-color: #dc3545;
-  color: white;
-}
-
-#reset-bet-btn:hover {
-  background-color: #c82333;
-}
-
-#game-result {
-  margin-top: 30px;
-}
-
-#game-result p {
-  font-size: 20px;
-  font-weight: bold;
-}
-
-#play-again-btn {
   background-color: #007bff;
   color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
 }
 
-#play-again-btn:hover {
+#select-table-btn:hover {
   background-color: #0056b3;
+}
+
+#min-bet, #max-bet {
+  font-weight: bold;
+  color: #28a745;
 }
