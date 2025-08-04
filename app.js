@@ -1,5 +1,5 @@
 // ==============================
-// 🔹 KẾT NỐI VÍ & CẬP NHẬT SỐ DƯ VIC & FROLL (Trade FROLL)
+// 🔹 KẾT NỐI VÍ & CẬP NHẬT SỐ DƯ VIC & FROLL (Swap FROLL/VIC)
 // ==============================
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const toTokenLogo = document.getElementById("to-token-logo");
     const fromBalance = document.getElementById("from-balance");
     const toBalance = document.getElementById("to-balance");
-    
+
     let provider, signer, walletAddress;
     let frollTokenContract;
     let fromToken = "VIC";
