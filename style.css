@@ -1,179 +1,235 @@
-/* ===== Reset & Fonts ===== */
+/* Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-  background: #0f0f0f;
-  color: #fff;
-  font-size: 16px;
-  line-height: 1.5;
+  background-color: #121212;
+  font-family: Arial, sans-serif;
+  color: #ffffff;
   padding: 20px;
 }
 
-a {
-  color: #4dd0e1;
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: underline;
-}
-
-/* ===== Layout ===== */
 .main-container {
-  max-width: 720px;
-  margin: auto;
-  padding-bottom: 100px;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-.logo-container {
-  text-align: center;
-  margin-bottom: 10px;
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
 }
 
 .logo {
-  width: 48px;
   height: 48px;
 }
 
-.price-container {
-  text-align: center;
+.price {
+  font-size: 18px;
+  color: white;
+  background: #444;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+/* Home Screen */
+.section {
+  display: none;
+}
+
+.section.active {
+  display: block;
+}
+
+h1, h2 {
+  margin-bottom: 16px;
+}
+
+p.tagline {
+  font-size: 18px;
   margin-bottom: 20px;
-}
-
-.price-text {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-/* ===== Buttons ===== */
-.button {
-  display: inline-block;
-  background-color: #2196f3;
-  color: #fff;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: bold;
-  margin: 10px 0;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.button:hover {
-  background-color: #1976d2;
-}
-
-/* ===== Token Info ===== */
-.token-info {
-  background-color: #1e1e1e;
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 30px;
-  box-shadow: 0 0 10px rgba(33, 150, 243, 0.3);
-}
-
-.token-info h1 {
-  font-size: 20px;
-  margin-bottom: 12px;
-}
-
-.token-info p {
-  margin-bottom: 8px;
-}
-
-.copy {
-  color: #4dd0e1;
-  cursor: pointer;
-}
-.copy:hover {
-  text-decoration: underline;
-}
-/* ===== Dice Game Banner ===== */
-.game-banner {
-  background-color: #212121;
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 30px;
-  text-align: center;
-  box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
-}
-
-.game-banner h2 {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-.game-image {
-  width: 100%;
-  border-radius: 12px;
-  margin: 10px 0;
-}
-
-/* ===== Guide Sections ===== */
-.guide {
-  background-color: #1a1a1a;
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 25px;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.05);
-}
-
-.guide h2 {
-  font-size: 18px;
-  margin-bottom: 12px;
-  color: #4dd0e1;
-}
-
-.guide ul,
-.guide ol {
-  margin-left: 20px;
-  margin-bottom: 10px;
-}
-
-.guide li {
-  margin-bottom: 6px;
-}
-
-.note {
-  font-style: italic;
   color: #ccc;
 }
 
-/* ===== Footer ===== */
-.footer {
+.home-buttons button {
+  background-color: #ffcc00;
+  color: #000;
+  border: none;
+  padding: 12px 24px;
+  margin: 8px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.home-buttons button:hover {
+  background-color: #ffd633;
+}
+
+.how-to ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 24px;
+}
+
+.how-to li {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.community-links a {
+  display: inline-block;
+  background-color: #333;
+  color: #fff;
+  padding: 10px 16px;
+  margin: 6px;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.community-links a:hover {
+  background-color: #555;
+}
+
+/* Swap Interface */
+.token-info {
+  margin-bottom: 20px;
+  color: #ccc;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.input-group input,
+.input-group select {
+  width: 100%;
+  padding: 10px;
+  font-size: 15px;
+  border: none;
+  border-radius: 6px;
+}
+
+#swap-result {
+  padding: 10px;
+  background-color: #222;
+  border-radius: 6px;
+}
+
+.swap-buttons button {
+  background-color: #00c853;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  margin-right: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.swap-buttons button:hover {
+  background-color: #00e676;
+}
+
+.back-home button {
+  margin-top: 20px;
+  background-color: #555;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.back-home button:hover {
+  background-color: #777;
+}
+
+/* Dice Game */
+.dice-video {
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.bet-buttons button {
+  background-color: #2196f3;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  margin: 8px 4px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.bet-buttons button:hover {
+  background-color: #42a5f5;
+}
+
+.result-area {
+  margin-top: 20px;
+  font-size: 18px;
+  color: #ffeb3b;
+  font-weight: bold;
   text-align: center;
-  margin-top: 40px;
+}
+
+/* Wallet Connect */
+.wallet-status {
+  margin-top: 30px;
+  text-align: center;
+}
+
+#wallet-address,
+#wallet-balance {
+  margin-top: 10px;
   font-size: 14px;
   color: #aaa;
 }
-/* ===== Hidden Interfaces (Swap & Dice) ===== */
-#swap-interface,
-#dice-interface {
-  background-color: #111;
-  border-radius: 16px;
-  padding: 20px;
-  margin-top: 20px;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+
+#connect-button {
+  background-color: #ff5722;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-/* ===== Responsive Design ===== */
+#connect-button:hover {
+  background-color: #ff7043;
+}
+
+/* Responsive */
 @media (max-width: 600px) {
-  .button {
+  .home-buttons button,
+  .swap-buttons button,
+  .bet-buttons button,
+  .back-home button,
+  #connect-button {
     width: 100%;
-    font-size: 15px;
+    margin: 8px 0;
   }
 
-  .game-image {
-    max-height: 200px;
-    object-fit: cover;
+  .input-group input,
+  .input-group select {
+    font-size: 14px;
   }
 
-  .main-container {
-    padding: 10px;
+  .logo {
+    height: 36px;
   }
 }
