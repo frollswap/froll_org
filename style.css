@@ -1,154 +1,150 @@
 body {
   margin: 0;
+  padding: 0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(to bottom, #101010, #1c1c1c);
+  background-color: #111;
   color: white;
-  text-align: center;
 }
 
 .main-container {
-  max-width: 600px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 20px;
+  text-align: center;
 }
 
 .logo-container {
-  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .logo {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
 }
 
-.froll-price {
+.price {
   font-size: 18px;
-  margin-top: 10px;
-  color: #00ffcc;
+  font-weight: bold;
 }
 
-.wallet-section {
-  margin-top: 20px;
+.nav {
+  margin-bottom: 20px;
 }
 
-#wallet-address,
-#wallet-balances {
-  margin-top: 10px;
-  font-size: 14px;
-  color: #ccc;
-}
-
-.main-buttons {
-  margin-top: 30px;
-}
-
-.main-button {
-  background-color: #00cc99;
-  border: none;
+.nav button {
+  padding: 8px 16px;
+  background-color: #08f;
   color: white;
-  padding: 12px 20px;
-  margin: 10px;
-  font-size: 16px;
+  border: none;
   border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.main-button:hover {
-  background-color: #009977;
-}
-
-.network-guide {
-  margin-top: 30px;
-}
-
-.network-guide button {
-  margin: 8px;
-  padding: 10px 16px;
-  border: none;
-  background-color: #333;
-  color: white;
-  border-radius: 6px;
+  font-weight: bold;
   cursor: pointer;
 }
 
-.network-guide button:hover {
-  background-color: #555;
-}
-
-.section.hidden {
-  display: none;
-}
-
-.dice-banner {
-  width: 100%;
-  max-width: 500px;
-  margin: 20px auto;
-  border-radius: 12px;
-  box-shadow: 0 0 10px #000;
-}
-
-.dice-controls {
-  margin-top: 20px;
-}
-
-.input-group {
-  margin: 10px 0;
-}
-
-.input-group input {
-  padding: 8px;
-  width: 150px;
-  border: 1px solid #555;
-  border-radius: 6px;
-  margin-top: 5px;
-}
-
-.bet-buttons button {
-  margin: 10px;
-  padding: 10px 16px;
-  font-size: 16px;
-  border-radius: 8px;
-  border: none;
-  background-color: #ff6600;
-  color: white;
-  cursor: pointer;
-}
-
-.bet-buttons button:hover {
-  background-color: #cc5200;
-}
-
-.back-home {
-  margin-top: 30px;
-}
-
-.back-home button {
-  background-color: #444;
-  color: white;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.result-area {
-  margin-top: 20px;
-  font-size: 16px;
-  color: #00ffcc;
-}
-
-.footer {
-  margin-top: 50px;
+#walletAddress {
+  display: block;
+  margin-top: 8px;
   font-size: 14px;
   color: #aaa;
 }
 
-.footer a {
-  color: #00ccff;
-  text-decoration: none;
+.home-buttons button {
+  width: 200px;
+  padding: 12px;
+  margin: 10px;
+  background-color: #444;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.home-buttons button:hover {
+  background-color: #666;
 }
 
-.footer a:hover {
-  text-decoration: underline;
+.hidden {
+  display: none;
+}
+
+.swap-box,
+.dice-box {
+  background-color: #222;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.swap-box input,
+.dice-box input,
+.swap-box select {
+  width: 80%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
+
+.swap-box button,
+.dice-box button {
+  padding: 10px 20px;
+  background-color: #06c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  margin: 10px 5px;
+  cursor: pointer;
+}
+
+.dice-buttons button {
+  width: 100px;
+}
+
+.back-btn {
+  margin-top: 20px;
+}
+
+.instructions {
+  margin-top: 40px;
+  text-align: left;
+  background-color: #1b1b1b;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.instructions h3 {
+  margin-top: 0;
+  color: #0cf;
+}
+
+.instructions ul {
+  padding-left: 20px;
+}
+
+.social {
+  margin-top: 30px;
+}
+
+.social a {
+  margin: 0 10px;
+  color: #0af;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.dice-video {
+  margin-top: 20px;
+}
+
+video {
+  width: 100%;
+  border-radius: 12px;
+  border: 2px solid #333;
 }
