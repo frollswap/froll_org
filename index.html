@@ -6,8 +6,22 @@
   <title>FROLL.org – Play & Swap</title>
   <link rel="icon" href="froll_48.png" type="image/png" />
   <link rel="stylesheet" href="style.css" />
-  <meta name="description" content="Swap FROLL/VIC and play blockchain-based dice (Even/Odd) game. 100% decentralized. Fair. No middlemen.">
+  <meta name="description" content="Swap FROLL/VIC and play Even-Odd dice game. Fully on-chain.">
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+  <script>
+    async function getFrollPrice() {
+      try {
+        const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT");
+        const data = await res.json();
+        const price = parseFloat(data.price);
+        const frollPrice = price * 100;
+        document.getElementById("price-usd").innerText = `1 FROLL ≈ $${frollPrice.toFixed(2)} USD`;
+      } catch {
+        document.getElementById("price-usd").innerText = "Price unavailable";
+      }
+    }
+    window.onload = getFrollPrice;
+  </script>
 </head>
 <body>
   <div class="main-container">
@@ -26,14 +40,13 @@
         <button onclick="showDice()">Play Dice Now</button>
       </div>
 
-      <div class="how-to">
-        <h2>📘 How to Start</h2>
-        <ul>
-          <li>1️⃣ Connect your wallet (Viction or MetaMask).</li>
-          <li>2️⃣ Add VIC network and FROLL token manually.</li>
-          <li>3️⃣ Get VIC to pay gas. Then swap VIC ↔ FROLL.</li>
-          <li>4️⃣ Enter the Dice Game and bet Even or Odd to win!</li>
-        </ul>
+      <div class="setup-guide">
+        <h2>🛠 Add VIC Network & FROLL Token</h2>
+        <p><strong>Network:</strong> Viction</p>
+        <p><strong>RPC:</strong> <span onclick="navigator.clipboard.writeText('https://rpc.viction.xyz')" style="cursor:pointer;">https://rpc.viction.xyz</span></p>
+        <p><strong>Chain ID:</strong> 88</p>
+        <p><strong>Currency:</strong> VIC</p>
+        <p><strong>Token:</strong> FROLL – <span onclick="navigator.clipboard.writeText('0xB4d562A8f811CE7F134a1982992Bd153902290BC')" style="cursor:pointer;">0xB4d562A8f811CE7F134a1982992Bd153902290BC</span></p>
       </div>
 
       <div class="community-links">
@@ -47,10 +60,6 @@
     <!-- Swap Interface -->
     <div id="swap-interface" class="section hidden">
       <h2>🔁 Swap FROLL / VIC</h2>
-      <div class="token-info">
-        <p>1 FROLL = 100 VIC (fixed rate)</p>
-        <p>Swap is 100% on-chain. Fee: 0.01 VIC</p>
-      </div>
 
       <div class="swap-controls">
         <div class="input-group">
@@ -72,7 +81,6 @@
         </div>
 
         <div class="swap-buttons">
-          <button onclick="approveToken()">Approve</button>
           <button onclick="executeSwap()">Swap</button>
         </div>
 
@@ -115,9 +123,12 @@
     <!-- Wallet Connect + Status -->
     <div class="wallet-status">
       <button id="connect-button" onclick="connectWallet()">🔌 Connect Wallet</button>
-      <div id="wallet-address"></div>
-      <div id="wallet-vic"></div>
-      <div id="wallet-froll"></div>
+      <div id="wallet-info" style="display:none;">
+        <div id="wallet-address"></div>
+        <div id="wallet-vic"></div>
+        <div id="wallet-froll"></div>
+        <button onclick="disconnectWallet()" style="margin-top:10px; background:#aaa;">← Disconnect</button>
+      </div>
     </div>
   </div>
 
