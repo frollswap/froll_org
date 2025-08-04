@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FROLL.org – Xóc Đĩa</title>
+  <title>FROLL.org – Play & Swap</title>
   <link rel="icon" href="froll_48.png" type="image/png" />
   <link rel="stylesheet" href="style.css" />
-  <meta name="description" content="Play Xóc Đĩa and Swap FROLL/VIC. Fully decentralized, fair, and on-chain." />
+  <meta name="description" content="Swap FROLL/VIC or Play Xóc Đĩa on-chain. 100% decentralized. Fair gameplay." />
 </head>
 <body>
   <div class="main-container">
     <div class="header">
       <img src="froll_48.png" alt="FROLL Logo" class="logo" />
       <h1>Welcome to FROLL.org</h1>
-      <p>Play Xóc Đĩa and Swap FROLL/VIC</p>
+      <p>Swap FROLL/VIC or Play Xóc Đĩa</p>
     </div>
 
     <div id="wallet-info" class="wallet-info">
@@ -25,31 +25,19 @@
       </div>
     </div>
 
-    <div class="game-interface">
-      <h2>Xóc Đĩa Game</h2>
-      <p>Select a table to start playing!</p>
-
-      <div id="table-selection">
-        <button class="table-btn" data-min-bet="0.01" data-max-bet="1">Table 1</button>
-        <button class="table-btn" data-min-bet="0.05" data-max-bet="5">Table 2</button>
-        <button class="table-btn" data-min-bet="0.1" data-max-bet="10">Table 3</button>
-      </div>
-
-      <div id="betting-interface" style="display: none;">
-        <h3>Place Your Bet</h3>
-        <p>Min Bet: <span id="min-bet"></span> FROLL</p>
-        <p>Max Bet: <span id="max-bet"></span> FROLL</p>
-        <input type="number" id="bet-amount" placeholder="Enter your bet" />
-        <button id="place-bet-btn">Place Bet</button>
-        <button id="reset-bet-btn">Reset Bet</button>
-      </div>
-
-      <div id="game-result" style="display: none;">
-        <h3>Game Result</h3>
-        <p>Result: <span id="result"></span></p>
-        <button id="play-again-btn">Play Again</button>
-      </div>
+    <div class="function-buttons">
+      <button id="swap-btn">Swap FROLL/VIC</button>
+      <button id="play-btn">Play Xóc Đĩa</button>
     </div>
+
+    <div id="table-selection" style="display: none;">
+      <h2>Select a Table to Play Xóc Đĩa</h2>
+      <p>Min Bet: <span id="min-bet">0.001</span> FROLL</p>
+      <p>Max Bet: <span id="max-bet">0.05</span> FROLL</p>
+      <input type="number" id="bet-amount" placeholder="Enter your min bet" min="0.001" />
+      <button id="select-table-btn">Select Table & Play</button>
+    </div>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.6.0/dist/ethers.min.js"></script>
