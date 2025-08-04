@@ -52,10 +52,11 @@ p {
   font-size: 16px;
 }
 
+/* Token Information Section */
 .token-info, .guide {
   margin-top: 20px;
   width: 80%;
-  text-align: center;
+  text-align: left; /* Nội dung căn trái */
   background-color: rgba(255, 255, 255, 0.8); /* Background white with slight transparency */
   padding: 20px;
   border-radius: 10px;
@@ -65,6 +66,7 @@ p {
 .token-info h1, .guide h2 {
   color: #333;
   font-size: 22px;
+  text-align: center; /* Tiêu đề căn giữa */
   margin-bottom: 15px;
 }
 
@@ -98,19 +100,21 @@ p {
   background-color: #218838;
 }
 
+/* Dice Game Section */
 .game-banner {
   margin-top: 40px;
   text-align: center;
 }
 
 .game-image {
-  width: 70%;
-  max-width: 400px;
+  width: 100%; /* Chiều rộng bằng với đoạn chứa ảnh */
+  max-width: 600px; /* Giới hạn chiều rộng tối đa */
   height: auto;
   margin-bottom: 20px;
   border-radius: 8px;
 }
 
+/* Footer Section */
 footer {
   text-align: center;
   margin-top: 40px;
@@ -133,10 +137,6 @@ footer a:hover {
 /* Hidden interfaces (shown when user clicks buttons) */
 #swap-interface, #dice-interface {
   display: none;
-}
-
-footer .footer {
-  margin-top: 50px;
 }
 
 /* Adjustments for mobile */
