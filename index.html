@@ -1,101 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FROLL.org – Play & Swap</title>
-  <link rel="icon" href="froll_48.png" type="image/png" />
-  <link rel="stylesheet" href="style.css" />
-  <meta name="description" content="Play Even/Odd dice game or swap VIC ↔ FROLL on-chain. 100% decentralized. No VC. No tricks. Just fun and fairness.">
-</head>
-<body>
-  <div class="main-container">
+<!-- Dice Game Interface -->
+<div id="dice-interface" class="hidden">
+  <h2>Even / Odd Dice</h2>
 
-    <!-- Logo & Price -->
-    <div class="logo-container">
-      <img src="froll_48.png" alt="FROLL Logo" class="logo" />
-      <div class="price" id="priceDisplay">Loading price...</div>
-    </div>
-
-    <!-- Wallet & Navigation -->
-    <div class="nav">
-      <button id="connectBtn">Connect Wallet</button>
-      <span id="walletAddress"></span>
-    </div>
-
-    <!-- Home Buttons -->
-    <div class="home-buttons" id="home-buttons">
-      <button onclick="showSwap()">Swap FROLL/VIC</button>
-      <button onclick="showDice()">Play Dice Now</button>
-    </div>
-
-    <!-- Swap Interface -->
-    <div id="swap-interface" class="hidden">
-      <h2>Swap FROLL & VIC</h2>
-
-      <div class="swap-box">
-        <label for="swapDirection">Direction:</label>
-        <select id="swapDirection">
-          <option value="vicToFroll">VIC → FROLL</option>
-          <option value="frollToVic">FROLL → VIC</option>
-        </select>
-
-        <input type="number" id="swapAmount" placeholder="Amount" />
-        <button onclick="swap()">Swap</button>
-      </div>
-
-      <div class="back-btn">
-        <button onclick="hideAll()">Back</button>
-      </div>
-    </div>
-
-    <!-- Dice Interface -->
-    <div id="dice-interface" class="hidden">
-      <h2>Even / Odd Dice</h2>
-
-      <div class="dice-box">
-        <label for="minBet">Min Bet (FROLL):</label>
-        <input type="number" id="minBet" placeholder="Enter min bet" />
-
-        <div class="dice-buttons">
-          <button onclick="chooseSide('even')">Even</button>
-          <button onclick="chooseSide('odd')">Odd</button>
-        </div>
-
-        <button onclick="placeBet()">Place Bet</button>
-        <div class="dice-video">
-          <video id="diceVideo" autoplay muted loop>
-            <source src="dice-loop.mp4" type="video/mp4" />
-          </video>
-        </div>
-      </div>
-
-      <div class="back-btn">
-        <button onclick="hideAll()">Back</button>
-      </div>
-    </div>
-
-    <!-- Instructions -->
-    <div class="instructions">
-      <h3>How to Use FROLL.org</h3>
-      <ul>
-        <li>🎲 Choose a game or swap.</li>
-        <li>🔗 Connect your Web3 wallet (MetaMask or Viction).</li>
-        <li>💱 Swap 100 VIC ↔ 1 FROLL anytime.</li>
-        <li>⚖️ Play Even/Odd and win double!</li>
-        <li>📱 For mobile: use built-in wallet browser.</li>
-      </ul>
-    </div>
-
-    <!-- Social Links -->
-    <div class="social">
-      <a href="https://t.me/FortuneRolls" target="_blank">Telegram</a>
-      <a href="https://twitter.com/FrollLottery" target="_blank">Twitter</a>
-    </div>
-
+  <!-- Wallet Info -->
+  <div class="wallet-info">
+    <span id="walletAddress"></span>
+    <span id="frollBalance">FROLL Balance: 0</span>
   </div>
 
-  <script src="https://cdn.ethers.io/lib/ethers-5.6.umd.min.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+  <!-- Choose Table -->
+  <div id="selectTable">
+    <h3>Select Table</h3>
+    <input type="number" id="minBet" placeholder="Enter min bet" />
+    <button onclick="selectTable()">Select Table</button>
+  </div>
+
+  <!-- Game Controls -->
+  <div id="gameControls" class="hidden">
+    <h3>Place Bet</h3>
+    <div class="bet-options">
+      <button onclick="chooseSide('even')">Even</button>
+      <button onclick="chooseSide('odd')">Odd</button>
+    </div>
+    <button onclick="placeBet()">Place Bet</button>
+
+    <div class="action-buttons">
+      <button onclick="repeatBet()">Repeat Bet</button>
+      <button onclick="clearBet()">Clear Bet</button>
+      <button onclick="doubleBet()">Double Bet</button>
+      <button onclick="changeTable()">Change Table</button>
+    </div>
+  </div>
+
+  <!-- Dice Animation -->
+  <div class="dice-video">
+    <video id="diceVideo" autoplay muted loop>
+      <source src="dice-loop.mp4" type="video/mp4" />
+    </video>
+  </div>
+
+  <!-- Back Button -->
+  <div class="back-btn">
+    <button onclick="hideAll()">Back</button>
+  </div>
+</div>
