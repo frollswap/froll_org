@@ -1,101 +1,154 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #0e0e0e;
+  background: linear-gradient(to bottom, #101010, #1c1c1c);
   color: white;
-}
-
-.main-container {
-  max-width: 480px;
-  margin: auto;
-  padding: 20px;
   text-align: center;
 }
 
+.main-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
 .logo-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  margin-top: 20px;
 }
 
 .logo {
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 48px;
 }
 
-.button-group {
+.froll-price {
+  font-size: 18px;
+  margin-top: 10px;
+  color: #00ffcc;
+}
+
+.wallet-section {
   margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
-button {
-  padding: 12px;
-  font-size: 16px;
-  background-color: #ff4757;
-  color: white;
+#wallet-address,
+#wallet-balances {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.main-buttons {
+  margin-top: 30px;
+}
+
+.main-button {
+  background-color: #00cc99;
   border: none;
-  border-radius: 10px;
+  color: white;
+  padding: 12px 20px;
+  margin: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.main-button:hover {
+  background-color: #009977;
+}
+
+.network-guide {
+  margin-top: 30px;
+}
+
+.network-guide button {
+  margin: 8px;
+  padding: 10px 16px;
+  border: none;
+  background-color: #333;
+  color: white;
+  border-radius: 6px;
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #ff6b81;
+.network-guide button:hover {
+  background-color: #555;
 }
 
-.hidden {
+.section.hidden {
   display: none;
 }
 
-.section {
+.dice-banner {
+  width: 100%;
+  max-width: 500px;
+  margin: 20px auto;
+  border-radius: 12px;
+  box-shadow: 0 0 10px #000;
+}
+
+.dice-controls {
   margin-top: 20px;
 }
 
-input[type="number"] {
-  padding: 10px;
-  width: 80%;
+.input-group {
+  margin: 10px 0;
+}
+
+.input-group input {
+  padding: 8px;
+  width: 150px;
+  border: 1px solid #555;
+  border-radius: 6px;
+  margin-top: 5px;
+}
+
+.bet-buttons button {
+  margin: 10px;
+  padding: 10px 16px;
   font-size: 16px;
-  margin-top: 10px;
   border-radius: 8px;
   border: none;
-  outline: none;
+  background-color: #ff6600;
+  color: white;
+  cursor: pointer;
 }
 
-.bet-buttons {
-  margin-top: 15px;
-  display: flex;
-  justify-content: space-around;
+.bet-buttons button:hover {
+  background-color: #cc5200;
 }
 
-.wallet-info {
-  background-color: #1e1e1e;
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 15px;
-  font-size: 14px;
+.back-home {
+  margin-top: 30px;
 }
 
-footer {
+.back-home button {
+  background-color: #444;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.result-area {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #00ffcc;
+}
+
+.footer {
   margin-top: 50px;
   font-size: 14px;
   color: #aaa;
 }
 
-.socials {
-  margin-top: 10px;
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-}
-
-.socials a {
-  color: #ffcb00;
+.footer a {
+  color: #00ccff;
   text-decoration: none;
 }
 
-#game-result {
-  margin-top: 15px;
-  font-size: 16px;
-  font-weight: bold;
+.footer a:hover {
+  text-decoration: underline;
 }
