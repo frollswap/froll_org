@@ -1,168 +1,152 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #0d0f1b;
+  color: #ffffff;
   margin: 0;
-  background: #f7f7f7;
-  color: #333;
+  padding: 0;
 }
 
-.container {
+.main-container {
   max-width: 500px;
-  margin: auto;
+  margin: 0 auto;
   padding: 20px;
   text-align: center;
 }
 
-.logo {
+.logo-container {
+  margin-top: 20px;
+}
+
+.logo-container img {
   width: 64px;
-  margin: 20px auto;
+  height: 64px;
 }
 
-.price {
-  font-size: 18px;
-  color: #0c0;
-  margin-bottom: 20px;
-}
-
-.main-button {
-  background-color: #007bff;
-  color: #fff;
-  padding: 14px 24px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  margin: 10px 0;
-  cursor: pointer;
-  width: 100%;
-}
-
-.main-button:hover {
-  background-color: #0056b3;
-}
-
-.card {
-  background-color: #fff;
-  padding: 20px;
-  margin: 16px 0;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-  text-align: left;
-}
-
-.card h3 {
-  margin-top: 0;
-}
-
-.info-list {
-  list-style: none;
-  padding-left: 0;
+h1 {
+  font-size: 2rem;
   margin: 10px 0;
 }
 
-.info-list li {
-  margin: 6px 0;
-}
-
-.copy-box {
-  background: #eef;
-  padding: 3px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.copy-box:hover {
-  background: #dde;
-}
-
-.dice-banner {
-  width: 100%;
-  border-radius: 8px;
-  margin-bottom: 12px;
-}
-
-/* Swap and Dice Sections */
-.section {
-  display: none;
-  padding: 20px;
-  text-align: center;
-}
-
-.section h2 {
+.price-info {
+  font-size: 1.1rem;
   margin-bottom: 20px;
+  color: #00ffcc;
 }
 
-.hidden {
-  display: none !important;
-}
-
-.input-group {
-  margin: 12px 0;
-  text-align: left;
-}
-
-.input-group label {
-  display: block;
-  margin-bottom: 4px;
-  font-weight: bold;
-}
-
-.input-group input,
-.input-group select {
-  width: 100%;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-.swap-buttons button,
-.bet-buttons button,
-.back-home button {
-  background: #28a745;
+button {
+  background-color: #00c2ff;
   color: white;
   border: none;
   padding: 12px 20px;
-  margin: 10px 5px;
-  border-radius: 6px;
+  margin: 10px;
+  border-radius: 8px;
+  font-size: 1rem;
   cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background-color: #0099cc;
+}
+
+.section {
+  margin-top: 30px;
+}
+
+input[type="number"] {
+  padding: 10px;
+  width: 100%;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 5px;
   font-weight: bold;
 }
 
-.swap-buttons button:hover,
-.bet-buttons button:hover,
-.back-home button:hover {
-  background: #218838;
+.select-network {
+  margin: 10px 0;
+  font-size: 0.95rem;
+  color: #dddddd;
 }
 
-.result-area {
-  margin-top: 15px;
-  font-size: 18px;
-  font-weight: bold;
+.select-network span {
+  font-family: monospace;
+  background-color: #1e1e2e;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.swap-controls,
+.dice-controls {
+  background-color: #1b1e2f;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.input-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+#swap-result {
+  font-size: 1.2rem;
+  color: #00ffcc;
+  margin-top: 5px;
+}
+
+.swap-buttons,
+.bet-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.swap-buttons button,
+.bet-buttons button {
+  flex: 1;
+}
+
+.back-home {
+  margin-top: 20px;
 }
 
 .dice-video {
   width: 100%;
-  max-height: 240px;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  max-height: 220px;
+  border-radius: 10px;
+  margin-top: 20px;
 }
 
-/* Footer */
-footer {
+.result-area {
+  margin-top: 15px;
+  font-weight: bold;
+  color: #00ffcc;
+  font-size: 1rem;
+}
+
+.hidden {
+  display: none;
+}
+
+.footer {
   margin-top: 40px;
-  font-size: 14px;
-  text-align: center;
-  color: #777;
+  padding-top: 20px;
+  border-top: 1px solid #333;
+  font-size: 0.9rem;
+  color: #aaa;
 }
 
-.socials {
-  margin-top: 8px;
-}
-
-.socials a {
-  margin: 0 8px;
-  color: #007bff;
+.footer a {
+  color: #00c2ff;
   text-decoration: none;
-}
-
-.socials a:hover {
-  text-decoration: underline;
+  margin: 0 10px;
 }
