@@ -1,104 +1,137 @@
+// Connect to MetaMask or Viction wallet
 let provider;
 let signer;
-let contract;
-let walletAddress;
-let frollTokenAddress = "0x85A12591d3BA2A7148d18e9Ca44E0D778e458906"; // Địa chỉ hợp đồng xóc đĩa
-let frollToken;
-let vicTokenAddress = "0x0..."; // Địa chỉ hợp đồng VIC (nếu có)
+let userAddress;
+let frollBalance = 0;
+let vicBalance = 0;
+
+const connectWalletBtn = document.getElementById('connect-wallet-btn');
+const walletDetails = document.getElementById('wallet-details');
+const walletAddress = document.getElementById('wallet-address');
+const frollBalanceElement = document.getElementById('froll-balance');
+const vicBalanceElement = document.getElementById('vic-balance');
+const tableBtns = document.querySelectorAll('.table-btn');
+const bettingInterface = document.getElementById('betting-interface');
+const minBetElement = document.getElementById('min-bet');
+const maxBetElement = document.getElementById('max-bet');
+const betAmountInput = document.getElementById('bet-amount');
+const placeBetBtn = document.getElementById('place-bet-btn');
+const resetBetBtn = document.getElementById('reset-bet-btn');
+const gameResult = document.getElementById('game-result');
+const resultElement = document.getElementById('result');
+const playAgainBtn = document.getElementById('play-again-btn');
+
+connectWalletBtn.addEventListener('click', connectWallet);
+placeBetBtn.addEventListener('click', placeBet);
+resetBetBtn.addEventListener('click', resetBet);
+playAgainBtn.addEventListener('click', resetGame);
 
 async function connectWallet() {
-    if (window.ethereum) {
-        try {
-            // Khởi tạo provider và signer
-            provider = new ethers.BrowserProvider(window.ethereum);
-            await provider.send("eth_requestAccounts", []);
-            signer = provider.getSigner();
-            walletAddress = await signer.getAddress();
+  if (window.ethereum) {
+    provider = new ethers.BrowserProvider(window.ethereum);
+    signer = provider.getSigner();
+    userAddress = await signer.getAddress();
+    const network = await provider.getNetwork();
 
-            // Hiển thị địa chỉ ví
-            document.getElementById("walletAddress").innerText = "Address: " + walletAddress;
+    if (network.chainId === 56) {
+      const frollContract = new ethers.Contract(
+        '0xB4d562A8f811CE7F134a1982992Bd153902290BC', // Address of the FROLL contract
+        ['function balanceOf(address) view returns (uint256)'],
+        provider
+      );
 
-            // Lấy số dư FROLL
-            frollToken = new ethers.Contract(frollTokenAddress, [
-                "function balanceOf(address owner) view returns (uint256)"
-            ], signer);
+      const vicContract = new ethers.Contract(
+        '0x9197BF0813e0727df4555E8cb43a0977F4a3A068', // Address of the VIC contract
+        ['function balanceOf(address) view returns (uint256)'],
+        provider
+      );
 
-            let balanceFroll = await frollToken.balanceOf(walletAddress);
-            document.getElementById("walletBalanceFROLL").innerText = "FROLL Balance: " + ethers.utils.formatUnits(balanceFroll, 18);
+      frollBalance = await frollContract.balanceOf(userAddress);
+      vicBalance = await vicContract.balanceOf(userAddress);
 
-            // Lấy số dư VIC (nếu có hợp đồng VIC)
-            if (vicTokenAddress) {
-                let vicToken = new ethers.Contract(vicTokenAddress, [
-                    "function balanceOf(address owner) view returns (uint256)"
-                ], signer);
-                let balanceVic = await vicToken.balanceOf(walletAddress);
-                document.getElementById("walletBalanceVIC").innerText = "VIC Balance: " + ethers.utils.formatUnits(balanceVic, 18);
-            }
+      walletAddress.textContent = userAddress;
+      frollBalanceElement.textContent = ethers.utils.formatUnits(frollBalance, 18);
+      vicBalanceElement.textContent = ethers.utils.formatUnits(vicBalance, 18);
 
-            // Cập nhật giao diện khi kết nối ví thành công
-            document.getElementById("walletInfo").style.display = "block";
-            document.getElementById("connectButton").style.display = "none";
+      walletDetails.style.display = 'block';
+      connectWalletBtn.textContent = 'Disconnect Wallet';
+      connectWalletBtn.removeEventListener('click', connectWallet);
+      connectWalletBtn.addEventListener('click', disconnectWallet);
 
-            // Khởi tạo hợp đồng xóc đĩa
-            const abi = [
-                {
-                    "inputs": [{ "internalType": "address", "name": "_token", "type": "address" }, { "internalType": "address", "name": "_admin", "type": "address" }],
-                    "stateMutability": "nonpayable",
-                    "type": "constructor"
-                },
-                {
-                    "inputs": [{ "internalType": "uint8", "name": "choice", "type": "uint8" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }],
-                    "name": "bet",
-                    "outputs": [],
-                    "stateMutability": "nonpayable",
-                    "type": "function"
-                },
-                {
-                    "inputs": [],
-                    "name": "admin",
-                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-                    "stateMutability": "view",
-                    "type": "function"
-                }
-            ];
-
-            contract = new ethers.Contract(frollTokenAddress, abi, signer);
-        } catch (error) {
-            console.error("Error connecting to MetaMask: ", error);
-            alert("An error occurred while connecting to MetaMask. Please try again.");
-        }
     } else {
-        alert("Please install MetaMask or a compatible Web3 wallet to interact with this DApp.");
+      alert('Please connect to the BNB network.');
     }
+  } else {
+    alert('Please install MetaMask or Viction to continue.');
+  }
 }
 
-// Đặt cược
+function disconnectWallet() {
+  window.location.reload();
+}
+
+tableBtns.forEach((btn) => {
+  btn.addEventListener('click', (event) => {
+    const minBet = parseFloat(event.target.getAttribute('data-min-bet'));
+    const maxBet = parseFloat(event.target.getAttribute('data-max-bet'));
+    minBetElement.textContent = minBet;
+    maxBetElement.textContent = maxBet;
+
+    bettingInterface.style.display = 'block';
+  });
+});
+
 async function placeBet() {
-    const betAmount = document.getElementById("betAmount").value;
-    const betChoice = document.getElementById("betChoice").value;
+  const betAmount = parseFloat(betAmountInput.value);
+  const minBet = parseFloat(minBetElement.textContent);
+  const maxBet = parseFloat(maxBetElement.textContent);
 
-    if (betAmount <= 0) {
-        alert("Please enter a valid bet amount.");
-        return;
-    }
+  if (betAmount < minBet || betAmount > maxBet) {
+    alert('Bet amount out of range.');
+    return;
+  }
 
-    try {
-        const tx = await contract.bet(betChoice, ethers.utils.parseUnits(betAmount, 18));
-        await tx.wait(); // Đợi giao dịch hoàn tất
+  if (betAmount > frollBalance) {
+    alert('Insufficient FROLL balance.');
+    return;
+  }
 
-        // Hiển thị kết quả
-        document.getElementById("betResult").innerText = `You bet ${betAmount} FROLL on ${betChoice === "0" ? "Even" : "Odd"}`;
-        document.getElementById("winLossMessage").innerText = "Wait for the result...";
+  const frollContract = new ethers.Contract(
+    '0xB4d562A8f811CE7F134a1982992Bd153902290BC', // Address of the FROLL contract
+    ['function transfer(address recipient, uint256 amount)'],
+    signer
+  );
 
-        // Lắng nghe sự kiện BetResult
-        contract.on("BetResult", (player, choice, amount, win) => {
-            if (player.toLowerCase() === walletAddress.toLowerCase()) {
-                document.getElementById("winLossMessage").innerText = win ? "You Win!" : "You Lose!";
-            }
-        });
+  const tx = await frollContract.transfer(
+    '0xE2aa80dc03450C9E01f35BE4fcC7f76843020556', // Example recipient address (game contract)
+    ethers.utils.parseUnits(betAmount.toString(), 18)
+  );
 
-    } catch (error) {
-        console.error("Transaction failed: ", error);
-        alert("Transaction failed. Please try again.");
-    }
+  await tx.wait();
+  alert('Bet placed successfully.');
+
+  // Simulate game result
+  simulateGameResult();
+}
+
+function resetBet() {
+  betAmountInput.value = '';
+}
+
+function simulateGameResult() {
+  const randomNumber = Math.floor(Math.random() * 100); // Generate a random number between 0 and 99
+
+  let result = 'Lose';
+  if (randomNumber < 50) {
+    result = 'Win';
+  }
+
+  resultElement.textContent = result;
+  gameResult.style.display = 'block';
+}
+
+function resetGame() {
+  gameResult.style.display = 'none';
+  bettingInterface.style.display = 'none';
+  resetBet();
 }
