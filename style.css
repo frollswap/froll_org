@@ -1,192 +1,168 @@
-/* General Reset */
 body {
+  font-family: Arial, sans-serif;
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #000;
-  color: #fff;
+  background: #f7f7f7;
+  color: #333;
 }
 
-.main-container {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 24px;
+.container {
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
 }
 
-/* Logo + Price */
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
 .logo {
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  margin: 20px auto;
 }
+
 .price {
   font-size: 18px;
-  font-weight: bold;
-  color: #00ff99;
+  color: #0c0;
+  margin-bottom: 20px;
 }
 
-/* Sections */
-.section {
-  display: none;
-}
-.section.active {
-  display: block;
-}
-
-h1, h2 {
-  text-align: center;
+.main-button {
+  background-color: #007bff;
   color: #fff;
-  margin-bottom: 16px;
-}
-
-p.tagline {
-  text-align: center;
+  padding: 14px 24px;
   font-size: 16px;
-  margin-bottom: 24px;
-  color: #ccc;
-}
-
-button {
-  background-color: #00ff99;
-  color: #000;
-  padding: 12px 20px;
   border: none;
   border-radius: 8px;
-  font-weight: bold;
+  margin: 10px 0;
   cursor: pointer;
-  margin: 6px;
-  transition: background-color 0.3s ease;
-}
-button:hover {
-  background-color: #00cc77;
-}
-
-/* Home Buttons */
-.home-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
-/* Swap and Dice Interfaces */
-.input-group {
-  margin-bottom: 16px;
-}
-.input-group label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 4px;
-}
-.input-group input, .input-group select {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #444;
-  border-radius: 6px;
-  font-size: 16px;
-  background-color: #111;
-  color: #fff;
 }
 
-/* Swap UI */
-.swap-controls {
-  background-color: #111;
+.main-button:hover {
+  background-color: #0056b3;
+}
+
+.card {
+  background-color: #fff;
   padding: 20px;
+  margin: 16px 0;
   border-radius: 12px;
-}
-.swap-buttons {
-  text-align: center;
-  margin-top: 16px;
-}
-#swap-result {
-  font-size: 18px;
-  font-weight: bold;
-  color: #00ff99;
-  margin-top: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  text-align: left;
 }
 
-/* Dice Game */
-.dice-video {
-  width: 100%;
-  max-height: 260px;
-  object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 16px;
-}
-.bet-buttons {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-}
-.result-area {
-  margin-top: 12px;
-  text-align: center;
-  font-size: 16px;
-  color: #00ff99;
+.card h3 {
+  margin-top: 0;
 }
 
-/* Interface Block */
-.interface {
-  background-color: #111;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 24px;
-}
-.feature-list {
+.info-list {
   list-style: none;
   padding-left: 0;
-}
-.feature-list li {
-  margin-bottom: 12px;
-  line-height: 1.5;
+  margin: 10px 0;
 }
 
-/* Copyable Text */
+.info-list li {
+  margin: 6px 0;
+}
+
 .copy-box {
-  background-color: #222;
-  display: inline-block;
-  padding: 4px 8px;
+  background: #eef;
+  padding: 3px 8px;
   border-radius: 6px;
   cursor: pointer;
-  font-family: monospace;
-  user-select: none;
-}
-.copy-box:hover {
-  background-color: #333;
 }
 
-/* Community Links */
-.community-links {
+.copy-box:hover {
+  background: #dde;
+}
+
+.dice-banner {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+/* Swap and Dice Sections */
+.section {
+  display: none;
+  padding: 20px;
   text-align: center;
 }
-.community-links a {
-  display: inline-block;
-  margin: 0 10px;
-  color: #00ff99;
+
+.section h2 {
+  margin-bottom: 20px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.input-group {
+  margin: 12px 0;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 4px;
   font-weight: bold;
+}
+
+.input-group input,
+.input-group select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.swap-buttons button,
+.bet-buttons button,
+.back-home button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  margin: 10px 5px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.swap-buttons button:hover,
+.bet-buttons button:hover,
+.back-home button:hover {
+  background: #218838;
+}
+
+.result-area {
+  margin-top: 15px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.dice-video {
+  width: 100%;
+  max-height: 240px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+/* Footer */
+footer {
+  margin-top: 40px;
+  font-size: 14px;
+  text-align: center;
+  color: #777;
+}
+
+.socials {
+  margin-top: 8px;
+}
+
+.socials a {
+  margin: 0 8px;
+  color: #007bff;
   text-decoration: none;
 }
-.community-links a:hover {
+
+.socials a:hover {
   text-decoration: underline;
-}
-
-/* Back to Home */
-.back-home {
-  text-align: center;
-  margin-top: 24px;
-}
-
-/* Responsive */
-@media screen and (max-width: 480px) {
-  .home-buttons {
-    flex-direction: column;
-  }
-  .bet-buttons {
-    flex-direction: column;
-  }
 }
