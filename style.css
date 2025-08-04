@@ -25,6 +25,18 @@ h1 {
     color: #007bff; /* Màu xanh đậm tạo điểm nhấn */
 }
 
+/* Tiêu đề phụ */
+h2 {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 15px 0;
+    color: #222; /* Màu đen đậm để chuyên nghiệp hơn */
+}
+
+/* ==========================
+   🔹 LOGO & FROLL PRICE
+========================== */
+
 /* Thanh điều hướng */
 nav {
     display: flex;
