@@ -1,44 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Froll Dice Game</title>
-    <link rel="icon" href="froll_48.png" type="image/png" />
-    <link rel="stylesheet" href="style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.0.0/dist/ethers.umd.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FROLL.org – Xóc Đĩa</title>
+  <link rel="icon" href="froll_48.png" type="image/png" />
+  <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="Play Xóc Đĩa and Swap FROLL/VIC. Fully decentralized, fair, and on-chain." />
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Welcome to Froll Dice Game</h1>
-            <button id="connectButton" onclick="connectWallet()">Connect Wallet</button>
-            <div id="walletInfo" style="display: none;">
-                <p id="walletAddress"></p>
-                <p id="walletBalanceFROLL"></p>
-                <p id="walletBalanceVIC"></p>
-            </div>
-        </div>
-
-        <div class="bet-form">
-            <h2>Place Your Bet</h2>
-            <label for="betAmount">Bet Amount (FROLL):</label>
-            <input type="number" id="betAmount" min="0.001" step="0.001" placeholder="Enter your bet amount">
-            <label for="betChoice">Choose Even or Odd:</label>
-            <select id="betChoice">
-                <option value="0">Even</option>
-                <option value="1">Odd</option>
-            </select>
-            <button id="betButton" onclick="placeBet()">Place Bet</button>
-        </div>
-
-        <div id="resultContainer" style="display: none;">
-            <h2>Bet Result</h2>
-            <p id="betResult"></p>
-            <p id="winLossMessage"></p>
-        </div>
+  <div class="main-container">
+    <div class="header">
+      <img src="froll_48.png" alt="FROLL Logo" class="logo" />
+      <h1>Welcome to FROLL.org</h1>
+      <p>Play Xóc Đĩa and Swap FROLL/VIC</p>
     </div>
 
-    <script src="app.js"></script>
+    <div id="wallet-info" class="wallet-info">
+      <button id="connect-wallet-btn">Connect Wallet</button>
+      <div id="wallet-details" class="wallet-details" style="display: none;">
+        <p>Wallet Address: <span id="wallet-address"></span></p>
+        <p>FROLL Balance: <span id="froll-balance">0</span> FROLL</p>
+        <p>VIC Balance: <span id="vic-balance">0</span> VIC</p>
+      </div>
+    </div>
+
+    <div class="game-interface">
+      <h2>Xóc Đĩa Game</h2>
+      <p>Select a table to start playing!</p>
+
+      <div id="table-selection">
+        <button class="table-btn" data-min-bet="0.01" data-max-bet="1">Table 1</button>
+        <button class="table-btn" data-min-bet="0.05" data-max-bet="5">Table 2</button>
+        <button class="table-btn" data-min-bet="0.1" data-max-bet="10">Table 3</button>
+      </div>
+
+      <div id="betting-interface" style="display: none;">
+        <h3>Place Your Bet</h3>
+        <p>Min Bet: <span id="min-bet"></span> FROLL</p>
+        <p>Max Bet: <span id="max-bet"></span> FROLL</p>
+        <input type="number" id="bet-amount" placeholder="Enter your bet" />
+        <button id="place-bet-btn">Place Bet</button>
+        <button id="reset-bet-btn">Reset Bet</button>
+      </div>
+
+      <div id="game-result" style="display: none;">
+        <h3>Game Result</h3>
+        <p>Result: <span id="result"></span></p>
+        <button id="play-again-btn">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.6.0/dist/ethers.min.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
