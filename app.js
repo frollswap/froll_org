@@ -10,21 +10,18 @@ const walletDetails = document.getElementById('wallet-details');
 const walletAddress = document.getElementById('wallet-address');
 const frollBalanceElement = document.getElementById('froll-balance');
 const vicBalanceElement = document.getElementById('vic-balance');
-const tableBtns = document.querySelectorAll('.table-btn');
-const bettingInterface = document.getElementById('betting-interface');
+const swapBtn = document.getElementById('swap-btn');
+const playBtn = document.getElementById('play-btn');
+const tableSelection = document.getElementById('table-selection');
 const minBetElement = document.getElementById('min-bet');
 const maxBetElement = document.getElementById('max-bet');
 const betAmountInput = document.getElementById('bet-amount');
-const placeBetBtn = document.getElementById('place-bet-btn');
-const resetBetBtn = document.getElementById('reset-bet-btn');
-const gameResult = document.getElementById('game-result');
-const resultElement = document.getElementById('result');
-const playAgainBtn = document.getElementById('play-again-btn');
+const selectTableBtn = document.getElementById('select-table-btn');
 
 connectWalletBtn.addEventListener('click', connectWallet);
-placeBetBtn.addEventListener('click', placeBet);
-resetBetBtn.addEventListener('click', resetBet);
-playAgainBtn.addEventListener('click', resetGame);
+swapBtn.addEventListener('click', openSwap);
+playBtn.addEventListener('click', openPlay);
+selectTableBtn.addEventListener('click', selectTable);
 
 async function connectWallet() {
   if (window.ethereum) {
@@ -70,24 +67,22 @@ function disconnectWallet() {
   window.location.reload();
 }
 
-tableBtns.forEach((btn) => {
-  btn.addEventListener('click', (event) => {
-    const minBet = parseFloat(event.target.getAttribute('data-min-bet'));
-    const maxBet = parseFloat(event.target.getAttribute('data-max-bet'));
-    minBetElement.textContent = minBet;
-    maxBetElement.textContent = maxBet;
+function openSwap() {
+  alert('Swap FROLL/VIC functionality will be available here!');
+}
 
-    bettingInterface.style.display = 'block';
-  });
-});
+function openPlay() {
+  tableSelection.style.display = 'block';
+}
 
-async function placeBet() {
-  const betAmount = parseFloat(betAmountInput.value);
+async function selectTable() {
   const minBet = parseFloat(minBetElement.textContent);
-  const maxBet = parseFloat(maxBetElement.textContent);
+  const maxBet = minBet * 50;  // Max bet is 50 times the min bet
+
+  const betAmount = parseFloat(betAmountInput.value);
 
   if (betAmount < minBet || betAmount > maxBet) {
-    alert('Bet amount out of range.');
+    alert(`Bet amount must be between ${minBet} and ${maxBet} FROLL.`);
     return;
   }
 
@@ -96,6 +91,7 @@ async function placeBet() {
     return;
   }
 
+  // Transfer FROLL to the game contract for betting
   const frollContract = new ethers.Contract(
     '0xB4d562A8f811CE7F134a1982992Bd153902290BC', // Address of the FROLL contract
     ['function transfer(address recipient, uint256 amount)'],
@@ -103,7 +99,7 @@ async function placeBet() {
   );
 
   const tx = await frollContract.transfer(
-    '0xE2aa80dc03450C9E01f35BE4fcC7f76843020556', // Example recipient address (game contract)
+    '0x85A12591d3BA2A7148d18e9Ca44E0D778e458906', // Corrected contract address for the Dice Game
     ethers.utils.parseUnits(betAmount.toString(), 18)
   );
 
@@ -114,10 +110,6 @@ async function placeBet() {
   simulateGameResult();
 }
 
-function resetBet() {
-  betAmountInput.value = '';
-}
-
 function simulateGameResult() {
   const randomNumber = Math.floor(Math.random() * 100); // Generate a random number between 0 and 99
 
@@ -126,12 +118,5 @@ function simulateGameResult() {
     result = 'Win';
   }
 
-  resultElement.textContent = result;
-  gameResult.style.display = 'block';
-}
-
-function resetGame() {
-  gameResult.style.display = 'none';
-  bettingInterface.style.display = 'none';
-  resetBet();
+  alert(`Game Result: ${result}`);
 }
