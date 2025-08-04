@@ -6,29 +6,16 @@
   <title>FROLL.org – Play & Swap</title>
   <link rel="icon" href="froll_48.png" type="image/png" />
   <link rel="stylesheet" href="style.css" />
-  <meta name="description" content="Swap FROLL/VIC and play Even-Odd dice game. Fully on-chain.">
+  <meta name="description" content="Swap FROLL/VIC and play blockchain-based dice game. 100% decentralized. Fair. No middlemen.">
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-  <script>
-    async function getFrollPrice() {
-      try {
-        const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT");
-        const data = await res.json();
-        const price = parseFloat(data.price);
-        const frollPrice = price * 100;
-        document.getElementById("price-usd").innerText = `1 FROLL ≈ $${frollPrice.toFixed(2)} USD`;
-      } catch {
-        document.getElementById("price-usd").innerText = "Price unavailable";
-      }
-    }
-    window.onload = getFrollPrice;
-  </script>
 </head>
 <body>
   <div class="main-container">
-    <!-- Logo + FROLL Price -->
+    
+    <!-- Header with logo and price -->
     <div class="header">
       <img src="froll_48.png" alt="FROLL Logo" class="logo" />
-      <div id="price-usd" class="price">Loading price...</div>
+      <div id="price-usd" class="price">Loading FROLL price...</div>
     </div>
 
     <!-- Home Screen -->
@@ -40,13 +27,36 @@
         <button onclick="showDice()">Play Dice Now</button>
       </div>
 
-      <div class="setup-guide">
+      <div class="interface">
         <h2>🛠 Add VIC Network & FROLL Token</h2>
-        <p><strong>Network:</strong> Viction</p>
-        <p><strong>RPC:</strong> <span onclick="navigator.clipboard.writeText('https://rpc.viction.xyz')" style="cursor:pointer;">https://rpc.viction.xyz</span></p>
-        <p><strong>Chain ID:</strong> 88</p>
-        <p><strong>Currency:</strong> VIC</p>
-        <p><strong>Token:</strong> FROLL – <span onclick="navigator.clipboard.writeText('0xB4d562A8f811CE7F134a1982992Bd153902290BC')" style="cursor:pointer;">0xB4d562A8f811CE7F134a1982992Bd153902290BC</span></p>
+        <ul class="feature-list">
+          <li>🧩 <strong>Add VIC Network</strong><br>
+            RPC: <span class="copy-box" onclick="copyText(this)">https://rpc.viction.xyz</span><br>
+            Chain ID: <span class="copy-box" onclick="copyText(this)">88</span><br>
+            Symbol: <span class="copy-box" onclick="copyText(this)">VIC</span><br>
+            Explorer: <span class="copy-box" onclick="copyText(this)">https://vicscan.xyz</span>
+          </li>
+          <li>🔔 <strong>Add FROLL Token</strong><br>
+            Contract: <span class="copy-box" onclick="copyText(this)">0xB4d562A8f811CE7F134a1982992Bd153902290BC</span><br>
+            Symbol: <span class="copy-box" onclick="copyText(this)">FROLL</span><br>
+            Decimals: <span class="copy-box" onclick="copyText(this)">18</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="interface">
+        <h2>📦 FROLL Token Info</h2>
+        <ul class="feature-list">
+          <li>Name: <strong>FortuneRolls</strong></li>
+          <li>Symbol: <strong>FROLL</strong></li>
+          <li>Blockchain: <strong>Viction (VIC)</strong></li>
+          <li>Max Supply: <strong>1,000,000</strong></li>
+          <li>Contract: 
+            <a href="https://vicscan.xyz/token/0xB4d562A8f811CE7F134a1982992Bd153902290BC" target="_blank">
+              View on VicScan
+            </a>
+          </li>
+        </ul>
       </div>
 
       <div class="community-links">
@@ -85,7 +95,7 @@
         </div>
 
         <div class="back-home">
-          <button onclick="showHome()">← Back to Home</button>
+          <button onclick="disconnectWallet(); showHome()">← Back to Home</button>
         </div>
       </div>
     </div>
@@ -115,22 +125,27 @@
         <div id="dice-result" class="result-area"></div>
 
         <div class="back-home">
-          <button onclick="showHome()">← Back to Home</button>
+          <button onclick="disconnectWallet(); showHome()">← Back to Home</button>
         </div>
       </div>
     </div>
-
-    <!-- Wallet Connect + Status -->
-    <div class="wallet-status">
-      <button id="connect-button" onclick="connectWallet()">🔌 Connect Wallet</button>
-      <div id="wallet-info" style="display:none;">
-        <div id="wallet-address"></div>
-        <div id="wallet-vic"></div>
-        <div id="wallet-froll"></div>
-        <button onclick="disconnectWallet()" style="margin-top:10px; background:#aaa;">← Disconnect</button>
-      </div>
-    </div>
   </div>
+
+  <!-- Load FROLL price in USD directly -->
+  <script>
+    async function fetchFrollPrice() {
+      try {
+        const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT");
+        const data = await res.json();
+        const vicPrice = parseFloat(data.price);
+        const frollPrice = vicPrice * 100;
+        document.getElementById("price-usd").innerText = `1 FROLL ≈ $${frollPrice.toFixed(2)} USD`;
+      } catch (err) {
+        document.getElementById("price-usd").innerText = "Price unavailable";
+      }
+    }
+    fetchFrollPrice();
+  </script>
 
   <script src="app.js"></script>
 </body>
