@@ -3,6 +3,8 @@ let signer;
 let contract;
 let walletAddress;
 let frollTokenAddress = "0x85A12591d3BA2A7148d18e9Ca44E0D778e458906"; // Địa chỉ hợp đồng xóc đĩa
+let frollToken;
+let vicTokenAddress = "0x0..."; // Thêm địa chỉ hợp đồng VIC nếu cần
 
 // Kết nối ví (MetaMask)
 async function connectWallet() {
@@ -13,32 +15,33 @@ async function connectWallet() {
         walletAddress = await signer.getAddress();
         document.getElementById("walletAddress").innerText = "Address: " + walletAddress;
         
-        const balance = await signer.getBalance();
-        document.getElementById("walletBalance").innerText = "Balance: " + ethers.utils.formatEther(balance) + " ETH";
-        
+        // Lấy số dư FROLL
+        frollToken = new ethers.Contract(frollTokenAddress, [
+            "function balanceOf(address owner) view returns (uint256)"
+        ], signer);
+
+        let balanceFroll = await frollToken.balanceOf(walletAddress);
+        document.getElementById("walletBalanceFROLL").innerText = "FROLL Balance: " + ethers.utils.formatUnits(balanceFroll, 18);
+
+        // Lấy số dư VIC (nếu có hợp đồng VIC)
+        if (vicTokenAddress) {
+            let vicToken = new ethers.Contract(vicTokenAddress, [
+                "function balanceOf(address owner) view returns (uint256)"
+            ], signer);
+            let balanceVic = await vicToken.balanceOf(walletAddress);
+            document.getElementById("walletBalanceVIC").innerText = "VIC Balance: " + ethers.utils.formatUnits(balanceVic, 18);
+        }
+
         document.getElementById("walletInfo").style.display = "block";
         document.getElementById("connectButton").style.display = "none";
         
         // Khởi tạo hợp đồng xóc đĩa
         const abi = [
-            // ABI hợp đồng xóc đĩa mà bạn đã cung cấp
+            // ABI hợp đồng xóc đĩa
             {
                 "inputs": [{ "internalType": "address", "name": "_token", "type": "address" }, { "internalType": "address", "name": "_admin", "type": "address" }],
                 "stateMutability": "nonpayable",
                 "type": "constructor"
-            },
-            {
-                "anonymous": false,
-                "inputs": [{ "indexed": true, "internalType": "address", "name": "player", "type": "address" }, { "indexed": false, "internalType": "uint8", "name": "choice", "type": "uint8" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }, { "indexed": false, "internalType": "bool", "name": "win", "type": "bool" }],
-                "name": "BetResult",
-                "type": "event"
-            },
-            {
-                "inputs": [],
-                "name": "admin",
-                "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-                "stateMutability": "view",
-                "type": "function"
             },
             {
                 "inputs": [{ "internalType": "uint8", "name": "choice", "type": "uint8" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }],
@@ -49,16 +52,9 @@ async function connectWallet() {
             },
             {
                 "inputs": [],
-                "name": "token",
+                "name": "admin",
                 "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
                 "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "withdraw",
-                "outputs": [],
-                "stateMutability": "nonpayable",
                 "type": "function"
             }
         ];
@@ -80,8 +76,9 @@ async function placeBet() {
     }
 
     try {
-        const tx = await contract.bet(betChoice, ethers.utils.parseEther(betAmount));
-        await tx.wait(); // Đợi giao dịch hoàn thành
+        // Chuyển FROLL từ người chơi vào hợp đồng
+        const tx = await contract.bet(betChoice, ethers.utils.parseUnits(betAmount, 18));
+        await tx.wait(); // Đợi giao dịch hoàn tất
 
         // Hiển thị kết quả
         document.getElementById("betResult").innerText = `You bet ${betAmount} FROLL on ${betChoice === "0" ? "Even" : "Odd"}`;
