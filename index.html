@@ -1,114 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Froll.org - Swap FROLL/VIC</title>
-    <link rel="icon" href="froll_48.png" type="image/png">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FROLL Dice – On-Chain Even/Odd (VIC)</title>
+  <link rel="icon" href="froll_48.png" type="image/png"/>
+  <link rel="stylesheet" href="style.css"/>
+
+  <!-- Ethers.js v5 (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+  <meta name="description" content="Provably-fair even/odd with FROLL on VIC. Bowl reveal matches on-chain parity from the smart contract."/>
 </head>
-
 <body>
-    <!-- Kết nối ví -->
-    <div id="connect-interface" class="interface">
-        <img src="128.png" alt="FrollSwap Logo" class="logo" style="display: block; margin: 0 auto;">
-        
-        <!-- Thêm div bao quanh giá FROLL và đoạn thông báo để có độ rộng bằng nhau -->
-        <div class="equal-width-segments">
-            <div class="segment">
-                <span id="froll-price" class="froll-price">Loading price...</span>
-            </div>
-            <div class="segment">
-                <p class="italic-bold">Please open Froll.org in your MetaMask browser (on Viction Network) to connect and swap FROLL/VIC</p>
-            </div>
+  <div class="container">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <img src="128.png" alt="FROLL" class="logo"/>
+        <div class="brand-text">
+          <h1>FROLL Dice</h1>
+          <p class="subtitle">Provably-fair on VIC • Parity comes from the smart contract</p>
+        </div>
+      </div>
+
+      <div class="wallet-box">
+        <button id="btn-connect" class="btn primary">Connect Wallet</button>
+        <div id="wallet-info" class="wallet-info hidden">
+          <span id="addr-short">—</span>
+          <button id="btn-disconnect" class="btn ghost">Disconnect</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Balances -->
+    <section class="panel" id="balances-panel">
+      <h2>Balances</h2>
+      <div class="balances-grid">
+        <div class="card">
+          <div class="label">VIC</div>
+          <div id="vic-balance" class="value">0.0000</div>
+        </div>
+        <div class="card">
+          <div class="label">FROLL</div>
+          <div id="froll-balance" class="value">0.0000</div>
+        </div>
+        <div class="card">
+          <div class="label">Contract Pool</div>
+          <div id="pool-balance" class="value">—</div>
+        </div>
+      </div>
+      <p class="note">Token: FROLL (18 decimals) • Network: VIC • Results are taken from on-chain events.</p>
+    </section>
+
+    <!-- Table selection -->
+    <section class="panel" id="table-panel">
+      <h2>Select Table (enter Min)</h2>
+      <div class="custom-table">
+        <label for="minBet">Min Bet (FROLL) — minimum 0.001</label>
+        <input id="minBet" type="number" min="0.001" step="0.001" placeholder="e.g., 1.25"/>
+        <button id="btn-set-table" class="btn">Set Table</button>
+      </div>
+      <div class="current-table">
+        Current table: <span id="current-table">Not set</span>
+      </div>
+      <p class="note">Max Bet = Min Bet × 50 (on-chain rule).</p>
+    </section>
+
+    <!-- Play section -->
+    <section class="panel" id="play-panel">
+      <h2>Play Even / Odd</h2>
+
+      <div class="bet-row">
+        <div class="toggle">
+          <button id="btn-even" class="btn toggle active" data-side="even">Even</button>
+          <button id="btn-odd" class="btn toggle" data-side="odd">Odd</button>
+        </div>
+        <div class="amount-box">
+          <label for="bet-amount">Bet Amount (FROLL)</label>
+          <input id="bet-amount" type="number" min="0.001" step="0.001" placeholder="e.g., 2.5"/>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btn-clear" class="btn ghost" title="Clear amount">Clear</button>
+        <button id="btn-half" class="btn ghost" title="Half the amount">½</button>
+        <button id="btn-double" class="btn ghost" title="Double the amount">Double</button>
+        <button id="btn-repeat" class="btn ghost" title="Repeat last round">Repeat</button>
+        <button id="btn-approve" class="btn" title="Approve FROLL to the contract">Approve FROLL</button>
+        <button id="btn-play" class="btn primary fire" title="Shake & Play">Play Now</button>
+      </div>
+
+      <div class="limits">
+        Table limits: <span id="limit-min">—</span> – <span id="limit-max">—</span> FROLL
+      </div>
+
+      <div id="tx-status" class="status"></div>
+    </section>
+
+    <!-- Result info -->
+    <section class="panel" id="result-panel">
+      <h2>Latest Result</h2>
+      <div class="result-grid">
+        <div class="card">
+          <div class="label">Outcome</div>
+          <div id="last-outcome" class="value">—</div>
+        </div>
+        <div class="card">
+          <div class="label">Win / Lose</div>
+          <div id="last-payout" class="value">—</div>
+        </div>
+        <div class="card">
+          <div class="label">Tx Hash</div>
+          <div id="last-tx" class="value ellipsis">—</div>
+        </div>
+      </div>
+      <p class="note">
+        The bowl reveals parity from the <code>Played</code> event. On page load, it shows the most recent round on the contract.
+      </p>
+    </section>
+
+    <!-- Dealer stage: bowl + coins (animation & reveal) -->
+    <section class="panel" id="stage-panel">
+      <h2>Stage</h2>
+      <div class="stage">
+        <!-- Shaking bowl (CSS animation controlled by app.js) -->
+        <div id="bowl" class="bowl" aria-label="Shaking bowl"></div>
+
+        <!-- Reveal area: 4 coins, rendered by JS using 5 layouts (even/odd variants) -->
+        <div id="coins" class="coins">
+          <!-- JS will render 4 .coin.red / .coin.white with layout seeded by txHash -->
         </div>
 
-        <div class="button-container">
-            <button id="connect-wallet" class="button">Connect Wallet</button>
-        </div>
-    </div>
+        <!-- Optional future video hook:
+        <video id="shakeVideo" class="hidden" autoplay muted loop playsinline>
+          <source src="shake-loop.mp4" type="video/mp4"/>
+        </video>
+        -->
+      </div>
+      <p class="note">Before you bet, the bowl shows the previous round’s result. After you play, it shakes and reveals exactly the on-chain parity.</p>
+    </section>
 
-    <!-- Nội dung khi kết nối -->
-    <div id="new-content" class="interface" style="display: none;">
-        <h2>🧭 Add Viction Network & FROLL Token to MetaMask</h2>
-        <ul class="feature-list">
-            <li>🧩 <strong>Add Viction Network</strong><br>
-                RPC: <span class="copy-box" onclick="copyText(this)">https://rpc.viction.xyz</span><br>
-                Chain ID: <span class="copy-box" onclick="copyText(this)">88</span><br>
-                Symbol: <span class="copy-box" onclick="copyText(this)">VIC</span><br>
-                Explorer: <span class="copy-box" onclick="copyText(this)">https://vicscan.xyz</span>
-            </li>
-            <li>🔔 <strong>Add FROLL Token</strong><br>
-                Contract: <span class="copy-box" onclick="copyText(this)">0xB4d562A8f811CE7F134a1982992Bd153902290BC</span><br>
-                Symbol: <span class="copy-box" onclick="copyText(this)">FROLL</span><br>
-                Decimals: <span class="copy-box" onclick="copyText(this)">18</span>
-            </li>
-        </ul>
-
-        <h2>💎 FROLL Token – A Scarce Asset on VIC Blockchain</h2>
-        <p><strong>Name:</strong> FortuneRolls</p>
-        <p><strong>Symbol:</strong> FROLL</p>
-        <p><strong>Blockchain:</strong> Viction (VIC)</p>
-        <p><strong>Max Supply:</strong> 1,000,000</p>
-        <p><strong>Contract:</strong> <a href="https://www.vicscan.xyz/token/0xB4d562A8f811CE7F134a1982992Bd153902290BC" target="_blank">View on VicScan</a></p>
-
-        <h2>🎮 Explore the FROLL Ecosystem</h2>
-        <ul class="feature-list">
-            <li>🎟️ <a href="https://Lottery.vin" target="_blank">Lottery.vin</a> – Fully on-chain decentralized lottery</li>
-        </ul>
-    </div>
-
-    <!-- Giao diện Swap -->
-    <div id="swap-interface" class="interface" style="display: none;">
-        <header class="swap-header">
-            <div id="wallet-address" class="wallet-address"></div>
-            <button id="disconnect-wallet" class="button">Disconnect Wallet</button>
-        </header>
-        <h1>Swap</h1>
-        <div class="swap-container">
-            <div class="token-input">
-                <img id="from-token-logo" src="vic_24.png" alt="From Token">
-                <div>
-                    <p id="from-token-info">VIC: 0.0000</p>
-                    <input type="number" id="from-amount" placeholder="0.0">
-                </div>
-                <button id="max-button" class="button">Max</button>
-            </div>
-            <button id="swap-direction" class="swap-direction">↔️</button>
-            <div class="token-input">
-                <img id="to-token-logo" src="froll_24.png" alt="To Token">
-                <div>
-                    <p id="to-token-info">FROLL: 0.0000</p>
-                    <input type="text" id="to-amount" placeholder="0.0" disabled>
-                </div>
-            </div>
-        </div>
-        <div class="swap-details">
-            <p id="transaction-fee">Transaction Fee: 0.01 VIC</p>
-            <p id="gas-fee">Estimated Gas Fee: ~0.000029 VIC</p>
-        </div>
-        <button id="swap-now" class="button">Swap Now</button>
-    </div>
-
-    <!-- Chân trang và mạng xã hội -->
-    <footer id="footer" class="footer">
-        <div class="social-links">
-            <a href="https://t.me/FortuneRolls" target="_blank">Join Telegram</a>
-            <a href="https://x.com/FortuneRolls" target="_blank">Follow X</a>
-        </div>
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="links">
+        <a href="https://Lottery.vin" target="_blank" rel="noopener">Lottery.vin</a>
+        <span>•</span>
+        <a href="https://Froll.net" target="_blank" rel="noopener">Froll.net</a>
+        <span>•</span>
+        <a href="https://t.me/FortuneRolls" target="_blank" rel="noopener">Telegram</a>
+        <span>•</span>
+        <a href="https://x.com/FortuneRolls" target="_blank" rel="noopener">X</a>
+      </div>
+      <div class="fine">
+        No admins. No tricks. Just code and trust.
+      </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <script>
-        function copyText(el) {
-            const t = el.textContent.trim();
-            navigator.clipboard.writeText(t)
-                .then(() => alert("✅ Copied: " + t))
-                .catch(err => console.error("Copy failed!", err));
-        }
-    </script>
-    <script src="app.js"></script>
-</body>
+  </div>
 
+  <!-- App logic -->
+  <script src="app.js"></script>
+</body>
 </html>
