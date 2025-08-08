@@ -1,321 +1,225 @@
-/* RESET & BASE FONT */
-html, body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-    color: #333;
-}
-
-/* NAVBAR */
-.navbar {
-    display: block; /* Đảm bảo navbar hiển thị mặc định */
-    padding: 12px 20px;
-    background-color: #007bff;
-    color: #fff;
-    text-align: center;
-}
-
-/* LOGO */
-.logo {
-    height: 80px; /* Tăng kích thước logo */
-    display: block;
-    margin: 0 auto;
-    max-width: 100%;
-    animation: fadeIn 0.8s ease-in-out;
-}
-
-/* Giá FROLL theo USD */
-.froll-price {
-    font-weight: bold; /* Làm đậm chữ để giá nổi bật */
-    font-size: 28px; /* Kích thước chữ lớn hơn để dễ nhìn */
-    color: #FFD700; /* Màu vàng ánh kim */
-    display: block;
-    text-align: center;
-    margin-top: 20px;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2); /* Giảm đổ bóng nhẹ để giá vẫn rõ nét */
-    letter-spacing: 1px; /* Thêm khoảng cách giữa các chữ để giá dễ đọc hơn */
-    line-height: 1.2; /* Điều chỉnh khoảng cách dòng để cân đối */
-}
-
-
-/* INTERFACE BLOCKS */
-.interface {
-    max-width: 640px;
-    margin: 40px auto;
-    padding: 25px;
-    background: rgba(255, 255, 255, 0.8); /* Nền trắng trong suốt */
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-    text-align: center;
-}
-
-/* REMOVE WELCOME SECTION AND NAVBAR */
-#connect-interface, #new-content {
-    display: block;
-}
-
-#swap-interface:not([style*="display: none"]) ~ #connect-interface,
-#swap-interface:not([style*="display: none"]) ~ #new-content {
-    display: none !important;
-}
-
-/* BUTTON */
-.button {
-    background-color: #007bff;
-    color: #fff;
-    padding: 12px 24px;
-    font-size: 16px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    margin-top: 10px;
-}
-
-.button:hover {
-    background-color: #0056b3;
-    transform: scale(1.05);
-}
-
-.button:active {
-    background-color: #004085;
-    transform: scale(0.97);
-}
-
-/* FOOTER */
-.footer {
-    padding: 20px 0;
-    background-color: #007bff;
-    text-align: center;
-    color: white;
-    display: block; /* Đảm bảo footer hiển thị mặc định */
-}
-
-.footer .social-links {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-.footer .social-links a {
-    margin: 0;
-    color: white;
-    text-decoration: none;
-}
-
-.footer .social-links a:hover {
-    text-decoration: underline;
-}
-
-/* HOME CONTENT */
-#new-content {
-    background: rgba(255, 255, 255, 0.8); /* Nền trắng trong suốt */
-    border-radius: 12px;
-    padding: 20px;
-    text-align: left;
-    margin-top: 0;
-}
-
-#new-content h2 {
-    font-size: 20px;
-    color: #007bff;
-    text-align: center;
-}
-
-.feature-list {
-    list-style: none;
-    padding: 0;
-    margin-top: 10px;
-}
-
-.feature-list li {
-    padding: 8px 0;
-    font-size: 15px;
-    line-height: 1.5;
-}
-
-.feature-list code,
-.copyable {
-    background-color: #eef3fc;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: monospace;
-    cursor: pointer;
-    display: inline-block;
-    color: #007bff;
-    font-weight: bold;
-    transition: color 0.3s ease;
-}
-
-.copyable:hover {
-    color: #d9534f;
-    text-decoration: underline;
-}
-
-/* SWAP INTERFACE */
-.swap-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 20px 0;
-    gap: 20px;
-}
-
-.token-input {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 45%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #f1f1f1;
-}
-
-.token-input img {
-    height: 24px;
-    width: 24px;
-}
-
-.token-input input {
-    flex-grow: 1;
-    border: none;
-    background: none;
-    font-size: 16px;
-    color: #333;
-}
-
-.token-input input:focus {
-    outline: none;
-}
-
-.token-input .button {
-    margin-left: -5px;
-}
-
-.swap-direction {
-    font-size: 24px;
-    color: #007bff;
-    border: none;
-    background: none;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-.swap-direction:hover {
-    transform: rotate(180deg);
-}
-
-.swap-details {
-    text-align: left;
-    font-size: 14px;
-    color: #555;
-    margin-top: 20px;
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-    .interface {
-        margin: 20px auto;
-        padding: 20px;
-    }
-
-    .swap-container {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .token-input {
-        width: 100%;
-    }
-
-    .feature-list li,
-    .feature-list code,
-    .copyable {
-        font-size: 14px;
-    }
-
-    .footer .social-links a {
-        display: block;
-        margin-bottom: 10px;
-    }
-}
-
-/* FADE-IN */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.8);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-/* Đảm bảo footer luôn ở dưới cùng của trang */
+/* ========== RESET & BASE ========== */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
 body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Đảm bảo chiều cao tối thiểu của trang là 100% chiều cao màn hình */
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: #ffffff;
+  color: #0f172a;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: #0ea5e9; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ========== LAYOUT ========== */
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 20px 16px 80px;
 }
 
-main {
-    flex-grow: 1; /* Phần thân chính (content) sẽ chiếm không gian còn lại */
+.panel {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 18px;
+  margin: 16px 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
 
-/* Footer */
+h1, h2 {
+  margin: 0 0 10px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+h1 { font-size: 28px; }
+h2 { font-size: 20px; }
+.subtitle { margin: 4px 0 0; color: #64748b; }
+
+/* ========== HEADER ========== */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 12px;
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo {
+  width: 56px; height: 56px; border-radius: 14px;
+  object-fit: contain; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.brand-text h1 { margin-bottom: 2px; }
+
+.wallet-box { display: flex; align-items: center; gap: 10px; }
+.wallet-info { display: flex; align-items: center; gap: 10px; }
+.hidden { display: none !important; }
+.ellipsis { max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+/* ========== GRID CARDS ========== */
+.balances-grid, .result-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 12px;
+}
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+  background: #f8fafc;
+}
+.card .label { color: #64748b; font-size: 13px; margin-bottom: 6px; }
+.card .value { font-weight: 800; font-size: 20px; }
+
+/* ========== TABLE SELECT ========== */
+.custom-table {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 8px;
+}
+.custom-table label { grid-column: 1 / -1; font-size: 13px; color: #334155; }
+.custom-table input {
+  padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 10px; outline: none;
+}
+.current-table { color: #334155; }
+.note { color: #64748b; font-size: 13px; margin-top: 6px; }
+
+/* ========== PLAY AREA ========== */
+.bet-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center;
+}
+.toggle { display: flex; gap: 8px; }
+
+.amount-box label { font-size: 13px; color: #334155; display: block; margin-bottom: 6px; }
+#bet-amount {
+  width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 10px; outline: none;
+}
+
+.actions {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;
+}
+
+.limits { margin-top: 8px; color: #334155; }
+.status {
+  margin-top: 10px; padding: 10px 12px;
+  border: 1px dashed #cbd5e1; border-radius: 10px; background: #f8fafc;
+  font-size: 14px; min-height: 20px; color: #0f172a;
+}
+
+/* ========== BUTTONS ========== */
+.btn {
+  appearance: none; border: 1px solid #e5e7eb;
+  padding: 10px 14px; border-radius: 10px; cursor: pointer;
+  font-weight: 800; background: #f3f4f6; transition: transform .05s ease, filter .15s ease;
+}
+.btn:hover { filter: brightness(0.98); }
+.btn:active { transform: translateY(1px); }
+
+.primary { background: #111827; color: #fff; border-color: #111827; }
+.fire { box-shadow: 0 0 0 2px rgba(17,24,39,0.15) inset; }
+.ghost { background: #ffffff; border-color: #e5e7eb; }
+
+.btn.toggle.active { background: #0ea5e9; color: #fff; border-color: #0ea5e9; }
+
+/* ========== STAGE (BOWL + COINS) ========== */
+.stage {
+  position: relative;
+  display: grid; place-items: center;
+  min-height: 260px;
+  background: radial-gradient(ellipse at center, #f8fafc 0%, #ffffff 60%);
+  border: 1px dashed #e5e7eb; border-radius: 16px;
+}
+
+/* Bowl */
+.bowl {
+  width: 180px; height: 180px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #94a3b8 0%, #64748b 40%, #334155 75%);
+  box-shadow: inset 0 8px 18px rgba(0,0,0,0.35), 0 8px 18px rgba(0,0,0,0.06);
+  opacity: 0.95;
+  transform-origin: 50% 60%;
+}
+.bowl.shaking {
+  animation: shake 0.55s ease-in-out 0s infinite;
+}
+@keyframes shake {
+  0% { transform: translateX(0) rotate(0deg); }
+  20% { transform: translateX(-4px) rotate(-1.5deg); }
+  40% { transform: translateX(4px) rotate(1.5deg); }
+  60% { transform: translateX(-3px) rotate(-1deg); }
+  80% { transform: translateX(3px) rotate(1deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+
+/* Coins container */
+.coins {
+  position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
+}
+.coins.hidden { display: none; }
+
+.coins .coin {
+  position: absolute;
+  width: 42px; height: 42px; border-radius: 50%;
+  box-shadow: inset 0 8px 10px rgba(0,0,0,0.18), 0 2px 4px rgba(0,0,0,0.08);
+  transform: rotate(var(--rot, 0deg));
+}
+.coin.white {
+  background: radial-gradient(circle at 35% 35%, #ffffff, #f1f5f9 55%, #cbd5e1 100%);
+  border: 1px solid #e2e8f0;
+}
+.coin.red {
+  background: radial-gradient(circle at 35% 35%, #ef4444, #dc2626 55%, #991b1b 100%);
+  border: 1px solid #b91c1c;
+}
+
+/* ---- Five reveal layouts (positions of 4 coins) ---- */
+/* Center is roughly (50%, 50%). Positions tuned for visual realism */
+.layout-even-0 .coin:nth-child(1),
+.layout-odd-1 .coin:nth-child(1),
+.layout-even-2a .coin:nth-child(1),
+.layout-odd-3a .coin:nth-child(1),
+.layout-even-4 .coin:nth-child(1) { left: calc(50% - 60px); top: calc(50% - 10px); --rot: -10deg; }
+
+.layout-even-0 .coin:nth-child(2),
+.layout-odd-1 .coin:nth-child(2),
+.layout-even-2a .coin:nth-child(2),
+.layout-odd-3a .coin:nth-child(2),
+.layout-even-4 .coin:nth-child(2) { left: calc(50% - 10px); top: calc(50% - 50px); --rot: 15deg; }
+
+.layout-even-0 .coin:nth-child(3),
+.layout-odd-1 .coin:nth-child(3),
+.layout-even-2a .coin:nth-child(3),
+.layout-odd-3a .coin:nth-child(3),
+.layout-even-4 .coin:nth-child(3) { left: calc(50% + 35px); top: calc(50% + 0px); --rot: -2deg; }
+
+.layout-even-0 .coin:nth-child(4),
+.layout-odd-1 .coin:nth-child(4),
+.layout-even-2a .coin:nth-child(4),
+.layout-odd-3a .coin:nth-child(4),
+.layout-even-4 .coin:nth-child(4) { left: calc(50% - 5px); top: calc(50% + 38px); --rot: 9deg; }
+
+/* We’ll let JS decide which coins are red/white per parity & txHash seed.
+   The different layout classes help animate slight offsets if we want to vary more later. */
+
+/* ========== FOOTER ========== */
 .footer {
-    margin-top: auto; /* Đẩy footer xuống dưới cùng của trang */
-    padding: 20px 0;
-    background-color: #007bff;
-    text-align: center;
-    color: white;
+  margin-top: 22px; padding-top: 14px; border-top: 1px solid #f1f5f9; color: #64748b; text-align: center;
 }
+.footer .links { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.footer .fine { font-size: 12px; }
 
-/* Định dạng dòng chữ "Please open Froll.net" */
-.italic-bold {
-    font-weight: bold; /* In đậm */
-    font-style: italic; /* Nghiêng chữ */
-    font-size: 12px; /* Giữ cỡ chữ nhỏ như yêu cầu */
-    color: #555;
-    text-align: center;
-    margin-top: 10px;
-}
-
-/* Đảm bảo hai đoạn văn bản có độ rộng bằng nhau */
-.equal-width-segments {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.equal-width-segments .segment {
-    width: 48%; /* Đảm bảo mỗi phần chiếm 48% chiều rộng để có độ rộng bằng nhau */
-    text-align: center;
-    padding: 10px;
-    box-sizing: border-box;
-}
-
-/* Đảm bảo các phần hiển thị đẹp trên màn hình nhỏ (responsive) */
-@media (max-width: 768px) {
-    .equal-width-segments {
-        flex-direction: column; /* Chuyển thành cột khi trên màn hình nhỏ */
-    }
-
-    .equal-width-segments .segment {
-        width: 100%; /* Mỗi đoạn chiếm toàn bộ chiều rộng khi trên màn hình nhỏ */
-        margin-bottom: 10px;
-    }
-}
-
-/* Tinh chỉnh phần hiển thị giá FROLL cho mượt mà và dễ nhìn */
-#froll-price {
-    font-weight: bold; /* Làm đậm giá để nổi bật */
-    font-size: 24px;
-    color: #FFD700; /* Màu vàng ánh kim */
-    text-align: center;
-    margin-top: 20px;
-    line-height: 1.5;
+/* ========== RESPONSIVE ========== */
+@media (max-width: 780px) {
+  .balances-grid, .result-grid { grid-template-columns: 1fr; }
+  .custom-table { grid-template-columns: 1fr; }
+  .bet-row { grid-template-columns: 1fr; }
+  .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .wallet-box { width: 100%; justify-content: space-between; }
+  .stage { min-height: 240px; }
+  .bowl { width: 160px; height: 160px; }
+  .coins .coin { width: 38px; height: 38px; }
 }
