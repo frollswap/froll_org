@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FROLL Dice – On-Chain Even/Odd (VIC)</title>
+  <meta name="description" content="Provably-fair even/odd with FROLL on VIC. Bowl reveal matches on-chain parity."/>
   <link rel="icon" href="froll_48.png" type="image/png"/>
   <link rel="stylesheet" href="style.css"/>
 
-  <!-- Ethers.js v5 (CDN) -->
+  <!-- Ethers.js v5 (CDN). Không dùng defer để tải sớm; app.js sẽ tự kiểm tra/fallback nếu thiếu -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-  <meta name="description" content="Provably-fair even/odd with FROLL on VIC. Bowl reveal matches on-chain parity from the smart contract."/>
 </head>
 <body>
-  <div class="container">
+  <noscript>This app requires JavaScript to run.</noscript>
 
+  <div class="container">
     <!-- Header -->
     <header class="header">
       <div class="brand">
@@ -25,10 +26,11 @@
       </div>
 
       <div class="wallet-box">
-        <button id="btn-connect" class="btn primary">Connect Wallet</button>
+        <!-- Thêm onclick fallback để chắc chắn gọi được -->
+        <button id="btn-connect" class="btn primary" onclick="window.connectWallet && window.connectWallet()">Connect Wallet</button>
         <div id="wallet-info" class="wallet-info hidden">
           <span id="addr-short">—</span>
-          <button id="btn-disconnect" class="btn ghost">Disconnect</button>
+          <button id="btn-disconnect" class="btn ghost" onclick="window.disconnectWallet && window.disconnectWallet()">Disconnect</button>
         </div>
       </div>
     </header>
@@ -50,10 +52,10 @@
           <div id="pool-balance" class="value">—</div>
         </div>
       </div>
-      <p class="note">Token: FROLL (18 decimals) • Network: VIC • Results are taken from on-chain events.</p>
+      <p class="note">Token: FROLL (18 decimals) • Network: VIC • Results are from on-chain events.</p>
     </section>
 
-    <!-- Table selection -->
+    <!-- Table -->
     <section class="panel" id="table-panel">
       <h2>Select Table (enter Min)</h2>
       <div class="custom-table">
@@ -67,10 +69,9 @@
       <p class="note">Max Bet = Min Bet × 50 (on-chain rule).</p>
     </section>
 
-    <!-- Play section -->
+    <!-- Play -->
     <section class="panel" id="play-panel">
       <h2>Play Even / Odd</h2>
-
       <div class="bet-row">
         <div class="toggle">
           <button id="btn-even" class="btn toggle active" data-side="even">Even</button>
@@ -98,7 +99,7 @@
       <div id="tx-status" class="status"></div>
     </section>
 
-    <!-- Result info -->
+    <!-- Latest result -->
     <section class="panel" id="result-panel">
       <h2>Latest Result</h2>
       <div class="result-grid">
@@ -115,30 +116,17 @@
           <div id="last-tx" class="value ellipsis">—</div>
         </div>
       </div>
-      <p class="note">
-        The bowl reveals parity from the <code>Played</code> event. On page load, it shows the most recent round on the contract.
-      </p>
+      <p class="note">On page load, bowl reveals the most recent contract round.</p>
     </section>
 
-    <!-- Dealer stage: bowl + coins (animation & reveal) -->
+    <!-- Stage -->
     <section class="panel" id="stage-panel">
       <h2>Stage</h2>
       <div class="stage">
-        <!-- Shaking bowl (CSS animation controlled by app.js) -->
         <div id="bowl" class="bowl" aria-label="Shaking bowl"></div>
-
-        <!-- Reveal area: 4 coins, rendered by JS using 5 layouts (even/odd variants) -->
-        <div id="coins" class="coins">
-          <!-- JS will render 4 .coin.red / .coin.white with layout seeded by txHash -->
-        </div>
-
-        <!-- Optional future video hook:
-        <video id="shakeVideo" class="hidden" autoplay muted loop playsinline>
-          <source src="shake-loop.mp4" type="video/mp4"/>
-        </video>
-        -->
+        <div id="coins" class="coins"></div>
       </div>
-      <p class="note">Before you bet, the bowl shows the previous round’s result. After you play, it shakes and reveals exactly the on-chain parity.</p>
+      <p class="note">After you play, the bowl shakes and reveals the exact on-chain parity.</p>
     </section>
 
     <!-- Footer -->
@@ -152,11 +140,8 @@
         <span>•</span>
         <a href="https://x.com/FortuneRolls" target="_blank" rel="noopener">X</a>
       </div>
-      <div class="fine">
-        No admins. No tricks. Just code and trust.
-      </div>
+      <div class="fine">No admins. No tricks. Just code and trust.</div>
     </footer>
-
   </div>
 
   <!-- App logic -->
