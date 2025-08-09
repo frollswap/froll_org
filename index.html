@@ -3,44 +3,56 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FROLL Dice – On-Chain Even/Odd (VIC)</title>
-  <meta name="description" content="Provably-fair even/odd with FROLL on VIC. Bowl reveal matches on-chain parity."/>
+  <title>FROLL.org — Dice & Swap (VIC)</title>
+  <meta name="description" content="Play Even/Odd dice game with FROLL on Viction and swap VIC ↔ FROLL on-chain."/>
   <link rel="icon" href="froll_48.png" type="image/png"/>
   <link rel="stylesheet" href="style.css"/>
 
   <!-- Ethers.js v5 (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 </head>
 <body>
   <noscript>This app requires JavaScript to run.</noscript>
 
-  <div class="container">
-    <!-- Header -->
-    <header class="header">
-      <div class="brand">
-        <img src="128.png" alt="FROLL" class="logo"/>
-        <div class="brand-text">
-          <h1>FROLL Dice</h1>
-          <p class="subtitle">Provably-fair on VIC • Parity comes from the smart contract</p>
-        </div>
-      </div>
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-left">
+      <img src="128.png" alt="FROLL Logo" class="nav-logo"/>
+      <span id="froll-price" class="froll-price">Loading price...</span>
+    </div>
+    <div class="nav-right">
+      <!-- Nút mở giao diện Swap -->
+      <button id="open-swap" class="button">Swap FROLL/VIC</button>
+      <!-- Nút quay về Game (ẩn mặc định) -->
+      <button id="back-to-game" class="button ghost" style="display:none">Back to Game</button>
+    </div>
+  </nav>
 
-      <div class="wallet-box">
-        <!-- Guide placeholder (sau này thay URL Drive thật) -->
-        <a id="btn-guide" class="btn accent" href="https://docs.google.com/document/d/1IEUP8x_xSOUhbFBAuG012VA5HW_O9MuI/edit" target="_blank" rel="noopener">
-          Guide / How to play
-        </a>
-
-        <!-- Wallet -->
-        <button id="btn-connect" class="btn primary" onclick="window.connectWallet && window.connectWallet()">Connect Wallet</button>
-        <div id="wallet-info" class="wallet-info hidden">
-          <span id="addr-short">—</span>
-          <button id="btn-disconnect" class="btn ghost" onclick="window.disconnectWallet && window.disconnectWallet()">Disconnect</button>
-        </div>
-      </div>
+  <!-- GAME INTERFACE (XÓC ĐĨA) -->
+  <!-- Giữ mặc định hiển thị. Phần JS sẽ ẩn/hiện theo nút bấm -->
+  <main id="game-interface" class="interface">
+    <!-- NGUYÊN giao diện xóc đĩa của bạn sẽ hiển thị ở đây (không cần chỉnh).
+         File app.js mới vẫn dùng đúng logic xóc đĩa hiện nay. -->
+    <header class="section-head">
+      <h1>FROLL Dice — Even / Odd</h1>
+      <p class="sub">Provably-fair on Viction. Place your bet and guess Even or Odd.</p>
     </header>
 
-    <!-- Balances -->
+    <!-- ====== DICE: STATUS & CONTROLS (các id/khối này khớp với app.js mới) ====== -->
+    <section class="panel" id="wallet-panel">
+      <div class="wallet-row">
+        <div class="wallet-side">
+          <button id="btn-connect" class="button">Connect Wallet</button>
+          <button id="btn-disconnect" class="button ghost">Disconnect</button>
+        </div>
+        <div class="wallet-info">
+          <div><strong>Address:</strong> <span id="user-address">—</span></div>
+          <div><strong>Network:</strong> <span id="network-name">—</span></div>
+          <div><strong>Status:</strong> <span id="tx-status">—</span></div>
+        </div>
+      </div>
+    </section>
+
     <section class="panel" id="balances-panel">
       <h2>Balances</h2>
       <div class="balances-grid">
@@ -53,34 +65,35 @@
           <div id="froll-balance" class="value">0.0000</div>
         </div>
         <div class="card">
-          <div class="label">Contract Pool</div>
-          <div id="pool-balance" class="value">—</div>
+          <div class="label">House (FROLL)</div>
+          <div id="house-balance" class="value">0.0000</div>
         </div>
       </div>
-      <p class="note">Token: FROLL (18 decimals) • Network: VIC • Results are from on-chain events.</p>
     </section>
 
-    <!-- Table -->
     <section class="panel" id="table-panel">
-      <h2>Select Table (enter Min)</h2>
-      <div class="custom-table">
-        <label for="minBet">Min Bet (FROLL) — minimum 0.001</label>
-        <input id="minBet" type="number" min="0.001" step="0.001" placeholder="e.g., 1.25"/>
-        <button id="btn-set-table" class="btn accent">Set Table</button>
+      <h2>Choose Table</h2>
+      <div class="table-row">
+        <div class="table-select">
+          <label for="min-bet">Min Bet (FROLL)</label>
+          <input id="min-bet" type="number" min="0.001" step="0.001" placeholder="e.g., 0.005"/>
+          <button id="btn-set-table" class="button">Set Table</button>
+        </div>
+        <div class="table-info">
+          <div>Current Table:</div>
+          <div>Min: <span id="curr-min">—</span> FROLL</div>
+          <div>Max: <span id="curr-max">—</span> FROLL</div>
+        </div>
       </div>
-      <div class="current-table">
-        Current table: <span id="current-table">Not set</span>
-      </div>
-      <p class="note">Max Bet = Min Bet × 50 (on-chain rule).</p>
     </section>
 
-    <!-- Play -->
-    <section class="panel" id="play-panel">
-      <h2>Play Even / Odd</h2>
+    <section class="panel" id="bet-panel">
+      <h2>Place Your Bet</h2>
       <div class="bet-row">
-        <div class="toggle">
-          <button id="btn-even" class="btn toggle active" data-side="even">Even</button>
-          <button id="btn-odd" class="btn toggle" data-side="odd">Odd</button>
+        <div class="side-box">
+          <button id="btn-even" class="button">Even</button>
+          <button id="btn-odd" class="button ghost">Odd</button>
+          <div class="picked">Picked: <span id="picked-side">Even</span></div>
         </div>
         <div class="amount-box">
           <label for="bet-amount">Bet Amount (FROLL)</label>
@@ -89,71 +102,69 @@
       </div>
 
       <div class="actions">
-        <button id="btn-clear" class="btn ghost" title="Clear amount">Clear</button>
-        <button id="btn-half" class="btn ghost" title="Half the amount">½</button>
-        <button id="btn-double" class="btn ghost" title="Double the amount">Double</button>
-        <button id="btn-repeat" class="btn ghost" title="Repeat last round">Repeat</button>
+        <button id="btn-clear" class="button ghost" title="Clear amount">Clear</button>
+        <button id="btn-half" class="button ghost" title="Half the amount">½</button>
+        <button id="btn-double" class="button ghost" title="Double the amount">Double</button>
+        <button id="btn-repeat" class="button ghost" title="Repeat last round">Repeat</button>
 
-        <!-- Approve amount input + button (người chơi tự gõ) -->
-        <input id="approve-amount" class="inline-input" type="number" min="0" step="0.001" placeholder="Approve amount (FROLL)"/>
-        <button id="btn-approve" class="btn accent" title="Approve FROLL to the contract">Approve FROLL</button>
-
-        <button id="btn-play" class="btn primary fire" title="Shake & Play">Play Now</button>
+        <input id="approve-amount" class="inline-input" type="number" min="0.001" step="0.001" placeholder="Approve amount (FROLL)"/>
+        <button id="btn-approve" class="button">Approve</button>
+        <button id="btn-play" class="button">Play Now</button>
       </div>
-
-      <div class="limits">
-        Table limits: <span id="limit-min">—</span> – <span id="limit-max">—</span> FROLL
-      </div>
-
-      <div id="tx-status" class="status"></div>
     </section>
 
-    <!-- Latest result -->
-    <section class="panel" id="result-panel">
-      <h2>Latest Result</h2>
-      <div class="result-grid">
-        <div class="card">
-          <div class="label">Outcome</div>
-          <div id="last-outcome" class="value">—</div>
-        </div>
-        <div class="card">
-          <div class="label">Win / Lose</div>
-          <div id="last-payout" class="value">—</div>
-        </div>
-        <div class="card">
-          <div class="label">Tx Hash</div>
-          <div id="last-tx" class="value ellipsis">—</div>
-        </div>
-      </div>
-      <p class="note">On page load, bowl reveals the most recent contract round.</p>
+    <section class="panel" id="log-panel">
+      <h2>Recent Plays</h2>
+      <div id="log" class="log"></div>
     </section>
+  </main>
 
-    <!-- Stage -->
-    <section class="panel" id="stage-panel">
-      <h2>Stage</h2>
-      <div class="stage">
-        <div id="bowl" class="bowl" aria-label="Shaking bowl"></div>
-        <div id="coins" class="coins"></div>
+  <!-- SWAP INTERFACE (ẩn mặc định) -->
+  <section id="swap-interface" class="interface" style="display:none">
+    <header class="swap-header">
+      <div id="wallet-address" class="wallet-address">—</div>
+      <button id="disconnect-wallet" class="button">Disconnect Wallet</button>
+    </header>
+
+    <h1>Swap</h1>
+    <div class="swap-container">
+      <div class="token-input">
+        <img id="from-token-logo" src="vic_24.png" alt="From Token"/>
+        <div>
+          <p id="from-token-info">VIC: 0.000000000000000000</p>
+          <input type="number" id="from-amount" placeholder="0.0" min="0" step="any"/>
+        </div>
+        <button id="max-button" class="button">Max</button>
       </div>
-      <p class="note">After you play, the bowl shakes and reveals the exact on-chain parity.</p>
-    </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="links">
-        <a href="https://Lottery.vin" target="_blank" rel="noopener">Lottery.vin</a>
-        <span>•</span>
-        <a href="https://Froll.net" target="_blank" rel="noopener">Froll.net</a>
-        <span>•</span>
-        <a href="https://t.me/FortuneRolls" target="_blank" rel="noopener">Telegram</a>
-        <span>•</span>
-        <a href="https://x.com/FortuneRolls" target="_blank" rel="noopener">X</a>
+      <button id="swap-direction" class="swap-direction" aria-label="Change direction">↔️</button>
+
+      <div class="token-input">
+        <img id="to-token-logo" src="froll_24.png" alt="To Token"/>
+        <div>
+          <p id="to-token-info">FROLL: 0.000000000000000000</p>
+          <input type="text" id="to-amount" placeholder="0.0" disabled/>
+        </div>
       </div>
-      <div class="fine">No admins. No tricks. Just code and trust.</div>
-    </footer>
-  </div>
+    </div>
 
-  <!-- App logic -->
+    <div class="swap-details">
+      <p id="transaction-fee">Transaction Fee: 0.01 VIC</p>
+      <p id="gas-fee">Estimated Gas Fee: ~0.000029 VIC</p>
+    </div>
+
+    <button id="swap-now" class="button">Swap Now</button>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="footer" class="footer">
+    <div class="social-links">
+      <a href="https://t.me/FortuneRolls" target="_blank" rel="noopener">Telegram</a>
+      <a href="https://x.com/FortuneRolls" target="_blank" rel="noopener">X (Twitter)</a>
+    </div>
+  </footer>
+
+  <!-- MAIN SCRIPT -->
   <script src="app.js"></script>
 </body>
 </html>
