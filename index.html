@@ -8,7 +8,7 @@
   <link rel="icon" href="froll_48.png" type="image/png"/>
   <link rel="stylesheet" href="style.css"/>
 
-  <!-- Ethers.js v5 (CDN). Không dùng defer để tải sớm; app.js sẽ tự kiểm tra/fallback nếu thiếu -->
+  <!-- Ethers.js v5 (CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
 </head>
 <body>
@@ -26,7 +26,12 @@
       </div>
 
       <div class="wallet-box">
-        <!-- Thêm onclick fallback để chắc chắn gọi được -->
+        <!-- Nút hướng dẫn (link placeholder Drive – sau này bạn thay URL thật) -->
+        <a id="btn-guide" class="btn accent" href="https://drive.google.com/drive/folders/PLACEHOLDER_GUIDE_LINK" target="_blank" rel="noopener">
+          Guide / How to play
+        </a>
+
+        <!-- Nút Connect / Thông tin ví -->
         <button id="btn-connect" class="btn primary" onclick="window.connectWallet && window.connectWallet()">Connect Wallet</button>
         <div id="wallet-info" class="wallet-info hidden">
           <span id="addr-short">—</span>
@@ -61,7 +66,7 @@
       <div class="custom-table">
         <label for="minBet">Min Bet (FROLL) — minimum 0.001</label>
         <input id="minBet" type="number" min="0.001" step="0.001" placeholder="e.g., 1.25"/>
-        <button id="btn-set-table" class="btn">Set Table</button>
+        <button id="btn-set-table" class="btn accent">Set Table</button>
       </div>
       <div class="current-table">
         Current table: <span id="current-table">Not set</span>
@@ -79,7 +84,7 @@
         </div>
         <div class="amount-box">
           <label for="bet-amount">Bet Amount (FROLL)</label>
-          <input id="bet-amount" type="number" min="0.001" step="0.001" placeholder="e.g., 2.5"/>
+          <input id="bet-amount" type="number" min="0.001" step="0.001" placeholder="e.g., 0.005"/>
         </div>
       </div>
 
@@ -88,7 +93,11 @@
         <button id="btn-half" class="btn ghost" title="Half the amount">½</button>
         <button id="btn-double" class="btn ghost" title="Double the amount">Double</button>
         <button id="btn-repeat" class="btn ghost" title="Repeat last round">Repeat</button>
-        <button id="btn-approve" class="btn" title="Approve FROLL to the contract">Approve FROLL</button>
+
+        <!-- Approve amount input + button (đơn giản, người dùng tự gõ) -->
+        <input id="approve-amount" class="inline-input" type="number" min="0" step="0.001" placeholder="Approve amount (FROLL)"/>
+        <button id="btn-approve" class="btn accent" title="Approve FROLL to the contract">Approve FROLL</button>
+
         <button id="btn-play" class="btn primary fire" title="Shake & Play">Play Now</button>
       </div>
 
