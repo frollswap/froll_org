@@ -1,330 +1,387 @@
-/* ============================================
-   FROLL.org – Dice Game (Even/Odd)
-   Safe frontend with preflight checks
-   Chain: Viction (chainId = 88)
-   Last update: 2025-08-09
-============================================ */
+/* ============================================================
+   FROLL Dice – app.js (VIC) — FINAL SMOOTH BUILD
+   UI: English • Chú thích code: Tiếng Việt
+   ============================================================ */
 
+/** [0] Ethers fallback (phòng CDN chính lỗi) */
+(function ensureEthers() {
+  if (typeof window === 'undefined') return;
+  if (typeof window.ethers !== 'undefined') return;
+  const s = document.createElement('script');
+  s.src = 'https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js';
+  s.onload = () => console.log('[LOAD] ethers fallback loaded.');
+  s.onerror = () => console.error('[LOAD] failed to load ethers fallback.');
+  document.head.appendChild(s);
+})();
+
+/** [1] Cấu hình */
 const CONFIG = {
-  CHAIN_ID: 88,
-  RPC_RO: 'https://rpc.viction.xyz',
-  FROLL:  '0xB4d562A8f811CE7F134a1982992Bd153902290BC', // FROLL on VIC
-  DICE:   '0x85A12591d3BA2A7148d18e9Ca44E0D778e458906', // FrollDice
-  // Ngưỡng min nhập bàn (để tránh nhập 0): 1 wei ~ 0.000000000000000001
-  minMinBet: '0.000000000000000001',
-  // Gas VIC tối thiểu (ước lượng rất thấp cho ví có gas): 0.00002 VIC
-  minVicGas: '0.00002',
+  chainIdHex: '0x58', // VIC mainnet 88
+  chainIdDec: 88,
+  chainName: 'Viction',
+  rpcUrl: 'https://rpc.viction.xyz',
+  blockExplorer: 'https://vicscan.xyz',
+
+  FROLL: '0xB4d562A8f811CE7F134a1982992Bd153902290BC', // token
+  DICE:  '0x85A12591d3BA2A7148d18e9Ca44E0D778e458906', // FrollDice
+
+  minMinBet: '0.001',
+  logsLookbackBlocks: 5000,
+
+  autoReconnectOnLoad: true,
+  connectPopupWaitMs: 12000
 };
 
+/** [2] ABI */
 const ERC20_ABI = [
   'function decimals() view returns (uint8)',
   'function balanceOf(address) view returns (uint256)',
   'function allowance(address owner, address spender) view returns (uint256)',
-  'function approve(address spender, uint256 amount) returns (bool)',
+  'function approve(address spender, uint256 value) returns (bool)'
 ];
-
 const DICE_ABI = [
-  'function selectTable(uint256 minBet) external',
+  'function selectTable(uint256 _minBet) external',
   'function play(uint256 amount, bool guessEven) external',
-  'function playerTable(address) view returns (uint256 minBet, uint256 maxBet)',
-  'event Played(address indexed player, uint256 amount, bool guessEven, bool resultEven, bool win, uint256 payout)',
+  'function withdraw(uint256 amount) external',
+  'function getBalance() external view returns (uint256)',
+  'function playerTable(address) external view returns (uint256 minBet, uint256 maxBet)',
+  'event Played(address indexed player, uint256 amount, bool guessEven, bool resultEven, bool win)'
 ];
 
-// Web3 vars
-let providerRO, providerRW, signer, user;
-let froll, dice;
+/** [3] Trạng thái */
+let providerRW, providerRO, injected, signer, user, froll, dice;
 let frollDecimals = 18;
-
-// UI state
+let currentSide = 'even';
 let currentTable = { min: null, max: null };
-let currentSide = 'even'; // 'even' | 'odd'
-let busy = false;
+let lastRound = null;
+let isConnecting = false;
 
-/* ---------------- DOM helpers ---------------- */
+/** [4] Tiện ích */
 const $ = (id) => document.getElementById(id);
+const format = (v, d=4) => Number(v).toLocaleString(undefined, { maximumFractionDigits: d });
+const toWei = (n, dec=18) => ethers.utils.parseUnits(String(n||'0'), dec);
+const fromWei = (w, dec=18, d=4) => { try { return format(ethers.utils.formatUnits(w||0, dec), d); } catch { return '0'; } };
 
-function setBusy(v) {
-  busy = !!v;
-  const btns = document.querySelectorAll('button');
-  btns.forEach(b => {
-    if (v) {
-      b.disabled = true;
-      b.classList.add('btn-disabled');
-    } else {
-      if (b.dataset.alwaysdisabled === 'true') return;
-      b.disabled = false;
-      b.classList.remove('btn-disabled');
-    }
+function setStatus(msg){ const el=$('tx-status'); if (el) el.textContent = msg || ''; }
+function short(s){ return s ? s.slice(0,6)+'…'+s.slice(-4) : '—'; }
+function saveLastRound(o){ try{ localStorage.setItem('froll_dice_last_round', JSON.stringify(o)); }catch{} }
+function loadLastRound(){ try{ const s=localStorage.getItem('froll_dice_last_round'); return s?JSON.parse(s):null; }catch{ return null; } }
+function saveLastTableMin(m){ try{ localStorage.setItem('froll_dice_last_min', String(m)); }catch{} }
+function loadLastTableMin(){ try{ return localStorage.getItem('froll_dice_last_min'); }catch{ return null; } }
+
+// ===== Khóa/mở nút để tránh double-click / race =====
+function setBusy(b) {
+  const ids = ['btn-approve','btn-play','btn-set-table','btn-clear','btn-half','btn-double','btn-repeat','btn-even','btn-odd'];
+  ids.forEach(id => { const el = $(id); if (el) el.disabled = !!b; });
+}
+
+/** [5] Provider & events */
+function getInjectedProvider(){
+  const eth = window.ethereum;
+  if (!eth) return null;
+  if (eth.providers && Array.isArray(eth.providers)){
+    const metamask = eth.providers.find(p => p.isMetaMask);
+    if (metamask) return metamask;
+    return eth.providers[0];
+  }
+  return eth;
+}
+function bindWalletEvents(p){
+  p?.on?.('accountsChanged', async (accs) => {
+    if (!accs || !accs.length){ disconnectWallet(); return; }
+    user = accs[0];
+    signer = providerRW.getSigner();
+    $('addr-short').textContent = short(user);
+    await Promise.all([refreshBalances(), refreshUserTable()]);
+    setStatus('Account changed.');
+  });
+  p?.on?.('chainChanged', async (cid) => {
+    if (cid !== CONFIG.chainIdHex){ setStatus('Wrong network. Please switch to VIC.'); }
+    else { setStatus('Network OK (VIC).'); await Promise.all([refreshBalances(), refreshUserTable()]); }
   });
 }
 
-function setStatus(msg) {
-  const el = $('status');
-  if (el) el.textContent = msg || '';
-  console.log('[status]', msg);
-}
-
-/* ---------------- Number helpers ---------------- */
-function safeNumberInput(str) {
-  // Chỉ cho số và dấu chấm
-  return typeof str === 'string' && /^[0-9]*[.]?[0-9]*$/.test(str);
-}
-
-function toWei(str, decimals = 18) {
-  return ethers.utils.parseUnits(str, decimals);
-}
-
-function fromWei(bn, decimals = 18, precision = 6) {
-  try {
-    const s = ethers.utils.formatUnits(bn, decimals);
-    const [i, d = ''] = s.split('.');
-    if (precision <= 0) return i;
-    return d.length ? `${i}.${d.slice(0, precision)}` : i;
-  } catch {
-    return '0';
+/** [6] Sân khấu */
+function startShake(){ $('bowl')?.classList.add('shaking'); }
+function stopShake(){ $('bowl')?.classList.remove('shaking'); }
+function variantFromHash(txHash, mod){ if(!txHash) return 0; try{ return parseInt(txHash.slice(-4),16)%mod; }catch{ return 0; } }
+function renderCoins({ parityEven, txHash }){
+  const coinsEl = $('coins'); if (!coinsEl) return;
+  coinsEl.className = 'coins'; coinsEl.innerHTML = '';
+  if (parityEven){
+    const layouts=['layout-even-0','layout-even-2a','layout-even-4'];
+    const cls = layouts[variantFromHash(txHash, layouts.length)];
+    coinsEl.classList.add(cls);
+    const reds = ({'layout-even-0':0,'layout-even-2a':2,'layout-even-4':4})[cls];
+    for(let i=0;i<4;i++){ const c=document.createElement('div'); c.className='coin '+(i<reds?'red':'white'); coinsEl.appendChild(c); }
+  }else{
+    const layouts=['layout-odd-1','layout-odd-3a'];
+    const cls = layouts[variantFromHash(txHash, layouts.length)];
+    coinsEl.classList.add(cls);
+    const reds = ({'layout-odd-1':1,'layout-odd-3a':3})[cls];
+    for(let i=0;i<4;i++){ const c=document.createElement('div'); c.className='coin '+(i<reds?'red':'white'); coinsEl.appendChild(c); }
   }
 }
 
-function isGTE(aStr, bStr) {
-  try {
-    const a = ethers.utils.parseUnits(aStr, frollDecimals);
-    const b = ethers.utils.parseUnits(bStr, frollDecimals);
-    return a.gte(b);
-  } catch {
-    return false;
+/** [7] Hiển thị UI */
+function showResult({ resultEven, win, txHash }){
+  $('last-outcome').textContent = (resultEven==null)?'—':(resultEven?'Even':'Odd');
+  $('last-payout').textContent  = (win==null)?'—':(win?'Win':'Lose');
+  $('last-tx').textContent      = txHash || '—';
+  if (txHash){ const el=$('last-tx'); el.title=txHash; el.onclick=()=>window.open(`${CONFIG.blockExplorer}/tx/${txHash}`, '_blank'); el.style.cursor='pointer'; }
+  renderCoins({ parityEven: !!resultEven, txHash });
+}
+function showTable(minWei, maxWei){
+  if (!minWei || !maxWei){
+    $('current-table').textContent='Not set';
+    $('limit-min').textContent='—';
+    $('limit-max').textContent='—';
+    currentTable={min:null,max:null};
+    return;
+  }
+  const minF=fromWei(minWei, frollDecimals);
+  const maxF=fromWei(maxWei, frollDecimals);
+  $('current-table').textContent = `${minF} – ${maxF} FROLL`;
+  $('limit-min').textContent = minF;
+  $('limit-max').textContent = maxF;
+  currentTable = { min:minWei, max:maxWei };
+}
+
+/** [8] Đọc dữ liệu */
+async function refreshBalances(){
+  if (!user || !froll || !providerRW) return;
+  const [vic, fr, pool] = await Promise.all([
+    providerRW.getBalance(user),
+    froll.balanceOf(user),
+    froll.balanceOf(CONFIG.DICE)
+  ]);
+  $('vic-balance').textContent   = fromWei(vic, 18);
+  $('froll-balance').textContent = fromWei(fr, frollDecimals);
+  $('pool-balance').textContent  = fromWei(pool, frollDecimals);
+}
+async function refreshUserTable(){
+  if (!user || !dice) return;
+  const t = await dice.playerTable(user);
+  const [min,max] = t;
+  if (min.gt(0)) showTable(min, max);
+}
+async function showLatestContractRound(){
+  try{
+    const ro = providerRO || new ethers.providers.JsonRpcProvider(CONFIG.rpcUrl);
+    const current = await ro.getBlockNumber();
+    const from = Math.max(current - CONFIG.logsLookbackBlocks, 0);
+    const iface = new ethers.utils.Interface(DICE_ABI);
+    const topic0 = iface.getEventTopic('Played');
+    const logs = await ro.getLogs({ address:CONFIG.DICE, fromBlock:from, toBlock:current, topics:[topic0] });
+    if (!logs.length){ showResult({ resultEven:true, win:null, txHash:null }); return; }
+    const last = logs[logs.length-1];
+    const parsed = iface.parseLog(last);
+    showResult({ resultEven: parsed.args.resultEven, win:null, txHash:last.transactionHash });
+  } catch(e){
+    console.error('showLatestContractRound error:', e);
+    showResult({ resultEven:true, win:null, txHash:null });
   }
 }
 
-/* ---------------- Error explain ---------------- */
-function explainRevert(err) {
-  const raw =
-    err?.data?.message ||
-    err?.error?.message ||
-    err?.reason ||
-    err?.message ||
-    '';
-
-  if (/insufficient funds for gas/i.test(raw)) return 'Not enough VIC for gas.';
-  if (/reverted with reason string/i.test(raw)) {
-    const m = raw.match(/reverted with reason string ['"]([^'"]+)['"]/i);
-    if (m && m[1]) return m[1];
-  }
-  if (/execution reverted/i.test(raw)) {
-    return 'Transaction would revert on-chain (check min/max, allowance, pool).';
-  }
-  if (/user rejected/i.test(raw) || /4001/.test(raw)) return 'You rejected the request.';
-  if (/nonce too low/i.test(raw)) return 'Nonce too low. Please try again.';
-  if (/replacement transaction underpriced/i.test(raw)) return 'Gas price too low to replace pending tx.';
-  return raw || 'Transaction failed.';
-}
-
-/* ---------------- Storage helpers ---------------- */
-function saveLastTableMin(minStr) {
-  try { localStorage.setItem('froll_last_table_min', String(minStr)); } catch {}
-}
-function loadLastTableMin() {
-  try { return localStorage.getItem('froll_last_table_min'); } catch { return null; }
-}
-let lastRound = null;
-function saveLastRound(obj) {
-  try { localStorage.setItem('froll_last_round', JSON.stringify(obj)); } catch {}
-}
-
-/* ---------------- Visual helpers ---------------- */
-function startShake() {
-  const cup = $('dice-cup');
-  if (cup) cup.classList.add('shaking');
-}
-function stopShake() {
-  const cup = $('dice-cup');
-  if (cup) cup.classList.remove('shaking');
-}
-function showResult({ resultEven, win, txHash }) {
-  const res = $('result');
-  if (!res) return;
-  let text = '';
-  if (resultEven === null) {
-    text = 'Result: pending…';
-  } else {
-    text = `Result: ${resultEven ? 'Even' : 'Odd'} • ${win ? 'YOU WIN 🎉' : 'You lost'}`;
-  }
-  if (txHash) text += ` • Tx: ${txHash.slice(0, 10)}…${txHash.slice(-6)}`;
-  res.textContent = text;
-}
-
-/* ---------------- Web3: network & contracts ---------------- */
-async function ensureNetwork() {
-  const net = await providerRW.getNetwork();
-  if (net.chainId === CONFIG.CHAIN_ID) return;
-
-  try {
-    await window.ethereum.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: ethers.utils.hexValue(CONFIG.CHAIN_ID) }],
-    });
-  } catch (e) {
-    // Nếu chưa có mạng, thêm vào
-    if (e.code === 4902 || /Unrecognized chain ID/i.test(e.message)) {
-      await window.ethereum.request({
-        method: 'wallet_addEthereumChain',
-        params: [{
-          chainId: ethers.utils.hexValue(CONFIG.CAIN_ID || CONFIG.CHAIN_ID), // fallback
-          chainName: 'Viction',
-          rpcUrls: [CONFIG.RPC_RO],
-          nativeCurrency: { name: 'VIC', symbol: 'VIC', decimals: 18 },
-          blockExplorerUrls: ['https://vicscan.xyz'],
-        }],
-      });
-    } else {
-      throw e;
+/** [9] Kết nối ví & reconnect */
+async function ensureChain(){
+  const currentChainId = await providerRW.send('eth_chainId', []);
+  if (currentChainId !== CONFIG.chainIdHex){
+    try {
+      await providerRW.send('wallet_switchEthereumChain', [{ chainId: CONFIG.chainIdHex }]);
+    } catch (switchErr){
+      if (switchErr.code === 4902){
+        await providerRW.send('wallet_addEthereumChain', [{
+          chainId: CONFIG.chainIdHex,
+          chainName: CONFIG.chainName,
+          nativeCurrency:{ name:'VIC', symbol:'VIC', decimals:18 },
+          rpcUrls:[CONFIG.rpcUrl],
+          blockExplorerUrls:[CONFIG.blockExplorer]
+        }]);
+      } else {
+        throw switchErr;
+      }
     }
   }
 }
-
-async function initContracts() {
-  froll = new ethers.Contract(CONFIG.FROLL, ERC20_ABI, signer);
-  dice  = new ethers.Contract(CONFIG.DICE,  DICE_ABI,  signer);
-  frollDecimals = await froll.decimals().catch(() => 18);
+async function requestAccountsWithTimeout(){
+  const req = providerRW.send('eth_requestAccounts', []);
+  const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('Wallet request timed out')), CONFIG.connectPopupWaitMs));
+  return Promise.race([req, timeout]);
 }
-
-/* ---------------- Connect wallet ---------------- */
-async function connectWallet() {
-  if (!window.ethereum) {
-    alert('Please install MetaMask or use Viction Wallet.');
-    return;
-  }
-  try {
-    setBusy(true);
+async function connectWallet(){
+  if (isConnecting) return;
+  isConnecting = true;
+  try{
     setStatus('Connecting wallet…');
+    if (location.protocol !== 'https:'){ console.warn('Non-HTTPS origin; wallets may block.'); }
 
-    providerRW = new ethers.providers.Web3Provider(window.ethereum);
-    providerRO = new ethers.providers.JsonRpcProvider(CONFIG.RPC_RO);
+    injected = getInjectedProvider();
+    if (!injected){
+      setStatus('No Web3 wallet detected. Please install MetaMask or Viction.');
+      alert('No Web3 wallet detected. Please install MetaMask or Viction wallet.');
+      return;
+    }
 
-    const accounts = await providerRW.send('eth_requestAccounts', []);
-    user = ethers.utils.getAddress(accounts[0]);
+    providerRW = new ethers.providers.Web3Provider(injected, 'any');
+    providerRO = new ethers.providers.JsonRpcProvider(CONFIG.rpcUrl);
 
-    await ensureNetwork();
+    try { await requestAccountsWithTimeout(); }
+    catch (e){ if (e?.code === 4001){ setStatus('You rejected the connection request.'); return; } throw e; }
+
+    await ensureChain();
+
     signer = providerRW.getSigner();
+    user   = await signer.getAddress();
 
-    await initContracts();
+    froll = new ethers.Contract(CONFIG.FROLL, ERC20_ABI, signer);
+    dice  = new ethers.Contract(CONFIG.DICE,  DICE_ABI,  signer);
+    try { frollDecimals = await froll.decimals(); } catch {}
+
+    $('btn-connect').classList.add('hidden');
+    $('wallet-info').classList.remove('hidden');
+    $('addr-short').textContent = short(user);
+
     await Promise.all([refreshBalances(), refreshUserTable()]);
-
-    if ($('connected-address')) $('connected-address').textContent = `${user.slice(0, 6)}…${user.slice(-4)}`;
     setStatus('Wallet connected.');
-  } catch (e) {
-    console.error('connectWallet:', e);
-    setStatus(explainRevert(e));
+    bindWalletEvents(injected);
+  } catch(err){
+    console.error('connectWallet error:', err);
+    setStatus('Wallet connection failed. Please open your wallet and try again.');
   } finally {
-    setBusy(false);
+    isConnecting = false;
   }
 }
+async function trySilentReconnectOnLoad(){
+  if (!CONFIG.autoReconnectOnLoad) return;
+  injected = getInjectedProvider();
+  if (!injected) return;
 
-/* ---------------- Refreshers ---------------- */
-async function refreshBalances() {
-  if (!froll || !user) return;
-  const [balFroll, balVic] = await Promise.all([
-    froll.balanceOf(user),
-    providerRW.getBalance(user),
-  ]);
-  if ($('balance-froll')) $('balance-froll').textContent = fromWei(balFroll, frollDecimals, 6) + ' FROLL';
-  if ($('balance-vic'))   $('balance-vic').textContent   = fromWei(balVic, 18, 6) + ' VIC';
-}
+  providerRW = new ethers.providers.Web3Provider(injected, 'any');
+  providerRO = new ethers.providers.JsonRpcProvider(CONFIG.rpcUrl);
 
-async function refreshUserTable() {
-  if (!dice || !user) return;
-  try {
-    const { minBet, maxBet } = await dice.playerTable(user);
-    currentTable.min = minBet;
-    currentTable.max = maxBet;
-    if ($('current-min')) $('current-min').textContent = fromWei(minBet, frollDecimals, 6);
-    if ($('current-max')) $('current-max').textContent = fromWei(maxBet, frollDecimals, 6);
-  } catch (e) {
-    console.warn('refreshUserTable:', e);
+  try{
+    const accounts = await injected.request?.({ method:'eth_accounts' });
+    if (!accounts || !accounts.length) { setStatus('Ready. Click “Connect Wallet”.'); return; }
+
+    await ensureChain();
+
+    signer = providerRW.getSigner();
+    user   = accounts[0];
+
+    froll = new ethers.Contract(CONFIG.FROLL, ERC20_ABI, signer);
+    dice  = new ethers.Contract(CONFIG.DICE,  DICE_ABI,  signer);
+    try { frollDecimals = await froll.decimals(); } catch {}
+
+    $('btn-connect').classList.add('hidden');
+    $('wallet-info').classList.remove('hidden');
+    $('addr-short').textContent = short(user);
+
+    await Promise.all([refreshBalances(), refreshUserTable()]);
+    setStatus('Wallet reconnected.');
+    bindWalletEvents(injected);
+  } catch (e){
+    console.warn('Silent reconnect failed:', e);
+    setStatus('Ready. Click “Connect Wallet”.');
   }
 }
-
-/* ---------------- Approve ---------------- */
-async function onApprove() {
-  if (!signer || !froll) return alert('Please connect wallet.');
-  const inp = $('approve-amount');
-  const amtStr = inp ? inp.value.trim() : '';
-  let toApprove = '1000000'; // mặc định cho rộng (1,000,000 FROLL) để ít phải approve
-  if (amtStr && safeNumberInput(amtStr)) toApprove = amtStr;
-
-  try {
-    setBusy(true);
-    setStatus('Sending approve…');
-    const tx = await froll.approve(CONFIG.DICE, toWei(toApprove, frollDecimals));
-    await tx.wait(1);
-    setStatus('Approved successfully.');
-  } catch (e) {
-    console.error('approve:', e);
-    setStatus(explainRevert(e));
-  } finally {
-    setBusy(false);
-  }
+function disconnectWallet(){
+  user=null; signer=null; providerRW=null;
+  $('btn-connect').classList.remove('hidden');
+  $('wallet-info').classList.add('hidden');
+  $('addr-short').textContent='—';
+  showTable(null,null);
+  setStatus('Disconnected.');
 }
 
-/* ---------------- Select Table (with preflight) ---------------- */
-async function onSetTable() {
+/** [10] Chọn bàn */
+function isGTE(numStr, minStr){
+  try{ return ethers.utils.parseUnits(numStr, frollDecimals).gte(ethers.utils.parseUnits(minStr, frollDecimals)); }catch{ return false; }
+}
+async function onSetTable(){
   if (!signer || !dice) return alert('Please connect wallet.');
-  const minInput = $('minBet');
-  if (!minInput) return setStatus('Missing minBet input.');
-  const minStr = minInput.value.trim();
-
+  const minStr = $('minBet').value.trim();
   if (!minStr) return setStatus('Enter a min bet.');
-  if (!safeNumberInput(minStr)) return setStatus('Invalid number.');
-  if (!isGTE(minStr, CONFIG.minMinBet)) {
-    return setStatus(`Min Bet must be at least ${CONFIG.minMinBet} FROLL.`);
-  }
-
-  try {
+  if (!isGTE(minStr, CONFIG.minMinBet)) return setStatus(`Min Bet must be at least ${CONFIG.minMinBet} FROLL.`);
+  try{
     setBusy(true);
-    const minWei = toWei(minStr, frollDecimals);
-
-    setStatus('Preflight (selectTable)…');
-    await dice.callStatic.selectTable(minWei);
-    await dice.estimateGas.selectTable(minWei);
-
     setStatus('Sending selectTable transaction…');
-    const tx = await dice.selectTable(minWei);
+    const tx = await dice.selectTable(toWei(minStr, frollDecimals));
     await tx.wait(1);
-
     saveLastTableMin(minStr);
     await refreshUserTable();
     setStatus('Table set successfully.');
-  } catch (e) {
+  }catch(e){
     console.error('selectTable error:', e);
-    setStatus(explainRevert(e));
+    setStatus(e.data?.message || e.error?.message || e.message || 'selectTable failed.');
   } finally {
     setBusy(false);
   }
 }
 
-/* ---------------- Play (with preflight + estimateGas) ---------------- */
-async function onPlay() {
+/** [11] Approve (đơn giản: người dùng gõ số, phải ≤ FROLL balance) */
+async function onApprove(){
+  if (!signer || !froll) return alert('Please connect wallet.');
+
+  let apStr = ($('approve-amount')?.value || '').trim();
+  if (!apStr) apStr = ($('bet-amount')?.value || '').trim();
+  if (!apStr) return setStatus('Enter approve amount (FROLL).');
+
+  const balance = await froll.balanceOf(user);
+  const apWei = toWei(apStr, frollDecimals);
+  if (apWei.lte(ethers.constants.Zero)) return setStatus('Approve amount must be greater than 0.');
+
+  if (apWei.gt(balance)) {
+    const bal = fromWei(balance, frollDecimals, 6);
+    return setStatus(`Approve amount exceeds your wallet balance (${bal} FROLL).`);
+  }
+
+  try {
+    setBusy(true);
+    setStatus('Checking current allowance…');
+    const cur = await froll.allowance(user, CONFIG.DICE);
+    if (cur.gte(apWei)) { setStatus('Allowance already sufficient for that amount.'); return; }
+
+    if (!cur.isZero()) {
+      setStatus('Resetting allowance to 0…');
+      const tx0 = await froll.approve(CONFIG.DICE, ethers.constants.Zero);
+      await tx0.wait(1);
+    }
+
+    setStatus('Approving…');
+    const tx = await froll.approve(CONFIG.DICE, apWei);
+    await tx.wait(1);
+    await new Promise(r => setTimeout(r, 1200)); // cho RPC bắt kịp
+
+    const after = await froll.allowance(user, CONFIG.DICE);
+    if (after.gte(apWei)) setStatus('Approve successful.');
+    else setStatus('Approve seems incomplete. Please try again.');
+    await refreshBalances();
+  } catch (e) {
+    console.error('approve error:', e);
+    setStatus(e.data?.message || e.error?.message || e.message || 'Approve failed.');
+  } finally {
+    setBusy(false);
+  }
+}
+
+/** [12] Play (preflight callStatic để tránh CALL_EXCEPTION) */
+async function onPlay(){
   if (!signer || !dice) return alert('Please connect wallet.');
   if (!currentTable.min) return setStatus('Please set a table first.');
 
-  const amtInput = $('bet-amount');
-  if (!amtInput) return setStatus('Missing bet amount input.');
-  const amtStr = amtInput.value.trim();
+  const amtStr = $('bet-amount').value.trim();
   if (!amtStr) return setStatus('Enter bet amount.');
-  if (!safeNumberInput(amtStr)) return setStatus('Invalid number.');
-
   const amountWei = toWei(amtStr, frollDecimals);
 
-  // Range check
   if (amountWei.lt(currentTable.min) || amountWei.gt(currentTable.max)) {
     return setStatus('Bet amount is out of range (min–max).');
   }
 
-  // Balances & allowance & pool & gas VIC
-  const [balance, allowance, pool, vicBal] = await Promise.all([
+  const [balance, allowance, pool] = await Promise.all([
     froll.balanceOf(user),
     froll.allowance(user, CONFIG.DICE),
     froll.balanceOf(CONFIG.DICE),
-    providerRW.getBalance(user),
   ]);
 
   if (balance.lt(amountWei)) {
@@ -338,91 +395,87 @@ async function onPlay() {
     const allo = fromWei(allowance, frollDecimals, 6);
     return setStatus(`Allowance insufficient (${allo}). Please use “Approve FROLL” first.`);
   }
-  if (vicBal.lt(ethers.utils.parseEther(CONFIG.minVicGas))) {
-    return setStatus('Not enough VIC for gas. Please top up a little VIC.');
-  }
 
-  // Preflight & estimateGas
+  // ===== PRE-FLIGHT: mô phỏng play trên-chain, nếu fail thì KHÔNG gửi tx thật =====
   try {
     setStatus('Preflight check…');
     await dice.callStatic.play(amountWei, (currentSide === 'even'));
-    await dice.estimateGas.play(amountWei, (currentSide === 'even'));
   } catch (preErr) {
-    console.error('preflight/estimateGas failed:', preErr);
-    setStatus(explainRevert(preErr));
+    console.error('preflight callStatic failed:', preErr);
+    setStatus('Preflight failed. Wait a few seconds after Approve and try again (or re-check table limits).');
     return;
   }
 
-  // Send tx
+  // Gửi play
   startShake();
   setBusy(true);
   setStatus('Sending play transaction…');
-  try {
+  try{
     const guessEven = (currentSide === 'even');
     const tx = await dice.play(amountWei, guessEven);
     const receipt = await tx.wait(1);
 
-    let resultEven = null, win = null;
-    for (const log of receipt.logs) {
-      try {
+    let resultEven=null, win=null;
+    for (const log of receipt.logs){
+      try{
         const parsed = dice.interface.parseLog(log);
-        if (parsed.name === 'Played') {
-          resultEven = parsed.args.resultEven;
-          win = parsed.args.win;
-          break;
-        }
-      } catch {}
+        if (parsed.name==='Played'){ resultEven=parsed.args.resultEven; win=parsed.args.win; break; }
+      }catch{}
     }
     stopShake();
     showResult({ resultEven, win, txHash: tx.hash });
 
-    lastRound = {
-      side: currentSide,
-      amount: amtStr,
-      minBet: fromWei(currentTable.min, frollDecimals),
-      txHash: tx.hash
-    };
+    lastRound = { side: currentSide, amount: amtStr, minBet: fromWei(currentTable.min, frollDecimals), txHash: tx.hash };
     saveLastRound(lastRound);
     await refreshBalances();
     setStatus('Round completed.');
-  } catch (e) {
+  }catch(e){
     console.error('play error:', e);
     stopShake();
-    setStatus(explainRevert(e));
+    setStatus(e.data?.message || e.error?.message || e.message || 'Play failed.');
   } finally {
     setBusy(false);
   }
 }
 
-/* ---------------- Side toggle ---------------- */
-function onToggleSide() {
-  currentSide = currentSide === 'even' ? 'odd' : 'even';
-  if ($('current-side')) $('current-side').textContent = currentSide.toUpperCase();
+/** [13] Nút tiện ích & chẵn/lẻ */
+function onClear(){ $('bet-amount').value=''; setStatus(''); }
+function onHalf(){ const v=parseFloat($('bet-amount').value||'0'); if(v<=0)return; $('bet-amount').value=String(Math.max(v/2, Number(CONFIG.minMinBet))); }
+function onDouble(){ const v=parseFloat($('bet-amount').value||'0'); const max=currentTable.max?parseFloat(fromWei(currentTable.max, frollDecimals, 18)):Infinity; if(v<=0){ if(currentTable.min)$('bet-amount').value=fromWei(currentTable.min, frollDecimals, 18); return; } $('bet-amount').value=String(Math.min(v*2, max)); }
+function onRepeat(){ const saved=loadLastRound(); if(!saved) return setStatus('No previous round to repeat.'); currentSide=saved.side==='odd'?'odd':'even'; document.querySelectorAll('.btn.toggle').forEach(b=>b.classList.remove('active')); (currentSide==='even'?$('btn-even'):$('btn-odd')).classList.add('active'); $('bet-amount').value=saved.amount; setStatus('Repeated last round settings (side & amount).'); }
+function bindSideButtons(){ $('btn-even').addEventListener('click',()=>{ currentSide='even'; $('btn-even').classList.add('active'); $('btn-odd').classList.remove('active'); }); $('btn-odd').addEventListener('click',()=>{ currentSide='odd'; $('btn-odd').classList.add('active'); $('btn-even').classList.remove('active'); }); }
+
+/** [14] Khởi tạo */
+async function init(){
+  // chờ ethers nếu đang nạp fallback
+  let tries=0; while (typeof window.ethers==='undefined' && tries<20){ await new Promise(r=>setTimeout(r,150)); tries++; }
+  if (typeof window.ethers==='undefined'){ setStatus('ethers.js failed to load. Check CDN/AdBlock.'); console.error('ethers not loaded'); return; }
+
+  providerRO = new ethers.providers.JsonRpcProvider(CONFIG.rpcUrl);
+  await showLatestContractRound();
+  lastRound = loadLastRound();
+
+  $('btn-connect')?.addEventListener('click', connectWallet);
+  $('btn-disconnect')?.addEventListener('click', disconnectWallet);
+  $('btn-set-table')?.addEventListener('click', onSetTable);
+  $('btn-approve')?.addEventListener('click', onApprove);
+  $('btn-play')?.addEventListener('click', onPlay);
+  $('btn-clear')?.addEventListener('click', onClear);
+  $('btn-half')?.addEventListener('click', onHalf);
+  $('btn-double')?.addEventListener('click', onDouble);
+  $('btn-repeat')?.addEventListener('click', onRepeat);
+  bindSideButtons();
+
+  const minSaved = loadLastTableMin();
+  if (minSaved) $('minBet').value = minSaved;
+
+  await trySilentReconnectOnLoad();
+  setStatus('Ready.');
 }
 
-/* ---------------- Boot ---------------- */
-async function boot() {
-  providerRO = new ethers.providers.JsonRpcProvider(CONFIG.RPC_RO);
+// Expose để onclick HTML gọi được
+window.connectWallet = connectWallet;
+window.disconnectWallet = disconnectWallet;
 
-  // Bind buttons if present
-  $('btn-connect')     && $('btn-connect').addEventListener('click', connectWallet);
-  $('btn-approve')     && $('btn-approve').addEventListener('click', onApprove);
-  $('btn-set-table')   && $('btn-set-table').addEventListener('click', onSetTable);
-  $('btn-play')        && $('btn-play').addEventListener('click', onPlay);
-  $('btn-toggle-side') && $('btn-toggle-side').addEventListener('click', onToggleSide);
-
-  // Restore last minBet input
-  const lastMin = loadLastTableMin();
-  if (lastMin && $('minBet')) $('minBet').value = lastMin;
-
-  // Default side label
-  if ($('current-side')) $('current-side').textContent = currentSide.toUpperCase();
-
-  // MetaMask listeners
-  if (window.ethereum) {
-    window.ethereum.on?.('accountsChanged', () => window.location.reload());
-    window.ethereum.on?.('chainChanged',   () => window.location.reload());
-  }
-}
-
-document.addEventListener('DOMContentLoaded', boot);
+// Chạy sau DOM ready
+if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', init); } else { init(); }
