@@ -26,12 +26,12 @@
       </div>
 
       <div class="wallet-box">
-        <!-- Nút hướng dẫn (link placeholder Drive – sau này bạn thay URL thật) -->
+        <!-- Guide placeholder (sau này thay URL Drive thật) -->
         <a id="btn-guide" class="btn accent" href="https://drive.google.com/drive/folders/PLACEHOLDER_GUIDE_LINK" target="_blank" rel="noopener">
           Guide / How to play
         </a>
 
-        <!-- Nút Connect / Thông tin ví -->
+        <!-- Wallet -->
         <button id="btn-connect" class="btn primary" onclick="window.connectWallet && window.connectWallet()">Connect Wallet</button>
         <div id="wallet-info" class="wallet-info hidden">
           <span id="addr-short">—</span>
@@ -94,7 +94,7 @@
         <button id="btn-double" class="btn ghost" title="Double the amount">Double</button>
         <button id="btn-repeat" class="btn ghost" title="Repeat last round">Repeat</button>
 
-        <!-- Approve amount input + button (đơn giản, người dùng tự gõ) -->
+        <!-- Approve amount input + button (người chơi tự gõ) -->
         <input id="approve-amount" class="inline-input" type="number" min="0" step="0.001" placeholder="Approve amount (FROLL)"/>
         <button id="btn-approve" class="btn accent" title="Approve FROLL to the contract">Approve FROLL</button>
 
