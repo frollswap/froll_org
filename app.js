@@ -479,3 +479,219 @@ window.disconnectWallet = disconnectWallet;
 
 // Chạy sau DOM ready
 if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', init); } else { init(); }
+
+
+/* ============================================================
+   APPEND-ONLY — Swap FROLL/VIC + View toggling for froll.org
+   - Giữ nguyên toàn bộ logic Xóc Đĩa ở trên
+   - Chỉ thêm cấu hình, UI toggle và swap như froll.net
+   ============================================================ */
+
+/** [S0] Bổ sung địa chỉ & ABI của Swap */
+if (typeof CONFIG !== 'undefined') {
+  CONFIG.SWAP = CONFIG.SWAP || '0x9197BF0813e0727df4555E8cb43a0977F4a3A068';
+}
+const SWAP_ABI = [
+  { "inputs": [], "name": "swapVicToFroll", "outputs": [], "stateMutability": "payable", "type": "function" },
+  { "inputs": [{ "internalType": "uint256", "name": "frollAmount", "type": "uint256" }], "name": "swapFrollToVic", "outputs": [], "stateMutability": "nonpayable", "type": "function" }
+];
+
+/** [S1] Tham chiếu DOM (swap + toggle) */
+const elHome          = document.getElementById('home-interface');
+const elSwap          = document.getElementById('swap-interface');
+const btnOpenSwap     = document.getElementById('btn-open-swap');
+const btnBackToGame   = document.getElementById('btn-back-to-game');
+const btnDisconnectSw = document.getElementById('disconnect-wallet');
+
+const fromAmountInput   = document.getElementById('from-amount');
+const toAmountInput     = document.getElementById('to-amount');
+const fromTokenInfo     = document.getElementById('from-token-info');
+const toTokenInfo       = document.getElementById('to-token-info');
+const fromTokenLogo     = document.getElementById('from-token-logo');
+const toTokenLogo       = document.getElementById('to-token-logo');
+const swapDirectionBtn  = document.getElementById('swap-direction');
+const maxBtn            = document.getElementById('max-button');
+const swapNowBtn        = document.getElementById('swap-now');
+const walletAddrLabel   = document.getElementById('wallet-address');
+
+/** [S2] Trạng thái Swap */
+let frollSwapContract = null;    // Contract swap
+let swapFrom = 'VIC';            // 'VIC' | 'FROLL'
+let swapTo   = 'FROLL';
+const RATE = 100;                // 1 FROLL = 100 VIC (tức 1 VIC = 0.01 FROLL)
+const FEE_VIC = 0.01;            // Phí tính theo VIC (cứng)
+const GAS_FEE_ESTIMATE = 0.000029;
+const MIN_SWAP_AMOUNT_VIC = 0.011;
+const MIN_SWAP_AMOUNT_FROLL = 0.00011;
+
+/** [S3] Helper cho ẩn/hiện view */
+function showHomeInterface(){
+  if (elSwap) elSwap.style.display = 'none';
+  if (elHome) elHome.style.display = '';
+}
+function showSwapInterface(){
+  if (elHome) elHome.style.display = 'none';
+  if (elSwap) elSwap.style.display = '';
+  if (walletAddrLabel) walletAddrLabel.textContent = user ? short(user) : '—';
+}
+
+/** [S4] Cập nhật số dư hiển thị trong giao diện swap */
+async function updateSwapBalances(){
+  try{
+    if (!providerRW || !user) return;
+    const [vicBn, frollBn] = await Promise.all([
+      providerRW.getBalance(user),
+      froll ? froll.balanceOf(user) : ethers.constants.Zero
+    ]);
+    const vic  = fromWei(vicBn, 18, 18);
+    const fr   = fromWei(frollBn, frollDecimals, 18);
+    if (fromTokenInfo && toTokenInfo){
+      const map = { VIC: vic, FROLL: fr };
+      fromTokenInfo.textContent = `${swapFrom}: ${Number(map[swapFrom]||0).toFixed(18)}`;
+      toTokenInfo.textContent   = `${swapTo}: ${Number(map[swapTo]||0).toFixed(18)}`;
+    }
+  }catch(e){ console.warn('updateSwapBalances:', e); }
+}
+
+/** [S5] Tính toán output dựa trên input & chiều swap */
+function clearSwapInputs(){
+  if (fromAmountInput) fromAmountInput.value = '';
+  if (toAmountInput)   toAmountInput.value   = '';
+}
+function calcToAmount(){
+  if (!fromAmountInput || !toAmountInput) return;
+  const v = parseFloat(fromAmountInput.value);
+  if (isNaN(v) || v <= 0){ toAmountInput.value=''; return; }
+  let out = 0;
+  if (swapFrom === 'VIC'){
+    if (v < MIN_SWAP_AMOUNT_VIC){ toAmountInput.value=''; return; }
+    const net = v - FEE_VIC;
+    out = net > 0 ? (net / RATE) : 0;      // VIC -> FROLL
+  } else {
+    if (v < MIN_SWAP_AMOUNT_FROLL){ toAmountInput.value=''; return; }
+    const grossVic = v * RATE;             // FROLL -> VIC
+    out = Math.max(0, grossVic - FEE_VIC);
+  }
+  toAmountInput.value = out.toFixed(18);
+}
+
+/** [S6] Đảo chiều token hiển thị */
+function flipDirection(){
+  [swapFrom, swapTo] = [swapTo, swapFrom];
+  if (fromTokenLogo && toTokenLogo){
+    const tmp = fromTokenLogo.src;
+    fromTokenLogo.src = toTokenLogo.src;
+    toTokenLogo.src = tmp;
+  }
+  updateSwapBalances();
+  clearSwapInputs();
+}
+
+/** [S7] Đảm bảo ví đã connect và chuẩn bị contracts cho Swap */
+async function ensureSwapReady(){
+  if (!user || !signer || !providerRW){
+    await connectWallet(); // tận dụng hàm sẵn có của game
+  }
+  if (!user || !signer || !providerRW) throw new Error('Wallet not connected.');
+  if (!froll) froll = new ethers.Contract(CONFIG.FROLL, ERC20_ABI, signer);
+  if (!frollSwapContract) frollSwapContract = new ethers.Contract(CONFIG.SWAP, SWAP_ABI, signer);
+}
+
+/** [S8] Thao tác Max */
+async function onSwapMax(){
+  try{
+    await ensureSwapReady();
+    await updateSwapBalances();
+    // Đọc lại số đã render để điền vào input
+    const text = (swapFrom === 'VIC' ? fromTokenInfo?.textContent : fromTokenInfo?.textContent) || '';
+    // text dạng "VIC: 0.0000..." => tách sau ":"
+    const vStr = text.split(':')[1]?.trim() || '';
+    if (fromAmountInput) {
+      fromAmountInput.value = vStr || '';
+      calcToAmount();
+    }
+  }catch(e){
+    alert(e.message || 'Failed to set Max.');
+  }
+}
+
+/** [S9] Gửi swap */
+async function onSwapNow(){
+  try{
+    await ensureSwapReady();
+    const amount = parseFloat(fromAmountInput?.value || '0');
+    if (isNaN(amount) || amount <= 0) return alert('Please enter amount.');
+
+    if (swapFrom === 'VIC'){
+      if (amount < MIN_SWAP_AMOUNT_VIC) return alert(`Minimum swap is ${MIN_SWAP_AMOUNT_VIC} VIC.`);
+      const value = ethers.utils.parseEther(String(amount));
+      const tx = await frollSwapContract.swapVicToFroll({ value });
+      await tx.wait(1);
+      alert('Swap VIC → FROLL successful.');
+    } else {
+      if (amount < MIN_SWAP_AMOUNT_FROLL) return alert(`Minimum swap is ${MIN_SWAP_AMOUNT_FROLL} FROLL.`);
+      const amountWei = ethers.utils.parseUnits(String(amount), frollDecimals);
+      // Approve rồi swap
+      const curAllo = await froll.allowance(user, CONFIG.SWAP);
+      if (curAllo.lt(amountWei)){
+        if (!curAllo.isZero()){
+          const tx0 = await froll.approve(CONFIG.SWAP, ethers.constants.Zero);
+          await tx0.wait(1);
+        }
+        const tx1 = await froll.approve(CONFIG.SWAP, amountWei);
+        await tx1.wait(1);
+      }
+      const tx = await frollSwapContract.swapFrollToVic(amountWei);
+      await tx.wait(1);
+      alert('Swap FROLL → VIC successful.');
+    }
+
+    await Promise.all([refreshBalances(), updateSwapBalances()]);
+    clearSwapInputs();
+  }catch(e){
+    console.error('Swap failed:', e);
+    alert(e?.reason || e?.data?.message || e?.message || 'Swap failed.');
+  }
+}
+
+/** [S10] Gắn sự kiện UI khi DOM sẵn sàng */
+(function bindSwapUI(){
+  if (btnOpenSwap){
+    btnOpenSwap.addEventListener('click', async () => {
+      try{
+        await ensureSwapReady();
+        await updateSwapBalances();
+        showSwapInterface();
+      }catch(e){
+        alert(e.message || 'Please connect wallet to use Swap.');
+      }
+    });
+  }
+  if (btnBackToGame){
+    btnBackToGame.addEventListener('click', () => {
+      showHomeInterface();
+    });
+  }
+  if (btnDisconnectSw){
+    btnDisconnectSw.addEventListener('click', () => {
+      // Tận dụng disconnectWallet đã có cho game
+      try { window.disconnectWallet && window.disconnectWallet(); } catch {}
+      showHomeInterface();
+    });
+  }
+
+  if (fromAmountInput) fromAmountInput.addEventListener('input', calcToAmount);
+  if (swapDirectionBtn) swapDirectionBtn.addEventListener('click', flipDirection);
+  if (maxBtn)           maxBtn.addEventListener('click', onSwapMax);
+  if (swapNowBtn)       swapNowBtn.addEventListener('click', onSwapNow);
+
+  // Khởi tạo mặc định: Home hiển thị, Swap ẩn
+  showHomeInterface();
+})();
+
+/** [S11] (Tuỳ chọn) Đảm bảo khi tự reconnect ví xong mà user mở Swap, số dư hiển thị đúng */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && elSwap && elSwap.style.display !== 'none'){
+    updateSwapBalances();
+  }
+});
