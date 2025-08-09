@@ -1,5 +1,5 @@
 /* ============================================================
-   FROLL Dice – app.js (VIC) — FINAL SMOOTH + SIMPLE APPROVE
+   FROLL Dice – app.js (VIC) — FINAL SMOOTH BUILD
    UI: English • Chú thích code: Tiếng Việt
    ============================================================ */
 
@@ -62,12 +62,18 @@ const format = (v, d=4) => Number(v).toLocaleString(undefined, { maximumFraction
 const toWei = (n, dec=18) => ethers.utils.parseUnits(String(n||'0'), dec);
 const fromWei = (w, dec=18, d=4) => { try { return format(ethers.utils.formatUnits(w||0, dec), d); } catch { return '0'; } };
 
-function setStatus(msg){ const el=$('tx-status'); if (el) el.textContent = msg || ''; console.log('[STATUS]', msg); }
+function setStatus(msg){ const el=$('tx-status'); if (el) el.textContent = msg || ''; }
 function short(s){ return s ? s.slice(0,6)+'…'+s.slice(-4) : '—'; }
 function saveLastRound(o){ try{ localStorage.setItem('froll_dice_last_round', JSON.stringify(o)); }catch{} }
 function loadLastRound(){ try{ const s=localStorage.getItem('froll_dice_last_round'); return s?JSON.parse(s):null; }catch{ return null; } }
 function saveLastTableMin(m){ try{ localStorage.setItem('froll_dice_last_min', String(m)); }catch{} }
 function loadLastTableMin(){ try{ return localStorage.getItem('froll_dice_last_min'); }catch{ return null; } }
+
+// ===== Khóa/mở nút để tránh double-click / race =====
+function setBusy(b) {
+  const ids = ['btn-approve','btn-play','btn-set-table','btn-clear','btn-half','btn-double','btn-repeat','btn-even','btn-odd'];
+  ids.forEach(id => { const el = $(id); if (el) el.disabled = !!b; });
+}
 
 /** [5] Provider & events */
 function getInjectedProvider(){
@@ -298,6 +304,7 @@ async function onSetTable(){
   if (!minStr) return setStatus('Enter a min bet.');
   if (!isGTE(minStr, CONFIG.minMinBet)) return setStatus(`Min Bet must be at least ${CONFIG.minMinBet} FROLL.`);
   try{
+    setBusy(true);
     setStatus('Sending selectTable transaction…');
     const tx = await dice.selectTable(toWei(minStr, frollDecimals));
     await tx.wait(1);
@@ -307,6 +314,8 @@ async function onSetTable(){
   }catch(e){
     console.error('selectTable error:', e);
     setStatus(e.data?.message || e.error?.message || e.message || 'selectTable failed.');
+  } finally {
+    setBusy(false);
   }
 }
 
@@ -314,29 +323,25 @@ async function onSetTable(){
 async function onApprove(){
   if (!signer || !froll) return alert('Please connect wallet.');
 
-  // Ưu tiên lấy từ ô approve-amount; nếu trống thì dùng bet-amount
   let apStr = ($('approve-amount')?.value || '').trim();
   if (!apStr) apStr = ($('bet-amount')?.value || '').trim();
   if (!apStr) return setStatus('Enter approve amount (FROLL).');
 
-  // Kiểm tra số dư ví
   const balance = await froll.balanceOf(user);
   const apWei = toWei(apStr, frollDecimals);
   if (apWei.lte(ethers.constants.Zero)) return setStatus('Approve amount must be greater than 0.');
+
   if (apWei.gt(balance)) {
     const bal = fromWei(balance, frollDecimals, 6);
     return setStatus(`Approve amount exceeds your wallet balance (${bal} FROLL).`);
   }
 
   try {
+    setBusy(true);
     setStatus('Checking current allowance…');
     const cur = await froll.allowance(user, CONFIG.DICE);
-    if (cur.gte(apWei)) {
-      setStatus('Allowance already sufficient for that amount.');
-      return;
-    }
+    if (cur.gte(apWei)) { setStatus('Allowance already sufficient for that amount.'); return; }
 
-    // Reset-to-zero nếu token yêu cầu
     if (!cur.isZero()) {
       setStatus('Resetting allowance to 0…');
       const tx0 = await froll.approve(CONFIG.DICE, ethers.constants.Zero);
@@ -346,6 +351,7 @@ async function onApprove(){
     setStatus('Approving…');
     const tx = await froll.approve(CONFIG.DICE, apWei);
     await tx.wait(1);
+    await new Promise(r => setTimeout(r, 1200)); // cho RPC bắt kịp
 
     const after = await froll.allowance(user, CONFIG.DICE);
     if (after.gte(apWei)) setStatus('Approve successful.');
@@ -354,10 +360,12 @@ async function onApprove(){
   } catch (e) {
     console.error('approve error:', e);
     setStatus(e.data?.message || e.error?.message || e.message || 'Approve failed.');
+  } finally {
+    setBusy(false);
   }
 }
 
-/** [12] Play (không auto-approve; nếu thiếu sẽ nhắc) */
+/** [12] Play (preflight callStatic để tránh CALL_EXCEPTION) */
 async function onPlay(){
   if (!signer || !dice) return alert('Please connect wallet.');
   if (!currentTable.min) return setStatus('Please set a table first.');
@@ -366,7 +374,6 @@ async function onPlay(){
   if (!amtStr) return setStatus('Enter bet amount.');
   const amountWei = toWei(amtStr, frollDecimals);
 
-  // Min–max
   if (amountWei.lt(currentTable.min) || amountWei.gt(currentTable.max)) {
     return setStatus('Bet amount is out of range (min–max).');
   }
@@ -389,8 +396,19 @@ async function onPlay(){
     return setStatus(`Allowance insufficient (${allo}). Please use “Approve FROLL” first.`);
   }
 
+  // ===== PRE-FLIGHT: mô phỏng play trên-chain, nếu fail thì KHÔNG gửi tx thật =====
+  try {
+    setStatus('Preflight check…');
+    await dice.callStatic.play(amountWei, (currentSide === 'even'));
+  } catch (preErr) {
+    console.error('preflight callStatic failed:', preErr);
+    setStatus('Preflight failed. Wait a few seconds after Approve and try again (or re-check table limits).');
+    return;
+  }
+
   // Gửi play
   startShake();
+  setBusy(true);
   setStatus('Sending play transaction…');
   try{
     const guessEven = (currentSide === 'even');
@@ -415,6 +433,8 @@ async function onPlay(){
     console.error('play error:', e);
     stopShake();
     setStatus(e.data?.message || e.error?.message || e.message || 'Play failed.');
+  } finally {
+    setBusy(false);
   }
 }
 
@@ -453,7 +473,7 @@ async function init(){
   setStatus('Ready.');
 }
 
-// Gắn hàm ra window (phòng onclick)
+// Expose để onclick HTML gọi được
 window.connectWallet = connectWallet;
 window.disconnectWallet = disconnectWallet;
 
