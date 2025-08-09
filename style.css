@@ -321,3 +321,99 @@ h2{ font-size: 20px; color: var(--text-soft); }
   box-shadow: 0 8px 22px rgba(14,165,233,.18), var(--soft-shadow);
 }
 input::placeholder{ color: #6b7280; }
+
+/* ==== APPEND-ONLY (put at the very end of your existing style.css) ==== */
+
+/* Price text (in price-panel) + skeleton shimmer */
+#price-text {
+  font-weight: 800;
+  letter-spacing: .01em;
+  color: var(--text-soft, #cbd5e1);
+}
+.skeleton {
+  display: inline-block; height: 1em; width: 10em; border-radius: 6px;
+  background: linear-gradient(90deg, #f2f4f8 25%, #e9edf7 37%, #f2f4f8 63%);
+  background-size: 400% 100%;
+  animation: sk 1.2s ease-in-out infinite;
+}
+@keyframes sk { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+
+/* Swap button in header */
+#btn-open-swap {
+  background: linear-gradient(180deg, var(--accent, #0ea5e9), var(--accent-press, #0284c7));
+  border-color: #0a2a3c;
+  color: #ecfeff;
+}
+#btn-open-swap:hover { filter: brightness(1.04); }
+#btn-open-swap:active { transform: translateY(1px) scale(.995); }
+
+/* Visibility helper (safe even if already defined above) */
+.hidden { display: none !important; }
+
+/* ===== SWAP UI (hidden by default; JS toggles display) ===== */
+#swap-interface.interface {
+  max-width: 1040px;
+  margin: 22px auto;
+  padding: 18px;
+  background: linear-gradient(180deg, rgba(17,24,39,.9), rgba(15,23,42,.92));
+  border: 1px solid var(--border, #1f2937);
+  border-radius: 18px;
+  box-shadow: var(--soft-shadow, 0 6px 18px rgba(2,8,23,.35));
+  backdrop-filter: blur(6px);
+}
+
+/* Swap header (wallet address + buttons) */
+#swap-interface .swap-header {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  margin-bottom: 10px;
+}
+#swap-interface .wallet-address {
+  font-size: 13px; padding: 6px 10px; border-radius: 10px;
+  background: #0b1220;
+  color: var(--text-soft, #cbd5e1);
+  border: 1px solid var(--border, #1f2937);
+  word-break: break-all;
+}
+
+/* Main swap box */
+#swap-interface .swap-container {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; margin: 18px 0;
+}
+#swap-interface .token-input {
+  display: flex; align-items: center; gap: 10px; width: 45%;
+  padding: 12px; border: 1px solid var(--border, #1f2937);
+  border-radius: 12px; background: var(--bg-soft, #111827);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+}
+#swap-interface .token-input img { width: 24px; height: 24px; }
+#swap-interface .token-input input {
+  flex: 1; border: none; background: transparent; font-size: 16px; color: var(--text, #e5e7eb);
+}
+#swap-interface .token-input input::placeholder { color: #9aa4b2; }
+
+/* Direction toggle */
+#swap-interface #swap-direction {
+  font-size: 24px; border: none; background: none; cursor: pointer;
+  color: var(--accent, #38bdf8);
+  transition: transform .2s ease;
+}
+#swap-interface #swap-direction:hover { transform: rotate(180deg); }
+
+/* Fees & notes */
+#swap-interface .swap-details { font-size: 14px; color: var(--text-dim, #94a3b8); }
+#swap-interface #transaction-fee,
+#swap-interface #gas-fee { font-variant-numeric: tabular-nums; }
+
+/* Buttons inside swap (reuse your .btn styles) */
+#swap-interface #max-button { }
+#swap-interface #swap-now { margin-top: 6px; }
+
+/* Optional: Back to game button next to disconnect (if present) */
+#btn-back-to-game { margin-left: 8px; }
+
+/* ===== Responsive for swap ===== */
+@media (max-width: 720px) {
+  #swap-interface .swap-container { flex-direction: column; }
+  #swap-interface .token-input { width: 100%; }
+}
