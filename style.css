@@ -14,20 +14,14 @@
   --text-soft: #cbd5e1;
 
   --border: #1f2937;
-  --muted: #0b1220;
 
-  --primary: #16a34a;       /* xanh lá sang trọng */
+  --primary: #16a34a;
   --primary-hover: #22c55e;
   --primary-press: #15803d;
 
-  --accent: #0ea5e9;        /* xanh dương nhấn */
+  --accent: #0ea5e9;
   --accent-hover: #38bdf8;
   --accent-press: #0284c7;
-
-  --danger: #ef4444;
-  --danger-hover: #f87171;
-
-  --warning: #f59e0b;
 
   --ring: rgba(56, 189, 248, .35);
   --shadow: 0 10px 30px rgba(2, 8, 23, .55);
@@ -158,7 +152,7 @@ h2{ font-size: 20px; color: var(--text-soft); }
   color: var(--text-soft);
 }
 
-/* Primary (dùng cho Connect / Play) */
+/* Primary (Connect / Play) */
 .primary{
   background: linear-gradient(180deg, var(--primary), var(--primary-press));
   border-color: #0f2918;
@@ -167,7 +161,7 @@ h2{ font-size: 20px; color: var(--text-soft); }
 .primary:hover{ background: linear-gradient(180deg, var(--primary-hover), var(--primary)); }
 .primary:active{ background: linear-gradient(180deg, var(--primary-press), #0d5e2f); }
 
-/* Accented (dùng cho Approve / Set Table / Guide) */
+/* Accented (Approve / Set Table / Guide) */
 .accent{
   background: linear-gradient(180deg, var(--accent), var(--accent-press));
   border-color: #0a2a3c;
@@ -175,7 +169,7 @@ h2{ font-size: 20px; color: var(--text-soft); }
 }
 .accent:hover{ background: linear-gradient(180deg, var(--accent-hover), var(--accent)); }
 
-/* Toggle active (Even/Odd) */
+/* Toggle active */
 .btn.toggle{
   background: linear-gradient(180deg, #0b1220, #0a0f1a);
   color: var(--text-soft);
@@ -192,7 +186,7 @@ h2{ font-size: 20px; color: var(--text-soft); }
 #btn-approve{ font-size: 14px; }
 #btn-set-table{ font-size: 14px; }
 
-/* Guide button (bạn sẽ thêm vào HTML sau) */
+/* Guide button (đặt sẵn ở header) */
 #btn-guide{
   font-size: 14px;
   background: linear-gradient(180deg, #1f2937, #0f172a);
