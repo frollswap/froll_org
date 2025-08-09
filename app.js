@@ -1,10 +1,9 @@
 /* ============================================================
-   FROLL Dice – app.js (VIC) — FINAL “SMOOTH CONNECT” BUILD
+   FROLL Dice – app.js (VIC) — FINAL SMOOTH + SIMPLE APPROVE
    UI: English • Chú thích code: Tiếng Việt
-   Mục tiêu: Kết nối ví mượt, tự reconnect sau refresh, chống bấm đúp
    ============================================================ */
 
-/** ===================== [MỤC 0] NẠP Ethers FALLBACK (phòng CDN lỗi) ===================== **/
+/** [0] Ethers fallback (phòng CDN chính lỗi) */
 (function ensureEthers() {
   if (typeof window === 'undefined') return;
   if (typeof window.ethers !== 'undefined') return;
@@ -15,9 +14,9 @@
   document.head.appendChild(s);
 })();
 
-/** ===================== [MỤC 1] CẤU HÌNH ===================== **/
+/** [1] Cấu hình */
 const CONFIG = {
-  chainIdHex: '0x58', // VIC mainnet (88)
+  chainIdHex: '0x58', // VIC mainnet 88
   chainIdDec: 88,
   chainName: 'Viction',
   rpcUrl: 'https://rpc.viction.xyz',
@@ -29,12 +28,11 @@ const CONFIG = {
   minMinBet: '0.001',
   logsLookbackBlocks: 5000,
 
-  // Kết nối mượt: auto reconnect, chống bấm đúp, chờ pop-up
   autoReconnectOnLoad: true,
   connectPopupWaitMs: 12000
 };
 
-/** ===================== [MỤC 2] ABI ===================== **/
+/** [2] ABI */
 const ERC20_ABI = [
   'function decimals() view returns (uint8)',
   'function balanceOf(address) view returns (uint256)',
@@ -50,19 +48,20 @@ const DICE_ABI = [
   'event Played(address indexed player, uint256 amount, bool guessEven, bool resultEven, bool win)'
 ];
 
-/** ===================== [MỤC 3] TRẠNG THÁI ===================== **/
+/** [3] Trạng thái */
 let providerRW, providerRO, injected, signer, user, froll, dice;
 let frollDecimals = 18;
 let currentSide = 'even';
 let currentTable = { min: null, max: null };
 let lastRound = null;
-let isConnecting = false; // chặn bấm đúp Connect
+let isConnecting = false;
 
-/** ===================== [MỤC 4] TIỆN ÍCH ===================== **/
+/** [4] Tiện ích */
 const $ = (id) => document.getElementById(id);
 const format = (v, d=4) => Number(v).toLocaleString(undefined, { maximumFractionDigits: d });
 const toWei = (n, dec=18) => ethers.utils.parseUnits(String(n||'0'), dec);
 const fromWei = (w, dec=18, d=4) => { try { return format(ethers.utils.formatUnits(w||0, dec), d); } catch { return '0'; } };
+
 function setStatus(msg){ const el=$('tx-status'); if (el) el.textContent = msg || ''; console.log('[STATUS]', msg); }
 function short(s){ return s ? s.slice(0,6)+'…'+s.slice(-4) : '—'; }
 function saveLastRound(o){ try{ localStorage.setItem('froll_dice_last_round', JSON.stringify(o)); }catch{} }
@@ -70,7 +69,7 @@ function loadLastRound(){ try{ const s=localStorage.getItem('froll_dice_last_rou
 function saveLastTableMin(m){ try{ localStorage.setItem('froll_dice_last_min', String(m)); }catch{} }
 function loadLastTableMin(){ try{ return localStorage.getItem('froll_dice_last_min'); }catch{ return null; } }
 
-/** ===================== [MỤC 5] PHÁT HIỆN PROVIDER & SỰ KIỆN WALLET ===================== **/
+/** [5] Provider & events */
 function getInjectedProvider(){
   const eth = window.ethereum;
   if (!eth) return null;
@@ -82,9 +81,7 @@ function getInjectedProvider(){
   return eth;
 }
 function bindWalletEvents(p){
-  // Gán lắng nghe thay đổi account / chain
   p?.on?.('accountsChanged', async (accs) => {
-    console.log('[EVENT] accountsChanged', accs);
     if (!accs || !accs.length){ disconnectWallet(); return; }
     user = accs[0];
     signer = providerRW.getSigner();
@@ -93,13 +90,12 @@ function bindWalletEvents(p){
     setStatus('Account changed.');
   });
   p?.on?.('chainChanged', async (cid) => {
-    console.log('[EVENT] chainChanged', cid);
     if (cid !== CONFIG.chainIdHex){ setStatus('Wrong network. Please switch to VIC.'); }
     else { setStatus('Network OK (VIC).'); await Promise.all([refreshBalances(), refreshUserTable()]); }
   });
 }
 
-/** ===================== [MỤC 6] SÂN KHẤU (BÁT XÓC & COIN) ===================== **/
+/** [6] Sân khấu */
 function startShake(){ $('bowl')?.classList.add('shaking'); }
 function stopShake(){ $('bowl')?.classList.remove('shaking'); }
 function variantFromHash(txHash, mod){ if(!txHash) return 0; try{ return parseInt(txHash.slice(-4),16)%mod; }catch{ return 0; } }
@@ -121,7 +117,7 @@ function renderCoins({ parityEven, txHash }){
   }
 }
 
-/** ===================== [MỤC 7] HIỂN THỊ KẾT QUẢ & BÀN ===================== **/
+/** [7] Hiển thị UI */
 function showResult({ resultEven, win, txHash }){
   $('last-outcome').textContent = (resultEven==null)?'—':(resultEven?'Even':'Odd');
   $('last-payout').textContent  = (win==null)?'—':(win?'Win':'Lose');
@@ -145,7 +141,7 @@ function showTable(minWei, maxWei){
   currentTable = { min:minWei, max:maxWei };
 }
 
-/** ===================== [MỤC 8] ĐỌC DỮ LIỆU ===================== **/
+/** [8] Đọc dữ liệu */
 async function refreshBalances(){
   if (!user || !froll || !providerRW) return;
   const [vic, fr, pool] = await Promise.all([
@@ -181,7 +177,7 @@ async function showLatestContractRound(){
   }
 }
 
-/** ===================== [MỤC 9] KẾT NỐI VÍ & TỰ RECONNECT ===================== **/
+/** [9] Kết nối ví & reconnect */
 async function ensureChain(){
   const currentChainId = await providerRW.send('eth_chainId', []);
   if (currentChainId !== CONFIG.chainIdHex){
@@ -202,15 +198,11 @@ async function ensureChain(){
     }
   }
 }
-
-// gọi yêu cầu account (hiện pop-up). Có timeout để không kẹt UI nếu user đóng pop-up
 async function requestAccountsWithTimeout(){
   const req = providerRW.send('eth_requestAccounts', []);
   const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('Wallet request timed out')), CONFIG.connectPopupWaitMs));
   return Promise.race([req, timeout]);
 }
-
-// Kết nối “một phát ăn ngay” (gọi khi bấm nút)
 async function connectWallet(){
   if (isConnecting) return;
   isConnecting = true;
@@ -228,13 +220,8 @@ async function connectWallet(){
     providerRW = new ethers.providers.Web3Provider(injected, 'any');
     providerRO = new ethers.providers.JsonRpcProvider(CONFIG.rpcUrl);
 
-    // Yêu cầu quyền tài khoản (sẽ bật pop-up). Bắt lỗi user từ chối (4001).
-    try {
-      await requestAccountsWithTimeout();
-    } catch (e) {
-      if (e?.code === 4001) { setStatus('You rejected the connection request.'); return; }
-      throw e;
-    }
+    try { await requestAccountsWithTimeout(); }
+    catch (e){ if (e?.code === 4001){ setStatus('You rejected the connection request.'); return; } throw e; }
 
     await ensureChain();
 
@@ -251,7 +238,6 @@ async function connectWallet(){
 
     await Promise.all([refreshBalances(), refreshUserTable()]);
     setStatus('Wallet connected.');
-
     bindWalletEvents(injected);
   } catch(err){
     console.error('connectWallet error:', err);
@@ -260,8 +246,6 @@ async function connectWallet(){
     isConnecting = false;
   }
 }
-
-// Reconnect “im lặng” sau refresh: không bật pop-up, chỉ kết nối nếu đã từng cấp quyền
 async function trySilentReconnectOnLoad(){
   if (!CONFIG.autoReconnectOnLoad) return;
   injected = getInjectedProvider();
@@ -271,7 +255,6 @@ async function trySilentReconnectOnLoad(){
   providerRO = new ethers.providers.JsonRpcProvider(CONFIG.rpcUrl);
 
   try{
-    // eth_accounts trả về danh sách account đã authorized (không bật pop-up)
     const accounts = await injected.request?.({ method:'eth_accounts' });
     if (!accounts || !accounts.length) { setStatus('Ready. Click “Connect Wallet”.'); return; }
 
@@ -296,7 +279,6 @@ async function trySilentReconnectOnLoad(){
     setStatus('Ready. Click “Connect Wallet”.');
   }
 }
-
 function disconnectWallet(){
   user=null; signer=null; providerRW=null;
   $('btn-connect').classList.remove('hidden');
@@ -306,7 +288,7 @@ function disconnectWallet(){
   setStatus('Disconnected.');
 }
 
-/** ===================== [MỤC 10] BÀN (selectTable) ===================== **/
+/** [10] Chọn bàn */
 function isGTE(numStr, minStr){
   try{ return ethers.utils.parseUnits(numStr, frollDecimals).gte(ethers.utils.parseUnits(minStr, frollDecimals)); }catch{ return false; }
 }
@@ -328,39 +310,46 @@ async function onSetTable(){
   }
 }
 
-/** ===================== [MỤC 11] APPROVE (có reset-to-zero nếu cần) ===================== **/
+/** [11] Approve (đơn giản: người dùng gõ số, phải ≤ FROLL balance) */
 async function onApprove(){
   if (!signer || !froll) return alert('Please connect wallet.');
-  const amtStr = $('bet-amount').value.trim();
-  if (!amtStr) return setStatus('Enter bet amount.');
-  if (!currentTable.min) return setStatus('Please set a table first.');
-  const amountWei = toWei(amtStr, frollDecimals);
 
-  if (amountWei.lt(currentTable.min) || amountWei.gt(currentTable.max)) {
-    return setStatus('Bet amount is out of range (min–max).');
+  // Ưu tiên lấy từ ô approve-amount; nếu trống thì dùng bet-amount
+  let apStr = ($('approve-amount')?.value || '').trim();
+  if (!apStr) apStr = ($('bet-amount')?.value || '').trim();
+  if (!apStr) return setStatus('Enter approve amount (FROLL).');
+
+  // Kiểm tra số dư ví
+  const balance = await froll.balanceOf(user);
+  const apWei = toWei(apStr, frollDecimals);
+  if (apWei.lte(ethers.constants.Zero)) return setStatus('Approve amount must be greater than 0.');
+  if (apWei.gt(balance)) {
+    const bal = fromWei(balance, frollDecimals, 6);
+    return setStatus(`Approve amount exceeds your wallet balance (${bal} FROLL).`);
   }
 
   try {
-    setStatus('Checking allowance…');
+    setStatus('Checking current allowance…');
     const cur = await froll.allowance(user, CONFIG.DICE);
-    if (cur.gte(amountWei)) {
-      setStatus('Allowance already sufficient.');
+    if (cur.gte(apWei)) {
+      setStatus('Allowance already sufficient for that amount.');
       return;
     }
 
+    // Reset-to-zero nếu token yêu cầu
     if (!cur.isZero()) {
       setStatus('Resetting allowance to 0…');
       const tx0 = await froll.approve(CONFIG.DICE, ethers.constants.Zero);
       await tx0.wait(1);
     }
 
-    setStatus('Approving exact bet amount…');
-    const tx = await froll.approve(CONFIG.DICE, amountWei);
+    setStatus('Approving…');
+    const tx = await froll.approve(CONFIG.DICE, apWei);
     await tx.wait(1);
 
     const after = await froll.allowance(user, CONFIG.DICE);
-    if (after.gte(amountWei)) setStatus('Approve successful.');
-    else setStatus('Approve seems incomplete. Please try Approve again.');
+    if (after.gte(apWei)) setStatus('Approve successful.');
+    else setStatus('Approve seems incomplete. Please try again.');
     await refreshBalances();
   } catch (e) {
     console.error('approve error:', e);
@@ -368,7 +357,7 @@ async function onApprove(){
   }
 }
 
-/** ===================== [MỤC 12] PLAY (auto top-up allowance nếu thiếu) ===================== **/
+/** [12] Play (không auto-approve; nếu thiếu sẽ nhắc) */
 async function onPlay(){
   if (!signer || !dice) return alert('Please connect wallet.');
   if (!currentTable.min) return setStatus('Please set a table first.');
@@ -377,38 +366,32 @@ async function onPlay(){
   if (!amtStr) return setStatus('Enter bet amount.');
   const amountWei = toWei(amtStr, frollDecimals);
 
+  // Min–max
   if (amountWei.lt(currentTable.min) || amountWei.gt(currentTable.max)) {
-    return setStatus(`Bet amount is out of range (min–max).`);
+    return setStatus('Bet amount is out of range (min–max).');
   }
 
-  const pool = await froll.balanceOf(CONFIG.DICE);
+  const [balance, allowance, pool] = await Promise.all([
+    froll.balanceOf(user),
+    froll.allowance(user, CONFIG.DICE),
+    froll.balanceOf(CONFIG.DICE),
+  ]);
+
+  if (balance.lt(amountWei)) {
+    const bal = fromWei(balance, frollDecimals, 6);
+    return setStatus(`Not enough FROLL balance (need ${fromWei(amountWei, frollDecimals, 6)}, have ${bal}).`);
+  }
   if (pool.lt(amountWei.mul(2))) {
     return setStatus('Contract pool is insufficient for 2× payout. Try a smaller amount.');
   }
-
-  // Auto top-up allowance nếu thiếu (kể cả reset 0)
-  let allow = await froll.allowance(user, CONFIG.DICE);
-  if (allow.lt(amountWei)) {
-    try {
-      setStatus('Allowance insufficient. Auto-approving…');
-      if (!allow.isZero()) {
-        const tx0 = await froll.approve(CONFIG.DICE, ethers.constants.Zero);
-        await tx0.wait(1);
-      }
-      const txA = await froll.approve(CONFIG.DICE, amountWei);
-      await txA.wait(1);
-      allow = await froll.allowance(user, CONFIG.DICE);
-      if (allow.lt(amountWei)) return setStatus('Allowance still insufficient. Please press Approve again.');
-      setStatus('Allowance updated. Sending play transaction…');
-    } catch (e) {
-      console.error('auto-approve before play error:', e);
-      return setStatus(e.data?.message || e.error?.message || e.message || 'Approve before play failed.');
-    }
-  } else {
-    setStatus('Sending play transaction…');
+  if (allowance.lt(amountWei)) {
+    const allo = fromWei(allowance, frollDecimals, 6);
+    return setStatus(`Allowance insufficient (${allo}). Please use “Approve FROLL” first.`);
   }
 
+  // Gửi play
   startShake();
+  setStatus('Sending play transaction…');
   try{
     const guessEven = (currentSide === 'even');
     const tx = await dice.play(amountWei, guessEven);
@@ -435,14 +418,14 @@ async function onPlay(){
   }
 }
 
-/** ===================== [MỤC 13] NÚT TIỆN ÍCH & CHẴN/LẺ ===================== **/
+/** [13] Nút tiện ích & chẵn/lẻ */
 function onClear(){ $('bet-amount').value=''; setStatus(''); }
 function onHalf(){ const v=parseFloat($('bet-amount').value||'0'); if(v<=0)return; $('bet-amount').value=String(Math.max(v/2, Number(CONFIG.minMinBet))); }
 function onDouble(){ const v=parseFloat($('bet-amount').value||'0'); const max=currentTable.max?parseFloat(fromWei(currentTable.max, frollDecimals, 18)):Infinity; if(v<=0){ if(currentTable.min)$('bet-amount').value=fromWei(currentTable.min, frollDecimals, 18); return; } $('bet-amount').value=String(Math.min(v*2, max)); }
 function onRepeat(){ const saved=loadLastRound(); if(!saved) return setStatus('No previous round to repeat.'); currentSide=saved.side==='odd'?'odd':'even'; document.querySelectorAll('.btn.toggle').forEach(b=>b.classList.remove('active')); (currentSide==='even'?$('btn-even'):$('btn-odd')).classList.add('active'); $('bet-amount').value=saved.amount; setStatus('Repeated last round settings (side & amount).'); }
 function bindSideButtons(){ $('btn-even').addEventListener('click',()=>{ currentSide='even'; $('btn-even').classList.add('active'); $('btn-odd').classList.remove('active'); }); $('btn-odd').addEventListener('click',()=>{ currentSide='odd'; $('btn-odd').classList.add('active'); $('btn-even').classList.remove('active'); }); }
 
-/** ===================== [MỤC 14] KHỞI TẠO (tự reconnect sau refresh) ===================== **/
+/** [14] Khởi tạo */
 async function init(){
   // chờ ethers nếu đang nạp fallback
   let tries=0; while (typeof window.ethers==='undefined' && tries<20){ await new Promise(r=>setTimeout(r,150)); tries++; }
@@ -452,7 +435,6 @@ async function init(){
   await showLatestContractRound();
   lastRound = loadLastRound();
 
-  // Bind nút
   $('btn-connect')?.addEventListener('click', connectWallet);
   $('btn-disconnect')?.addEventListener('click', disconnectWallet);
   $('btn-set-table')?.addEventListener('click', onSetTable);
@@ -467,13 +449,11 @@ async function init(){
   const minSaved = loadLastTableMin();
   if (minSaved) $('minBet').value = minSaved;
 
-  // Tự reconnect sau refresh (nếu user đã cấp quyền)
   await trySilentReconnectOnLoad();
-
   setStatus('Ready.');
 }
 
-// Gắn hàm ra window (phòng trường hợp onclick trong HTML muốn gọi thẳng)
+// Gắn hàm ra window (phòng onclick)
 window.connectWallet = connectWallet;
 window.disconnectWallet = disconnectWallet;
 
