@@ -417,3 +417,36 @@ input::placeholder{ color: #6b7280; }
   #swap-interface .swap-container { flex-direction: column; }
   #swap-interface .token-input { width: 100%; }
 }
+
+/* Tinh chỉnh giao diện swap cho điện thoại */
+#swap-interface .token-input p {
+    font-size: 16px; /* Giảm cỡ chữ nếu cần để phù hợp với màn hình nhỏ */
+    color: var(--text); /* Đảm bảo chữ có màu sắc tương phản */
+    overflow: hidden;
+    white-space: nowrap; /* Ngăn chữ bị cắt ngắn */
+    text-overflow: ellipsis; /* Nếu có quá nhiều văn bản, hiển thị ba chấm */
+}
+
+/* Giảm kích thước chữ trên màn hình nhỏ để hiển thị rõ ràng */
+@media (max-width: 768px) {
+    #swap-interface .token-input p {
+        font-size: 14px; /* Giảm kích thước chữ trên màn hình nhỏ */
+    }
+}
+
+/* Đảm bảo hiển thị đúng số dư trên các thiết bị nhỏ */
+@media (max-width: 768px) {
+    .swap-container {
+        flex-direction: column; /* Đặt các input theo chiều dọc trên điện thoại */
+    }
+
+    .token-input {
+        width: 100%; /* Làm cho các ô nhập liệu chiếm hết chiều rộng */
+        margin-bottom: 10px;
+    }
+
+    #swap-interface .swap-details {
+        font-size: 12px; /* Giảm cỡ chữ cho các chi tiết trên điện thoại */
+        color: var(--text-dim);
+    }
+}
