@@ -350,103 +350,110 @@ input::placeholder{ color: #6b7280; }
 /* Visibility helper (safe even if already defined above) */
 .hidden { display: none !important; }
 
-/* ===== SWAP UI (hidden by default; JS toggles display) ===== */
+/* SWAP INTERFACE (Updated) */
 #swap-interface.interface {
   max-width: 1040px;
   margin: 22px auto;
   padding: 18px;
   background: linear-gradient(180deg, rgba(17,24,39,.9), rgba(15,23,42,.92));
-  border: 1px solid var(--border, #1f2937);
+  border: 1px solid var(--border);
   border-radius: 18px;
-  box-shadow: var(--soft-shadow, 0 6px 18px rgba(2,8,23,.35));
+  box-shadow: var(--soft-shadow);
   backdrop-filter: blur(6px);
 }
 
-/* Swap header (wallet address + buttons) */
 #swap-interface .swap-header {
-  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 10px;
 }
+
 #swap-interface .wallet-address {
-  font-size: 13px; padding: 6px 10px; border-radius: 10px;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 10px;
   background: #0b1220;
-  color: var(--text-soft, #cbd5e1);
-  border: 1px solid var(--border, #1f2937);
+  color: var(--text-soft);
+  border: 1px solid var(--border);
   word-break: break-all;
 }
 
 /* Main swap box */
 #swap-interface .swap-container {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 16px; margin: 18px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 18px 0;
 }
+
 #swap-interface .token-input {
-  display: flex; align-items: center; gap: 10px; width: 45%;
-  padding: 12px; border: 1px solid var(--border, #1f2937);
-  border-radius: 12px; background: var(--bg-soft, #111827);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 45%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-soft);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
 }
-#swap-interface .token-input img { width: 24px; height: 24px; }
-#swap-interface .token-input input {
-  flex: 1; border: none; background: transparent; font-size: 16px; color: var(--text, #e5e7eb);
+
+#swap-interface .token-input img {
+  width: 24px;
+  height: 24px;
 }
-#swap-interface .token-input input::placeholder { color: #9aa4b2; }
+
+#swap-interface .token-input input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: var(--text);
+}
+
+#swap-interface .token-input input::placeholder {
+  color: #9aa4b2;
+}
 
 /* Direction toggle */
 #swap-interface #swap-direction {
-  font-size: 24px; border: none; background: none; cursor: pointer;
-  color: var(--accent, #38bdf8);
+  font-size: 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--accent);
   transition: transform .2s ease;
 }
-#swap-interface #swap-direction:hover { transform: rotate(180deg); }
+
+#swap-interface #swap-direction:hover {
+  transform: rotate(180deg);
+}
 
 /* Fees & notes */
-#swap-interface .swap-details { font-size: 14px; color: var(--text-dim, #94a3b8); }
+#swap-interface .swap-details {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
 #swap-interface #transaction-fee,
-#swap-interface #gas-fee { font-variant-numeric: tabular-nums; }
+#swap-interface #gas-fee {
+  font-variant-numeric: tabular-nums;
+}
 
-/* Buttons inside swap (reuse your .btn styles) */
-#swap-interface #max-button { }
-#swap-interface #swap-now { margin-top: 6px; }
+/* Swap button */
+#swap-interface #swap-now {
+  margin-top: 6px;
+}
 
-/* Optional: Back to game button next to disconnect (if present) */
-#btn-back-to-game { margin-left: 8px; }
-
-/* ===== Responsive for swap ===== */
+/* Responsive for swap */
 @media (max-width: 720px) {
-  #swap-interface .swap-container { flex-direction: column; }
-  #swap-interface .token-input { width: 100%; }
-}
-
-/* Tinh chỉnh giao diện swap cho điện thoại */
-#swap-interface .token-input p {
-    font-size: 16px; /* Giảm cỡ chữ nếu cần để phù hợp với màn hình nhỏ */
-    color: var(--text); /* Đảm bảo chữ có màu sắc tương phản */
-    overflow: hidden;
-    white-space: nowrap; /* Ngăn chữ bị cắt ngắn */
-    text-overflow: ellipsis; /* Nếu có quá nhiều văn bản, hiển thị ba chấm */
-}
-
-/* Giảm kích thước chữ trên màn hình nhỏ để hiển thị rõ ràng */
-@media (max-width: 768px) {
-    #swap-interface .token-input p {
-        font-size: 14px; /* Giảm kích thước chữ trên màn hình nhỏ */
-    }
-}
-
-/* Đảm bảo hiển thị đúng số dư trên các thiết bị nhỏ */
-@media (max-width: 768px) {
-    .swap-container {
-        flex-direction: column; /* Đặt các input theo chiều dọc trên điện thoại */
-    }
-
-    .token-input {
-        width: 100%; /* Làm cho các ô nhập liệu chiếm hết chiều rộng */
-        margin-bottom: 10px;
-    }
-
-    #swap-interface .swap-details {
-        font-size: 12px; /* Giảm cỡ chữ cho các chi tiết trên điện thoại */
-        color: var(--text-dim);
-    }
+  #swap-interface .swap-container {
+    flex-direction: column;
+  }
+  #swap-interface .token-input {
+    width: 100%;
+  }
 }
