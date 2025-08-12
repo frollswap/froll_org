@@ -536,22 +536,31 @@ function showSwapInterface(){
 }
 
 /** [S4] Cập nhật số dư hiển thị trong giao diện swap */
-async function updateSwapBalances(){
-  try{
+async function updateSwapBalances() {
+  try {
     if (!providerRW || !user) return;
+
+    // Lấy số dư VIC từ ví của người dùng
     const [vicBn, frollBn] = await Promise.all([
-      providerRW.getBalance(user),
-      froll ? froll.balanceOf(user) : ethers.constants.Zero
+      providerRW.getBalance(user), // Lấy số dư VIC
+      froll ? froll.balanceOf(user) : ethers.constants.Zero // Lấy số dư FROLL
     ]);
-    const vic  = fromWei(vicBn, 18, 18);
-    const fr   = fromWei(frollBn, frollDecimals, 18);
-    if (fromTokenInfo && toTokenInfo){
+
+    // Chuyển đổi số dư từ Wei (hoặc đơn vị nhỏ nhất) về FROLL và VIC
+    const vic = fromWei(vicBn, 18, 18); // VIC
+    const fr = fromWei(frollBn, frollDecimals, 18); // FROLL
+
+    // Cập nhật số dư VIC và FROLL lên giao diện
+    if (fromTokenInfo && toTokenInfo) {
       const map = { VIC: vic, FROLL: fr };
-      fromTokenInfo.textContent = `${swapFrom}: ${Number(map[swapFrom]||0).toFixed(18)}`;
-      toTokenInfo.textContent   = `${swapTo}: ${Number(map[swapTo]||0).toFixed(18)}`;
+      fromTokenInfo.textContent = `${swapFrom}: ${Number(map[swapFrom] || 0).toFixed(18)}`; // Hiển thị số dư VIC hoặc FROLL từ swapFrom
+      toTokenInfo.textContent = `${swapTo}: ${Number(map[swapTo] || 0).toFixed(18)}`; // Hiển thị số dư FROLL hoặc VIC từ swapTo
     }
-  }catch(e){ console.warn('updateSwapBalances:', e); }
+  } catch (e) {
+    console.warn('updateSwapBalances:', e);
+  }
 }
+
 
 /** [S5] Tính toán output dựa trên input & chiều swap */
 function clearSwapInputs(){
