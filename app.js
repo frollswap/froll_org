@@ -1,6 +1,9 @@
 /* ============================================================
-   FROLL Dice – app.js (VIC) — FINAL SMOOTH BUILD
+   FROLL Dice – app.js (VIC) — FINAL SMOOTH BUILD (Patched)
    UI: English • Chú thích code: Tiếng Việt
+   - Patch:
+     • [P1] formatUnitsPlain + updateSwapBalances (swap) dùng số "thô" -> hết NaN trên mobile
+     • [P2] uiSoftReset + global error traps + thêm uiSoftReset() trong catch -> không cần F5 sau lỗi
    ============================================================ */
 
 /** [0] Ethers fallback (phòng CDN chính lỗi) */
@@ -62,6 +65,12 @@ const format = (v, d=4) => Number(v).toLocaleString(undefined, { maximumFraction
 const toWei = (n, dec=18) => ethers.utils.parseUnits(String(n||'0'), dec);
 const fromWei = (w, dec=18, d=4) => { try { return format(ethers.utils.formatUnits(w||0, dec), d); } catch { return '0'; } };
 
+// [P1] Helper cho số “thô” (không locale) — dùng riêng cho phần Swap
+const formatUnitsPlain = (w, dec = 18) => {
+  try { return ethers.utils.formatUnits(w || 0, dec); }
+  catch { return '0'; }
+};
+
 function setStatus(msg){ const el=$('tx-status'); if (el) el.textContent = msg || ''; }
 function short(s){ return s ? s.slice(0,6)+'…'+s.slice(-4) : '—'; }
 function saveLastRound(o){ try{ localStorage.setItem('froll_dice_last_round', JSON.stringify(o)); }catch{} }
@@ -74,6 +83,27 @@ function setBusy(b) {
   const ids = ['btn-approve','btn-play','btn-set-table','btn-clear','btn-half','btn-double','btn-repeat','btn-even','btn-odd'];
   ids.forEach(id => { const el = $(id); if (el) el.disabled = !!b; });
 }
+
+// [P2] CẦU CHÌ Toàn cục: luôn phục hồi UI sau lỗi (khỏi cần F5)
+function uiSoftReset(msg){
+  try{ $('bowl')?.classList.remove('shaking'); }catch{}
+  try{ setBusy(false); }catch{}
+  if (msg) setStatus(msg);
+  Promise.all([
+    (typeof refreshBalances === 'function' ? refreshBalances().catch(()=>{}) : Promise.resolve()),
+    (typeof refreshUserTable === 'function' ? refreshUserTable().catch(()=>{}) : Promise.resolve())
+  ]).then(() => {
+    setTimeout(() => { try{ setStatus(''); }catch{} }, 6000);
+  });
+}
+window.addEventListener('unhandledrejection', (evt) => {
+  console.warn('[Global] Unhandled rejection:', evt.reason);
+  uiSoftReset(evt?.reason?.message || 'Something went wrong. UI recovered.');
+});
+window.addEventListener('error', (evt) => {
+  console.warn('[Global] Window error:', evt.error || evt.message);
+  uiSoftReset('Unexpected error. UI recovered.');
+});
 
 /** [5] Provider & events */
 function getInjectedProvider(){
@@ -94,10 +124,12 @@ function bindWalletEvents(p){
     $('addr-short').textContent = short(user);
     await Promise.all([refreshBalances(), refreshUserTable()]);
     setStatus('Account changed.');
+    setTimeout(()=>{ try{ setStatus(''); }catch{} }, 4000); // dọn status
   });
   p?.on?.('chainChanged', async (cid) => {
     if (cid !== CONFIG.chainIdHex){ setStatus('Wrong network. Please switch to VIC.'); }
     else { setStatus('Network OK (VIC).'); await Promise.all([refreshBalances(), refreshUserTable()]); }
+    setTimeout(()=>{ try{ setStatus(''); }catch{} }, 4000); // dọn status
   });
 }
 
@@ -248,6 +280,7 @@ async function connectWallet(){
   } catch(err){
     console.error('connectWallet error:', err);
     setStatus('Wallet connection failed. Please open your wallet and try again.');
+    uiSoftReset(); // đảm bảo UI hồi phục
   } finally {
     isConnecting = false;
   }
@@ -283,6 +316,7 @@ async function trySilentReconnectOnLoad(){
   } catch (e){
     console.warn('Silent reconnect failed:', e);
     setStatus('Ready. Click “Connect Wallet”.');
+    uiSoftReset();
   }
 }
 function disconnectWallet(){
@@ -314,6 +348,7 @@ async function onSetTable(){
   }catch(e){
     console.error('selectTable error:', e);
     setStatus(e.data?.message || e.error?.message || e.message || 'selectTable failed.');
+    uiSoftReset();
   } finally {
     setBusy(false);
   }
@@ -360,6 +395,7 @@ async function onApprove(){
   } catch (e) {
     console.error('approve error:', e);
     setStatus(e.data?.message || e.error?.message || e.message || 'Approve failed.');
+    uiSoftReset();
   } finally {
     setBusy(false);
   }
@@ -402,7 +438,17 @@ async function onPlay(){
     await dice.callStatic.play(amountWei, (currentSide === 'even'));
   } catch (preErr) {
     console.error('preflight callStatic failed:', preErr);
-    setStatus('Preflight failed. Wait a few seconds after Approve and try again (or re-check table limits).');
+    const m = (preErr?.error?.message || preErr?.data?.message || preErr?.reason || preErr?.message || '').toUpperCase();
+    if (m.includes('BET') && m.includes('MIN')) {
+      setStatus('Bet is below table minimum. Increase amount.');
+    } else if (m.includes('ALLOW')) {
+      setStatus('Allowance too low. Please click “Approve FROLL”.');
+    } else if (m.includes('BAL') || m.includes('INSUFFICIENT')) {
+      setStatus('Balance or pool insufficient. Check wallet & contract pool.');
+    } else {
+      setStatus('Preflight failed. Please adjust bet/allowance then try again.');
+    }
+    uiSoftReset(); // ✅ tự phục hồi, không cần F5
     return;
   }
 
@@ -433,6 +479,7 @@ async function onPlay(){
     console.error('play error:', e);
     stopShake();
     setStatus(e.data?.message || e.error?.message || e.message || 'Play failed.');
+    uiSoftReset();
   } finally {
     setBusy(false);
   }
@@ -535,32 +582,23 @@ function showSwapInterface(){
   if (walletAddrLabel) walletAddrLabel.textContent = user ? short(user) : '—';
 }
 
-/** [S4] Cập nhật số dư hiển thị trong giao diện swap */
-async function updateSwapBalances() {
-  try {
+/** [S4] Cập nhật số dư hiển thị trong giao diện swap (Patched: số thô, không locale) */
+async function updateSwapBalances(){
+  try{
     if (!providerRW || !user) return;
-
-    // Lấy số dư VIC từ ví của người dùng
     const [vicBn, frollBn] = await Promise.all([
-      providerRW.getBalance(user), // Lấy số dư VIC
-      froll ? froll.balanceOf(user) : ethers.constants.Zero // Lấy số dư FROLL
+      providerRW.getBalance(user),
+      froll ? froll.balanceOf(user) : ethers.constants.Zero
     ]);
-
-    // Chuyển đổi số dư từ Wei (hoặc đơn vị nhỏ nhất) về FROLL và VIC
-    const vic = fromWei(vicBn, 18, 18); // VIC
-    const fr = fromWei(frollBn, frollDecimals, 18); // FROLL
-
-    // Cập nhật số dư VIC và FROLL lên giao diện
-    if (fromTokenInfo && toTokenInfo) {
-      const map = { VIC: vic, FROLL: fr };
-      fromTokenInfo.textContent = `${swapFrom}: ${Number(map[swapFrom] || 0).toFixed(18)}`; // Hiển thị số dư VIC hoặc FROLL từ swapFrom
-      toTokenInfo.textContent = `${swapTo}: ${Number(map[swapTo] || 0).toFixed(18)}`; // Hiển thị số dư FROLL hoặc VIC từ swapTo
+    const vicPlain = formatUnitsPlain(vicBn, 18);
+    const frPlain  = formatUnitsPlain(frollBn, frollDecimals);
+    if (fromTokenInfo && toTokenInfo){
+      const map = { VIC: vicPlain, FROLL: frPlain };
+      fromTokenInfo.textContent = `${swapFrom}: ${map[swapFrom]}`;
+      toTokenInfo.textContent   = `${swapTo}: ${map[swapTo]}`;
     }
-  } catch (e) {
-    console.warn('updateSwapBalances:', e);
-  }
+  }catch(e){ console.warn('updateSwapBalances:', e); }
 }
-
 
 /** [S5] Tính toán output dựa trên input & chiều swap */
 function clearSwapInputs(){
@@ -611,9 +649,8 @@ async function onSwapMax(){
   try{
     await ensureSwapReady();
     await updateSwapBalances();
-    // Đọc lại số đã render để điền vào input
-    const text = (swapFrom === 'VIC' ? fromTokenInfo?.textContent : fromTokenInfo?.textContent) || '';
-    // text dạng "VIC: 0.0000..." => tách sau ":"
+    // Đọc lại số đã render (đã là chuỗi thô) để điền vào input
+    const text = fromTokenInfo?.textContent || '';
     const vStr = text.split(':')[1]?.trim() || '';
     if (fromAmountInput) {
       fromAmountInput.value = vStr || '';
@@ -621,6 +658,7 @@ async function onSwapMax(){
     }
   }catch(e){
     alert(e.message || 'Failed to set Max.');
+    uiSoftReset();
   }
 }
 
@@ -660,6 +698,7 @@ async function onSwapNow(){
   }catch(e){
     console.error('Swap failed:', e);
     alert(e?.reason || e?.data?.message || e?.message || 'Swap failed.');
+    uiSoftReset();
   }
 }
 
@@ -683,7 +722,6 @@ async function onSwapNow(){
   }
   if (btnDisconnectSw){
     btnDisconnectSw.addEventListener('click', () => {
-      // Tận dụng disconnectWallet đã có cho game
       try { window.disconnectWallet && window.disconnectWallet(); } catch {}
       showHomeInterface();
     });
@@ -698,7 +736,7 @@ async function onSwapNow(){
   showHomeInterface();
 })();
 
-/** [S11] (Tuỳ chọn) Đảm bảo khi tự reconnect ví xong mà user mở Swap, số dư hiển thị đúng */
+/** [S11] (Tuỳ chọn) Khi quay lại tab, nếu đang ở swap thì refresh số dư */
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && elSwap && elSwap.style.display !== 'none'){
     updateSwapBalances();
