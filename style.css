@@ -1,6 +1,6 @@
 /* =========================================================
    FROLL Dice — style.css (FINAL)
-   Tông màu chuyên nghiệp, nút nổi bật, responsive mượt
+   Tông màu chuyên nghiệp (game giữ tối), SWAP sáng trong suốt
    ========================================================= */
 
 /* ---------- CSS Variables (palette) ---------- */
@@ -322,7 +322,7 @@ h2{ font-size: 20px; color: var(--text-soft); }
 }
 input::placeholder{ color: #6b7280; }
 
-/* ==== APPEND-ONLY (put at the very end of your existing style.css) ==== */
+/* ==== APPEND-ONLY (kept from previous build) ==== */
 
 /* Price text (in price-panel) + skeleton shimmer */
 #price-text {
@@ -347,10 +347,10 @@ input::placeholder{ color: #6b7280; }
 #btn-open-swap:hover { filter: brightness(1.04); }
 #btn-open-swap:active { transform: translateY(1px) scale(.995); }
 
-/* Visibility helper (safe even if already defined above) */
+/* Visibility helper */
 .hidden { display: none !important; }
 
-/* ===== SWAP UI (hidden by default; JS toggles display) ===== */
+/* ===== SWAP UI (baseline; sẽ được override sang nền trắng bên dưới) ===== */
 #swap-interface.interface {
   max-width: 1040px;
   margin: 22px auto;
@@ -405,7 +405,7 @@ input::placeholder{ color: #6b7280; }
 #swap-interface #transaction-fee,
 #swap-interface #gas-fee { font-variant-numeric: tabular-nums; }
 
-/* Buttons inside swap (reuse your .btn styles) */
+/* Buttons inside swap (reuse .btn styles) */
 #swap-interface #max-button { }
 #swap-interface #swap-now { margin-top: 6px; }
 
@@ -416,4 +416,121 @@ input::placeholder{ color: #6b7280; }
 @media (max-width: 720px) {
   #swap-interface .swap-container { flex-direction: column; }
   #swap-interface .token-input { width: 100%; }
+}
+
+/* =========================================================
+   SWAP LIGHT THEME — OVERRIDES (trắng trong suốt, chỉ áp dụng ở swap)
+   ========================================================= */
+#swap-interface.interface{
+  /* Nền trắng trong suốt */
+  background: rgba(255,255,255,.86);
+  backdrop-filter: blur(10px) saturate(115%);
+  -webkit-backdrop-filter: blur(10px) saturate(115%);
+
+  /* Viền & bóng sáng */
+  border: 1px solid rgba(15, 23, 42, .08);
+  box-shadow: 0 10px 24px rgba(3, 7, 18, .08);
+  /* Đổi màu chữ mặc định trong vùng swap */
+  --text: #0b1220;
+  --text-dim: #475569;
+  --text-soft: #334155;
+}
+
+/* Header (địa chỉ ví + nút) kiểu light */
+#swap-interface .wallet-address{
+  background: rgba(255,255,255,.5);
+  color: #0b1220;
+  border: 1px solid rgba(15,23,42,.08);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.35);
+}
+
+/* Ô nhập token: trắng trong, đường viền nhẹ */
+#swap-interface .token-input{
+  background: rgba(255,255,255,.65);
+  border: 1px solid rgba(15,23,42,.12);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.6), 0 2px 10px rgba(2,8,23,.05);
+}
+#swap-interface .token-input input{
+  color: #0b1220;
+}
+#swap-interface .token-input input::placeholder{
+  color: #94a3b8;
+}
+
+/* Logo VIC/FROLL to, rõ + vòng sáng */
+#swap-interface .token-input img{
+  width: 32px; height: 32px; border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(2,8,23,.12);
+  outline: 1px solid rgba(15,23,42,.06);
+  background: rgba(255,255,255,.85);
+}
+
+/* Nút mũi tên: tròn, to, nổi bật */
+#swap-interface #swap-direction{
+  font-size: 32px;
+  width: 48px; height: 48px; display: grid; place-items: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,.85);
+  border: 1px solid rgba(15,23,42,.12);
+  color: #0284c7;
+  box-shadow: 0 4px 16px rgba(2,8,23,.12);
+  transition: transform .25s ease, box-shadow .25s ease, filter .2s ease;
+}
+#swap-interface #swap-direction:hover{
+  transform: rotate(180deg) scale(1.02);
+  box-shadow: 0 8px 22px rgba(2,8,23,.14);
+  filter: brightness(1.03);
+}
+
+/* Nút trong vùng swap: sáng, chữ đậm, bo mềm */
+#swap-interface .btn{
+  background: linear-gradient(180deg, #ffffff, #f5f7fb);
+  color: #0b1220;
+  border-color: rgba(15,23,42,.12);
+  box-shadow: 0 6px 18px rgba(2,8,23,.08);
+}
+#swap-interface .btn:hover{
+  filter: brightness(1.02);
+  box-shadow: 0 10px 24px rgba(2,8,23,.12);
+}
+#swap-interface .btn:active{
+  transform: translateY(1px) scale(.997);
+}
+
+/* Nhấn mạnh nút hành động */
+#swap-interface #swap-now{
+  background: linear-gradient(180deg, #16a34a, #15803d);
+  color: #ecfdf5;
+  border-color: rgba(22,163,74,.3);
+}
+#swap-interface #swap-now:hover{
+  background: linear-gradient(180deg, #22c55e, #16a34a);
+}
+
+/* Nút Disconnect & Back gọn gàng */
+#swap-interface #disconnect-wallet,
+#swap-interface #btn-back-to-game{
+  background: linear-gradient(180deg, #ffffff, #f5f7fb);
+  color: #0b1220;
+  border-color: rgba(15,23,42,.12);
+}
+#swap-interface #disconnect-wallet:hover,
+#swap-interface #btn-back-to-game:hover{
+  filter: brightness(1.02);
+}
+
+/* Chi tiết phí & ghi chú trong nền sáng */
+#swap-interface .swap-details{
+  color: #475569;
+}
+
+/* Responsive tinh chỉnh cho swap sáng */
+@media (max-width: 720px){
+  #swap-interface.interface{
+    padding: 16px;
+    background: rgba(255,255,255,.9);
+  }
+  #swap-interface #swap-direction{
+    width: 44px; height: 44px; font-size: 30px;
+  }
 }
