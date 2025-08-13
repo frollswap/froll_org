@@ -62,6 +62,29 @@ const format = (v, d=4) => Number(v).toLocaleString(undefined, { maximumFraction
 const toWei = (n, dec=18) => ethers.utils.parseUnits(String(n||'0'), dec);
 const fromWei = (w, dec=18, d=4) => { try { return format(ethers.utils.formatUnits(w||0, dec), d); } catch { return '0'; } };
 
+// === PATCH: Cầu chì UI để không phải F5 sau lỗi ===
+function uiSoftReset(msg){
+  try { $('bowl')?.classList.remove('shaking'); } catch {}
+  try { setBusy(false); } catch {}
+  if (msg) setStatus(msg);
+  Promise.all([
+    (typeof refreshBalances === 'function' ? refreshBalances().catch(()=>{}) : Promise.resolve()),
+    (typeof refreshUserTable === 'function' ? refreshUserTable().catch(()=>{}) : Promise.resolve())
+  ]).then(() => {
+    setTimeout(() => { try { setStatus(''); } catch {} }, 6000);
+  });
+}
+
+// Bắt lỗi chưa xử lý toàn cục
+window.addEventListener('unhandledrejection', (evt) => {
+  console.warn('[Global] Unhandled rejection:', evt.reason);
+  uiSoftReset(evt?.reason?.message || 'Something went wrong. UI recovered.');
+});
+window.addEventListener('error', (evt) => {
+  console.warn('[Global] Window error:', evt.error || evt.message);
+  uiSoftReset('Unexpected error. UI recovered.');
+});
+
 // === PATCH: Chuỗi số "thô" không locale, dùng cho Swap ===
 const formatUnitsPlain = (w, dec = 18) => {
   try { return ethers.utils.formatUnits(w || 0, dec); }
