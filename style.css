@@ -324,139 +324,96 @@ input::placeholder{ color: #6b7280; }
 
 /* ==== APPEND-ONLY (put at the very end of your existing style.css) ==== */
 
-/* ==== SWAP UI - Giao diện Swap sáng và trong suốt ==== */
+/* Price text (in price-panel) + skeleton shimmer */
+#price-text {
+  font-weight: 800;
+  letter-spacing: .01em;
+  color: var(--text-soft, #cbd5e1);
+}
+.skeleton {
+  display: inline-block; height: 1em; width: 10em; border-radius: 6px;
+  background: linear-gradient(90deg, #f2f4f8 25%, #e9edf7 37%, #f2f4f8 63%);
+  background-size: 400% 100%;
+  animation: sk 1.2s ease-in-out infinite;
+}
+@keyframes sk { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+
+/* Swap button in header */
+#btn-open-swap {
+  background: linear-gradient(180deg, var(--accent, #0ea5e9), var(--accent-press, #0284c7));
+  border-color: #0a2a3c;
+  color: #ecfeff;
+}
+#btn-open-swap:hover { filter: brightness(1.04); }
+#btn-open-swap:active { transform: translateY(1px) scale(.995); }
+
+/* Visibility helper (safe even if already defined above) */
+.hidden { display: none !important; }
+
+/* ===== SWAP UI (hidden by default; JS toggles display) ===== */
 #swap-interface.interface {
-  max-width: 100%; /* Đảm bảo giao diện chiếm toàn bộ chiều rộng */
+  max-width: 1040px;
   margin: 22px auto;
-  padding: 24px;
-  background: rgba(255, 255, 255, 0.85); /* Nền trắng trong suốt */
-  border: 1px solid var(--border, #e0e7ff); /* Viền sáng nhẹ */
+  padding: 18px;
+  background: linear-gradient(180deg, rgba(17,24,39,.9), rgba(15,23,42,.92));
+  border: 1px solid var(--border, #1f2937);
   border-radius: 18px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
-  backdrop-filter: blur(8px); /* Hiệu ứng mờ nền */
-  transition: all 0.3s ease; /* Hiệu ứng mượt khi hover hoặc thay đổi */
+  box-shadow: var(--soft-shadow, 0 6px 18px rgba(2,8,23,.35));
+  backdrop-filter: blur(6px);
 }
 
-/* Swap header */
+/* Swap header (wallet address + buttons) */
 #swap-interface .swap-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  margin-bottom: 10px;
 }
-
 #swap-interface .wallet-address {
-  font-size: 14px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: #f8fafc; /* Nền sáng */
-  color: #1f2937; /* Màu chữ tối */
-  border: 1px solid #d1d5db; /* Viền sáng */
+  font-size: 13px; padding: 6px 10px; border-radius: 10px;
+  background: #0b1220;
+  color: var(--text-soft, #cbd5e1);
+  border: 1px solid var(--border, #1f2937);
   word-break: break-all;
-  text-align: center;
 }
 
 /* Main swap box */
 #swap-interface .swap-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  margin: 18px 0;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; margin: 18px 0;
 }
-
-/* Token input styling */
 #swap-interface .token-input {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 48%;
-  padding: 16px;
-  border: 1px solid #d1d5db; /* Viền sáng cho các input */
-  border-radius: 12px;
-  background: #f9fafb; /* Nền sáng cho các input */
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  display: flex; align-items: center; gap: 10px; width: 45%;
+  padding: 12px; border: 1px solid var(--border, #1f2937);
+  border-radius: 12px; background: var(--bg-soft, #111827);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
 }
-
-#swap-interface .token-input img {
-  width: 28px;
-  height: 28px;
-}
-
+#swap-interface .token-input img { width: 24px; height: 24px; }
 #swap-interface .token-input input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  font-size: 16px;
-  color: #1f2937;
-  padding: 8px 12px;
-  border-radius: 8px;
-  transition: border-color 0.3s ease;
+  flex: 1; border: none; background: transparent; font-size: 16px; color: var(--text, #e5e7eb);
 }
-
-#swap-interface .token-input input:focus {
-  outline: none;
-  border-color: #0ea5e9; /* Màu sáng khi focus */
-}
-
-#swap-interface .token-input input::placeholder {
-  color: #9ca3af; /* Màu placeholder nhẹ */
-}
+#swap-interface .token-input input::placeholder { color: #9aa4b2; }
 
 /* Direction toggle */
 #swap-interface #swap-direction {
-  font-size: 28px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: #0ea5e9;
-  transition: transform 0.3s ease;
+  font-size: 24px; border: none; background: none; cursor: pointer;
+  color: var(--accent, #38bdf8);
+  transition: transform .2s ease;
 }
-
-#swap-interface #swap-direction:hover {
-  transform: rotate(180deg);
-}
+#swap-interface #swap-direction:hover { transform: rotate(180deg); }
 
 /* Fees & notes */
-#swap-interface .swap-details {
-  font-size: 14px;
-  color: #6b7280;
-  margin-top: 12px;
-}
+#swap-interface .swap-details { font-size: 14px; color: var(--text-dim, #94a3b8); }
+#swap-interface #transaction-fee,
+#swap-interface #gas-fee { font-variant-numeric: tabular-nums; }
 
-/* Swap button */
-#swap-interface #swap-now {
-  background: linear-gradient(180deg, #38bdf8, #0284c7);
-  border: 1px solid #0284c7;
-  color: #fff;
-  padding: 12px 18px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-}
+/* Buttons inside swap (reuse your .btn styles) */
+#swap-interface #max-button { }
+#swap-interface #swap-now { margin-top: 6px; }
 
-#swap-interface #swap-now:hover {
-  background-color: #0284c7;
-  transform: scale(1.05);
-}
+/* Optional: Back to game button next to disconnect (if present) */
+#btn-back-to-game { margin-left: 8px; }
 
-#swap-interface #swap-now:active {
-  background-color: #0369a1;
-  transform: scale(0.98);
-}
-
-/* Responsive for swap - Cải thiện hiển thị trên điện thoại */
+/* ===== Responsive for swap ===== */
 @media (max-width: 720px) {
-  #swap-interface .swap-container {
-    flex-direction: column;
-  }
-  #swap-interface .token-input {
-    width: 100%; /* Đảm bảo các input chiếm toàn bộ chiều rộng màn hình */
-  }
-
-  /* Nút Swap Now chiếm toàn bộ chiều rộng */
-  #swap-interface #swap-now {
-    width: 100%;
-  }
+  #swap-interface .swap-container { flex-direction: column; }
+  #swap-interface .token-input { width: 100%; }
 }
