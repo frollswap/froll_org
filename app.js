@@ -302,7 +302,7 @@ function showRegister() {
       <input type="text" id="regAvatar"/>
       <label>Website</label>
       <input type="text" id="regWebsite"/>
-      <button type="submit">Register (0.05 VIN)</button>
+      <button type="submit">Register (0.001 FROLL)</button>
     </form>
   `;
 }
