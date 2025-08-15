@@ -351,7 +351,7 @@ async function createPost() {
   const content = document.getElementById("postContent").value.trim();
   const media = document.getElementById("postMedia").value.trim();
   try {
-    const tx = await vinSocialContract.createPost(title, content, media);
+    const tx = await frollSocialContract.createPost(title, content, media);
     await tx.wait();
     alert("Post created!");
     await showHome(true);
@@ -370,7 +370,7 @@ function autoResize(textarea) {
 // 👉 Like bài viết
 async function likePost(postId) {
   try {
-    const tx = await vinSocialContract.likePost(postId);
+    const tx = await frollSocialContract.likePost(postId);
     await tx.wait();
     alert("Liked!");
   } catch (err) {
@@ -388,7 +388,7 @@ async function showComments(postId) {
   }
 
   try {
-    const comments = await vinSocialReadOnly.getComments(postId);
+    const comments = await frollSocialReadOnly.getComments(postId);
     let html = `<div class="comments"><h4>Comments</h4>`;
     comments.forEach(c => {
       const time = new Date(c.timestamp * 1000).toLocaleString();
@@ -417,7 +417,7 @@ async function showComments(postId) {
 async function addComment(postId) {
   const msg = document.getElementById(`comment-${postId}`).value.trim();
   try {
-    const tx = await vinSocialContract.commentOnPost(postId, msg);
+    const tx = await frollSocialContract.commentOnPost(postId, msg);
     await tx.wait();
     alert("Comment added!");
     await showComments(postId); // refresh
@@ -430,7 +430,7 @@ async function addComment(postId) {
 // 👉 Share bài viết
 async function sharePost(postId) {
   try {
-    const tx = await vinSocialContract.sharePost(postId);
+    const tx = await frollSocialContract.sharePost(postId);
     await tx.wait();
     alert("Post shared!");
   } catch (err) {
@@ -442,8 +442,8 @@ async function sharePost(postId) {
 // 👉 Xem hồ sơ người dùng
 async function viewProfile(addr) {
   try {
-    const user = await vinSocialReadOnly.users(addr);
-    const posts = await vinSocialReadOnly.getUserPosts(addr);
+    const user = await frollSocialReadOnly.users(addr);
+    const posts = await frollSocialReadOnly.getUserPosts(addr);
     const [followers, following] = await Promise.all([
       vinSocialReadOnly.getFollowers(addr),
       vinSocialReadOnly.getFollowing(addr)
@@ -466,11 +466,11 @@ async function viewProfile(addr) {
     html += `</div><h3>Posts</h3>`;
 
     for (const id of [...posts].reverse()) {
-      const post = await vinSocialReadOnly.posts(id);
+      const post = await frollSocialReadOnly.posts(id);
       const [likes, shares, views] = await Promise.all([
-        vinSocialReadOnly.likeCount(id),
-        vinSocialReadOnly.shareCount(id),
-        vinSocialReadOnly.viewCount(id)
+        frollSocialReadOnly.likeCount(id),
+        frollSocialReadOnly.shareCount(id),
+        frollSocialReadOnly.viewCount(id)
       ]);
       const time = new Date(post[4] * 1000).toLocaleString();
 
@@ -501,7 +501,7 @@ async function showProfile() {
 // 👉 Follow người dùng khác
 async function followUser(addr) {
   try {
-    const tx = await vinSocialContract.follow(addr);
+    const tx = await frollSocialContract.follow(addr);
     await tx.wait();
     alert("Now following!");
     await viewProfile(addr);
@@ -514,7 +514,7 @@ async function followUser(addr) {
 // 👉 Unfollow người dùng khác
 async function unfollowUser(addr) {
   try {
-    const tx = await vinSocialContract.unfollow(addr);
+    const tx = await frollSocialContract.unfollow(addr);
     await tx.wait();
     alert("Unfollowed.");
     await viewProfile(addr);
@@ -524,30 +524,10 @@ async function unfollowUser(addr) {
   }
 }
 
-// 👉 (Chuẩn bị tương lai) Gợi ý người dùng nổi bật
-async function suggestUsers() {
-  return [];
-}
-
-// 👉 (Chuẩn bị tương lai) Gợi ý bài viết nổi bật
-async function suggestPosts() {
-  return [];
-}
-
-// 👉 Tìm kiếm mở rộng (ý tưởng tương lai)
-async function searchByAddressOrKeyword(input) {
-  if (ethers.utils.isAddress(input)) {
-    await viewProfile(input);
-  } else {
-    alert("Currently only wallet address search is supported.");
-  }
-}
-
-<!-- ▼▼▼ PASTE VÀO CUỐI app.js ▼▼▼ -->
 // === Patch: Long posts + xuống dòng + auto-resize (UI-only) ===
 (function () {
   // 1) Tiêm CSS để giữ xuống dòng khi HIỂN THỊ bài & comment
-  const id = 'vin-patch-prewrap';
+  const id = 'froll-patch-prewrap';
   if (!document.getElementById(id)) {
     const s = document.createElement('style');
     s.id = id;
@@ -601,7 +581,7 @@ async function searchByAddressOrKeyword(input) {
     }
 
     try {
-      const tx = await vinSocialContract.createPost(title, content, media);
+      const tx = await frollSocialContract.createPost(title, content, media);
       await tx.wait();
       alert("Post created!");
       await showHome(true);
