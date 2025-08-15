@@ -119,7 +119,7 @@ async function tryAutoConnect() {
 async function updateUI() {
   const frollBal = await frollTokenContract.balanceOf(userAddress);
   const vicBal = await provider.getBalance(userAddress);
-  const froll = parseFloat(ethers.utils.formatEther(vinBal)).toFixed(2);
+  const froll = parseFloat(ethers.utils.formatEther(frollBal)).toFixed(2);
   const vic = parseFloat(ethers.utils.formatEther(vicBal)).toFixed(4);
 
   document.getElementById("walletAddress").innerHTML = `
