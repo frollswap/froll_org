@@ -49,9 +49,6 @@
     <a class="bn-link" href="https://x.com/FortuneRolls" target="_blank" rel="noopener">Twitter / X</a>
     <a class="bn-link" href="https://ipfs.io/ipfs/bafybeihmvh6sa7cndhpuy2ho2zloe7w3nnh3bdsmkutuy62jevbntouobe" target="_blank" rel="noopener">🎲 Play Dice</a>
     <a class="bn-link" href="https://lottery.vin" target="_blank" rel="noopener">Lottery</a>
-    <!-- Bạn có thể thêm bớt link tùy ý:
-    <a class="bn-link" href="https://vinswap.vin" target="_blank" rel="noopener">Swap VIN/VIC</a>
-    -->
   </div>
 </footer>
 
@@ -60,18 +57,18 @@
   <script src="app.js"></script>
 
   <script>
-    async function fetchVinPrice() {
+    async function fetchFrollPrice() {
       try {
         const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT');
         const data = await res.json();
-        const vinUsd = (parseFloat(data.price) * 100).toFixed(2);
-        document.getElementById("vinPrice").innerText = `1 VIN ≈ $${vinUsd} USD`;
+        const frollUsd = (parseFloat(data.price) * 100).toFixed(2);
+        document.getElementById("frollPrice").innerText = `1 FROLL ≈ $${vinUsd} USD`;
       } catch {
-        document.getElementById("vinPrice").innerText = "1 VIN ≈ $-- USD";
+        document.getElementById("frollPrice").innerText = "1 FROLL ≈ $-- USD";
       }
     }
-    fetchVinPrice();
-    setInterval(fetchVinPrice, 60000);
+    fetchFrollPrice();
+    setInterval(fetchFrollPrice, 60000);
   </script>
 </body>
 </html>
