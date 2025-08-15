@@ -313,7 +313,7 @@ async function registerUser() {
   const bio = document.getElementById("regBio").value.trim();
   const avatar = document.getElementById("regAvatar").value.trim();
   const website = document.getElementById("regWebsite").value.trim();
-  const fee = ethers.utils.parseEther("0.05");
+  const fee = ethers.utils.parseEther("0.001");
 
   try {
     const approveTx = await frollTokenContract.approve(frollSocialAddress, fee);
