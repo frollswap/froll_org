@@ -1,4 +1,4 @@
-// 👉 FrollSocial.v3 – hỗ trợ xem bài khi chưa kết nối ví, copy ví, tìm kiếm
+// 👉 FrollSocial – hỗ trợ xem bài khi chưa kết nối ví, copy ví, tìm kiếm
 const frollSocialAddress = "0x23fA4f635DA29812659C4Bde38DAF9376592fFa9";
 const frollTokenAddress = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
 
@@ -9,9 +9,15 @@ let lastPostId = 0;
 let seen = new Set();
 
 const frollTokenAbi = [
-  "function balanceOf(address account) view returns (uint256)",
-  "function approve(address spender, uint256 amount) external returns (bool)"
-];
+        { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }],
+          "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+          "stateMutability": "view", "type": "function" },
+        { "inputs": [
+            { "internalType": "address", "name": "spender", "type": "address" },
+            { "internalType": "uint256", "name": "amount", "type": "uint256" }],
+          "name": "approve", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+          "stateMutability": "nonpayable", "type": "function" }
+    ];
 
 const vinSocialAbi = [
   "constructor(address _frollToken)",
