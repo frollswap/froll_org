@@ -1,6 +1,7 @@
 // 👉 FrollSocial – hỗ trợ xem bài khi chưa kết nối ví, copy ví, tìm kiếm
 const frollSocialAddress = "0x23fA4f635DA29812659C4Bde38DAF9376592fFa9";
 const frollTokenAddress = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
+const ZERO = "0x0000000000000000000000000000000000000000";
 
 let provider, signer, userAddress;
 let frollSocialContract, frollTokenContract, frollSocialReadOnly;
@@ -9,15 +10,24 @@ let lastPostId = 0;
 let seen = new Set();
 
 const frollTokenAbi = [
-        { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }],
-          "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-          "stateMutability": "view", "type": "function" },
-        { "inputs": [
-            { "internalType": "address", "name": "spender", "type": "address" },
-            { "internalType": "uint256", "name": "amount", "type": "uint256" }],
-          "name": "approve", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-          "stateMutability": "nonpayable", "type": "function" }
-    ];
+  {
+    inputs: [{ internalType: "address", name: "owner", type: "address" }],
+    name: "balanceOf",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "spender", type: "address" },
+      { internalType: "uint256", name: "amount", type: "uint256" },
+    ],
+    name: "approve",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+];
 
 const frollSocialAbi = [
   "constructor(address _frollToken)",
@@ -58,7 +68,7 @@ const frollSocialAbi = [
   "function userPosts(address, uint256) view returns (uint256)",
   "function users(address) view returns (string name, string bio, string avatarUrl, string website)",
   "function viewCount(uint256) view returns (uint256)",
-  "function viewPost(uint256 postId)"
+  "function viewPost(uint256 postId)",
 ];
 
 // 👉 Load giao diện khi mở trang
@@ -66,11 +76,19 @@ window.onload = async () => {
   if (window.ethereum) {
     provider = new ethers.providers.Web3Provider(window.ethereum);
     signer = provider.getSigner();
-    frollSocialReadOnly = new ethers.Contract(frollSocialAddress, frollSocialAbi, provider);
+    frollSocialReadOnly = new ethers.Contract(
+      frollSocialAddress,
+      frollSocialAbi,
+      provider
+    );
     await tryAutoConnect();
   } else {
     provider = new ethers.providers.JsonRpcProvider("https://rpc.viction.xyz");
-    frollSocialReadOnly = new ethers.Contract(frollSocialAddress, frollSocialAbi, provider);
+    frollSocialReadOnly = new ethers.Contract(
+      frollSocialAddress,
+      frollSocialAbi,
+      provider
+    );
     showHome(true); // vẫn cho xem bài khi chưa có ví
   }
 };
@@ -81,7 +99,11 @@ async function connectWallet() {
   signer = provider.getSigner();
   userAddress = await signer.getAddress();
   await setupContracts();
-  frollSocialReadOnly = new ethers.Contract(frollSocialAddress, frollSocialAbi, provider);
+  frollSocialReadOnly = new ethers.Contract(
+    frollSocialAddress,
+    frollSocialAbi,
+    provider
+  );
   await updateUI();
 }
 
@@ -98,8 +120,16 @@ function disconnectWallet() {
 
 // 👉 Gọi hợp đồng khi đã kết nối
 async function setupContracts() {
-  frollSocialContract = new ethers.Contract(frollSocialAddress, frollSocialAbi, signer);
-  frollTokenContract = new ethers.Contract(frollTokenAddress, frollTokenAbi, signer);
+  frollSocialContract = new ethers.Contract(
+    frollSocialAddress,
+    frollSocialAbi,
+    signer
+  );
+  frollTokenContract = new ethers.Contract(
+    frollTokenAddress,
+    frollTokenAbi,
+    signer
+  );
 }
 
 // 👉 Tự kết nối lại nếu đã từng kết nối
@@ -213,13 +243,13 @@ async function showHome(reset = false) {
 
     try {
       const post = await frollSocialReadOnly.posts(i);
-      if (post[0] === "0x0000000000000000000000000000000000000000" || post[4] === 0) {
+      if (post[0] === ZERO || (post[4].toNumber ? post[4].toNumber() === 0 : post[4] === 0)) {
         seen.add(i);
         i--;
         continue;
       }
 
-      const key = `${post[1]}|${post[2]}|${post[4]}`;
+      const key = `${post[1]}|${post[2]}|${post[4].toString ? post[4].toString() : post[4]}`;
       if (seen.has(key)) {
         i--;
         continue;
@@ -232,13 +262,16 @@ async function showHome(reset = false) {
       const title = post[1];
       const content = post[2];
       const media = post[3];
-      const time = new Date(post[4] * 1000).toLocaleString();
+      const time = new Date((post[4].toNumber ? post[4].toNumber() : post[4]) * 1000).toLocaleString();
 
-      const [likes, shares, views] = await Promise.all([
+      let [likes, shares, views] = await Promise.all([
         frollSocialReadOnly.likeCount(i),
         frollSocialReadOnly.shareCount(i),
-        frollSocialReadOnly.viewCount(i)
+        frollSocialReadOnly.viewCount(i),
       ]);
+      likes = likes.toString ? likes.toString() : String(likes);
+      shares = shares.toString ? shares.toString() : String(shares);
+      views = views.toString ? views.toString() : String(views);
 
       html += `
         <div class="post">
@@ -252,13 +285,17 @@ async function showHome(reset = false) {
           ${media ? `<img src="${media}" alt="media"/>` : ""}
           <div class="metrics">❤️ ${likes} • 🔁 ${shares} • 👁️ ${views}</div>
           <div class="actions">
-            ${isRegistered ? `
+            ${isRegistered
+              ? `
               <button onclick="likePost(${i})">👍 Like</button>
               <button onclick="showComments(${i})">💬 Comment</button>
               <button onclick="sharePost(${i})">🔁 Share</button>
-            ` : ""}
+            `
+              : ""}
             <button onclick="viewProfile('${post[0]}')">👤 Profile</button>
-            <button onclick="translatePost(decodeURIComponent('${encodeURIComponent(content)}'))">🌐 Translate</button>
+            <button onclick="translatePost(decodeURIComponent('${encodeURIComponent(
+              content
+            )}'))">🌐 Translate</button>
           </div>
           <div id="comments-${i}"></div>
         </div>
@@ -284,7 +321,9 @@ async function showHome(reset = false) {
 
 // 👉 Dịch bài viết qua Google Translate
 function translatePost(text) {
-  const url = `https://translate.google.com/?sl=auto&tl=en&text=${encodeURIComponent(text)}&op=translate`;
+  const url = `https://translate.google.com/?sl=auto&tl=en&text=${encodeURIComponent(
+    text
+  )}&op=translate`;
   window.open(url, "_blank");
 }
 
@@ -316,7 +355,10 @@ async function registerUser() {
   const fee = ethers.utils.parseEther("0.001");
 
   try {
-    const approveTx = await frollTokenContract.approve(frollSocialAddress, fee);
+    const approveTx = await frollTokenContract.approve(
+      frollSocialAddress,
+      fee
+    );
     await approveTx.wait();
     const tx = await frollSocialContract.register(name, bio, avatar, website);
     await tx.wait();
@@ -337,9 +379,9 @@ function showNewPost() {
       <label>Title</label>
       <input type="text" id="postTitle" maxlength="80"/>
       <label>What's on your mind?</label>
-      <textarea id="postContent" maxlength="20000" oninput="autoResize(this)" style="overflow:hidden; resize:none;"></textarea>
+      <textarea id="postContent" maxlength="20000" oninput="autoResize(this)" style="overflow:hidden; resize:none;" placeholder="Write here... (max 20,000 characters)"></textarea>
       <label>Image URL (optional)</label>
-      <input type="text" id="postMedia"/>
+      <input type="text" id="postMedia" placeholder="https://..."/>
       <button type="submit">Post</button>
     </form>
   `;
@@ -348,8 +390,14 @@ function showNewPost() {
 // 👉 Gửi bài viết
 async function createPost() {
   const title = document.getElementById("postTitle").value.trim();
-  const content = document.getElementById("postContent").value.trim();
+  const content = document.getElementById("postContent").value; // giữ \n nguyên vẹn
   const media = document.getElementById("postMedia").value.trim();
+
+  if (content.length > 20000) {
+    alert(`Your post is ${content.length} characters. The maximum is 20,000.`);
+    return;
+  }
+
   try {
     const tx = await frollSocialContract.createPost(title, content, media);
     await tx.wait();
@@ -363,8 +411,8 @@ async function createPost() {
 
 // 👉 Tự động giãn chiều cao textarea
 function autoResize(textarea) {
-  textarea.style.height = 'auto';
-  textarea.style.height = textarea.scrollHeight + 'px';
+  textarea.style.height = "auto";
+  textarea.style.height = textarea.scrollHeight + "px";
 }
 
 // 👉 Like bài viết
@@ -390,8 +438,9 @@ async function showComments(postId) {
   try {
     const comments = await frollSocialReadOnly.getComments(postId);
     let html = `<div class="comments"><h4>Comments</h4>`;
-    comments.forEach(c => {
-      const time = new Date(c.timestamp * 1000).toLocaleString();
+    comments.forEach((c) => {
+      const ts = c.timestamp.toNumber ? c.timestamp.toNumber() : c.timestamp;
+      const time = new Date(ts * 1000).toLocaleString();
       html += `<p><strong>${shorten(c.commenter)}:</strong> ${c.message} <span style="color:#999;">(${time})</span></p>`;
     });
 
@@ -446,7 +495,7 @@ async function viewProfile(addr) {
     const posts = await frollSocialReadOnly.getUserPosts(addr);
     const [followers, following] = await Promise.all([
       frollSocialReadOnly.getFollowers(addr),
-      frollSocialReadOnly.getFollowing(addr)
+      frollSocialReadOnly.getFollowing(addr),
     ]);
 
     let html = `<h2>${user[0]}'s Profile</h2>`;
@@ -465,14 +514,18 @@ async function viewProfile(addr) {
 
     html += `</div><h3>Posts</h3>`;
 
-    for (const id of [...posts].reverse()) {
+    for (const idBN of [...posts].reverse()) {
+      const id = idBN.toNumber ? idBN.toNumber() : idBN;
       const post = await frollSocialReadOnly.posts(id);
-      const [likes, shares, views] = await Promise.all([
+      let [likes, shares, views] = await Promise.all([
         frollSocialReadOnly.likeCount(id),
         frollSocialReadOnly.shareCount(id),
-        frollSocialReadOnly.viewCount(id)
+        frollSocialReadOnly.viewCount(id),
       ]);
-      const time = new Date(post[4] * 1000).toLocaleString();
+      likes = likes.toString ? likes.toString() : String(likes);
+      shares = shares.toString ? shares.toString() : String(shares);
+      views = views.toString ? views.toString() : String(views);
+      const time = new Date((post[4].toNumber ? post[4].toNumber() : post[4]) * 1000).toLocaleString();
 
       html += `
         <div class="post">
@@ -524,12 +577,11 @@ async function unfollowUser(addr) {
   }
 }
 
-// === Patch: Long posts + xuống dòng + auto-resize (UI-only) ===
-(function () {
-  // 1) Tiêm CSS để giữ xuống dòng khi HIỂN THỊ bài & comment
-  const id = 'froll-patch-prewrap';
+// 👉 Tiêm CSS để giữ xuống dòng khi hiển thị
+(function injectPreWrapCSS() {
+  const id = "froll-patch-prewrap";
   if (!document.getElementById(id)) {
-    const s = document.createElement('style');
+    const s = document.createElement("style");
     s.id = id;
     s.textContent = `
       .post .content { white-space: pre-wrap; word-break: break-word; }
@@ -538,57 +590,6 @@ async function unfollowUser(addr) {
     `;
     document.head.appendChild(s);
   }
-
-  // 2) Fallback autoResize nếu file cũ chưa có
-  if (typeof window.autoResize !== 'function') {
-    window.autoResize = function (ta) {
-      ta.style.height = 'auto';
-      ta.style.height = ta.scrollHeight + 'px';
-    };
-  }
-
-  // 3) Override showNewPost: đặt maxlength=20000 + gắn auto-resize & giữ Enter
-  window.showNewPost = function () {
-    document.getElementById("mainContent").innerHTML = `
-      <h2>New Post</h2>
-      <form onsubmit="createPost(); return false;">
-        <label>Title</label>
-        <input type="text" id="postTitle" maxlength="80"/>
-        <label>What's on your mind?</label>
-        <textarea id="postContent" maxlength="20000" placeholder="Write here... (max 20,000 characters)"></textarea>
-        <label>Image URL (optional)</label>
-        <input type="text" id="postMedia" placeholder="https://..."/>
-        <button type="submit">Post</button>
-      </form>
-    `;
-    const ta = document.getElementById('postContent');
-    const onChange = () => window.autoResize(ta);
-    ['input','keyup','change'].forEach(evt => ta.addEventListener(evt, onChange));
-    ta.addEventListener('paste', () => setTimeout(onChange, 0)); // sau khi dán mới đo scrollHeight
-    onChange(); // set height lần đầu
-  };
-
-  // 4) Override createPost: không làm mất xuống dòng + chặn >20000
-  window.createPost = async function () {
-    const title = document.getElementById("postTitle").value.trim();
-    const contentEl = document.getElementById("postContent");
-    const content = contentEl.value; // GIỮ nguyên \n, không .trim() để tránh mất xuống dòng cuối
-    const media = (document.getElementById("postMedia").value || '').trim();
-
-    if (content.length > 20000) {
-      alert(`Your post is ${content.length} characters. The maximum is 20,000.`);
-      return;
-    }
-
-    try {
-      const tx = await frollSocialContract.createPost(title, content, media);
-      await tx.wait();
-      alert("Post created!");
-      await showHome(true);
-    } catch (err) {
-      alert("Post failed.");
-      console.error(err);
-    }
-  };
 })();
-<!-- ▲▲▲ HẾT PATCH ▲▲▲ -->
+
+// ▲▲▲ HẾT FILE ▲▲▲
