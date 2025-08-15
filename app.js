@@ -445,8 +445,8 @@ async function viewProfile(addr) {
     const user = await frollSocialReadOnly.users(addr);
     const posts = await frollSocialReadOnly.getUserPosts(addr);
     const [followers, following] = await Promise.all([
-      vinSocialReadOnly.getFollowers(addr),
-      vinSocialReadOnly.getFollowing(addr)
+      frollSocialReadOnly.getFollowers(addr),
+      frollSocialReadOnly.getFollowing(addr)
     ]);
 
     let html = `<h2>${user[0]}'s Profile</h2>`;
