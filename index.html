@@ -62,7 +62,7 @@
         const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT');
         const data = await res.json();
         const frollUsd = (parseFloat(data.price) * 100).toFixed(2);
-        document.getElementById("frollPrice").innerText = `1 FROLL ≈ $${vinUsd} USD`;
+        document.getElementById("frollPrice").innerText = `1 FROLL ≈ $${frollUsd} USD`;
       } catch {
         document.getElementById("frollPrice").innerText = "1 FROLL ≈ $-- USD";
       }
