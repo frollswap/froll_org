@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FrollSocial - Your Voice. Your Platform.. </title>
+  <title>FrollSocial — Your Voice. Your Platform. Your Rules.</title>
   <link rel="stylesheet" href="style.css"/>
   <link rel="icon" type="image/png" href="froll_48.png"/>
 </head>
 <body>
 
-  <!-- 🔼 Tip + Made with ❤️ chuyển lên đầu -->
+  <!-- 🔼 Tip + Made with ❤️ -->
   <div class="top-message">
     <p class="tip">
       Tip: Use VIC chain in MetaMask. On mobile, open in the wallet's browser (e.g. Viction, MetaMask).
@@ -34,8 +34,8 @@
 
   <section class="info-bar">
     <div id="frollPrice">1 FROLL ≈ $-- USD</div>
-    <a href="https://ipfs.io/ipfs/bafybeigbwsuh6cn2i5oed3wouhx4b6px67ldcurautqchmwv2sv3a7jqze" class="trade-link" target="_blank">💱 Swap FROLL/VIC</a>
-    <a href="https://docs.google.com/document/d/1OxPMY35kBH3VyEJ3HHtqfD18LZcUdZht/edit?usp=sharing" class="guide-link" target="_blank">📘 Guide</a>
+    <a href="https://ipfs.io/ipfs/bafybeigbwsuh6cn2i5oed3wouhx4b6px67ldcurautqchmwv2sv3a7jqze" class="trade-link" target="_blank" rel="noopener">💱 Swap FROLL/VIC</a>
+    <a href="https://docs.google.com/document/d/1OxPMY35kBH3VyEJ3HHtqfD18LZcUdZht/edit?usp=sharing" class="guide-link" target="_blank" rel="noopener">📘 Guide</a>
   </section>
 
   <nav id="mainNav" style="display: none;"></nav>
@@ -43,25 +43,32 @@
   <main id="mainContent"></main>
 
   <!-- === Bottom Navigation (sticky) === -->
-<footer class="bottom-nav" role="navigation" aria-label="Vin ecosystem links">
-  <div class="bn-container">
-    <a class="bn-link" href="https://t.me/FortuneRolls" target="_blank" rel="noopener">Telegram</a>
-    <a class="bn-link" href="https://x.com/FortuneRolls" target="_blank" rel="noopener">Twitter / X</a>
-    <a class="bn-link" href="https://ipfs.io/ipfs/bafybeihmvh6sa7cndhpuy2ho2zloe7w3nnh3bdsmkutuy62jevbntouobe" target="_blank" rel="noopener">🎲 Play Dice</a>
-    <a class="bn-link" href="https://lottery.vin" target="_blank" rel="noopener">Lottery</a>
-  </div>
-</footer>
+  <footer class="bottom-nav" role="navigation" aria-label="Froll ecosystem links">
+    <div class="bn-container">
+      <a class="bn-link" href="https://t.me/FortuneRolls" target="_blank" rel="noopener">Telegram</a>
+      <a class="bn-link" href="https://x.com/FortuneRolls" target="_blank" rel="noopener">Twitter / X</a>
+      <a class="bn-link" href="https://ipfs.io/ipfs/bafybeihmvh6sa7cndhpuy2ho2zloe7w3nnh3bdsmkutuy62jevbntouobe" target="_blank" rel="noopener">🎲 Play Dice</a>
+      <a class="bn-link" href="https://ipfs.io/ipfs/bafybeigbwsuh6cn2i5oed3wouhx4b6px67ldcurautqchmwv2sv3a7jqze" target="_blank" rel="noopener">💱 Swap FROLL/VIC</a>
+      <a class="bn-link" href="https://lottery.vin" target="_blank" rel="noopener">Lottery</a>
+    </div>
+  </footer>
 
-
+  <!-- Ethers v5 (khớp với app.js) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script src="app.js"></script>
 
+  <!-- FROLL price = VIC/USDT × 100 (định dạng đẹp + fallback) -->
   <script>
     async function fetchFrollPrice() {
       try {
         const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT');
         const data = await res.json();
-        const frollUsd = (parseFloat(data.price) * 100).toFixed(2);
+        const vicUsd = Number(data && data.price);
+        if (!isFinite(vicUsd)) throw new Error("Bad price");
+        const frollUsd = (vicUsd * 100).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
         document.getElementById("frollPrice").innerText = `1 FROLL ≈ $${frollUsd} USD`;
       } catch {
         document.getElementById("frollPrice").innerText = "1 FROLL ≈ $-- USD";
