@@ -81,7 +81,7 @@ async function connectWallet() {
   signer = provider.getSigner();
   userAddress = await signer.getAddress();
   await setupContracts();
-  vinSocialReadOnly = new ethers.Contract(vinSocialAddress, vinSocialAbi, provider);
+  frollSocialReadOnly = new ethers.Contract(frollSocialAddress, frollSocialAbi, provider);
   await updateUI();
 }
 
@@ -98,8 +98,8 @@ function disconnectWallet() {
 
 // 👉 Gọi hợp đồng khi đã kết nối
 async function setupContracts() {
-  vinSocialContract = new ethers.Contract(vinSocialAddress, vinSocialAbi, signer);
-  vinTokenContract = new ethers.Contract(vinTokenAddress, vinTokenAbi, signer);
+  frollSocialContract = new ethers.Contract(frollSocialAddress, frollSocialAbi, signer);
+  frollTokenContract = new ethers.Contract(frollTokenAddress, frollTokenAbi, signer);
 }
 
 // 👉 Tự kết nối lại nếu đã từng kết nối
@@ -117,15 +117,15 @@ async function tryAutoConnect() {
 
 // 👉 Hiển thị số dư ví và cập nhật menu
 async function updateUI() {
-  const vinBal = await vinTokenContract.balanceOf(userAddress);
+  const frollBal = await frollTokenContract.balanceOf(userAddress);
   const vicBal = await provider.getBalance(userAddress);
-  const vin = parseFloat(ethers.utils.formatEther(vinBal)).toFixed(2);
+  const froll = parseFloat(ethers.utils.formatEther(vinBal)).toFixed(2);
   const vic = parseFloat(ethers.utils.formatEther(vicBal)).toFixed(4);
 
   document.getElementById("walletAddress").innerHTML = `
     <span style="font-family: monospace;">${userAddress}</span>
     <button onclick="copyToClipboard('${userAddress}')" title="Copy address">📋</button>
-    <span style="margin-left: 10px;">| ${vin} VIN | ${vic} VIC</span>
+    <span style="margin-left: 10px;">| ${froll} FROLL | ${vic} VIC</span>
   `;
 
   document.getElementById("connectBtn").style.display = "none";
