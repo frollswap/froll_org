@@ -130,7 +130,7 @@ async function updateUI() {
 
   document.getElementById("connectBtn").style.display = "none";
   document.getElementById("disconnectBtn").style.display = "inline-block";
-  isRegistered = await vinSocialContract.isRegistered(userAddress);
+  isRegistered = await frollSocialContract.isRegistered(userAddress);
   updateMenu();
   showHome(true);
 }
