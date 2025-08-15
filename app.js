@@ -19,7 +19,7 @@ const frollTokenAbi = [
           "stateMutability": "nonpayable", "type": "function" }
     ];
 
-const vinSocialAbi = [
+const frollSocialAbi = [
   "constructor(address _frollToken)",
   "event Commented(uint256 indexed postId, address indexed user, string message)",
   "event Followed(address indexed from, address indexed to)",
