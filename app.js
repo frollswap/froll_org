@@ -66,11 +66,11 @@ window.onload = async () => {
   if (window.ethereum) {
     provider = new ethers.providers.Web3Provider(window.ethereum);
     signer = provider.getSigner();
-    vinSocialReadOnly = new ethers.Contract(vinSocialAddress, vinSocialAbi, provider);
+    frollSocialReadOnly = new ethers.Contract(frollSocialAddress, frollSocialAbi, provider);
     await tryAutoConnect();
   } else {
     provider = new ethers.providers.JsonRpcProvider("https://rpc.viction.xyz");
-    vinSocialReadOnly = new ethers.Contract(vinSocialAddress, vinSocialAbi, provider);
+    frollSocialReadOnly = new ethers.Contract(frollSocialAddress, frollSocialAbi, provider);
     showHome(true); // vẫn cho xem bài khi chưa có ví
   }
 };
