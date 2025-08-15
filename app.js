@@ -194,7 +194,7 @@ async function showHome(reset = false) {
   let html = "";
   if (lastPostId === 0) {
     try {
-      const next = await vinSocialReadOnly.nextPostId();
+      const next = await frollSocialReadOnly.nextPostId();
       lastPostId = next.toNumber();
     } catch (e) {
       console.error("Cannot fetch nextPostId", e);
@@ -212,7 +212,7 @@ async function showHome(reset = false) {
     }
 
     try {
-      const post = await vinSocialReadOnly.posts(i);
+      const post = await frollSocialReadOnly.posts(i);
       if (post[0] === "0x0000000000000000000000000000000000000000" || post[4] === 0) {
         seen.add(i);
         i--;
@@ -235,9 +235,9 @@ async function showHome(reset = false) {
       const time = new Date(post[4] * 1000).toLocaleString();
 
       const [likes, shares, views] = await Promise.all([
-        vinSocialReadOnly.likeCount(i),
-        vinSocialReadOnly.shareCount(i),
-        vinSocialReadOnly.viewCount(i)
+        frollSocialReadOnly.likeCount(i),
+        frollSocialReadOnly.shareCount(i),
+        frollSocialReadOnly.viewCount(i)
       ]);
 
       html += `
@@ -316,9 +316,9 @@ async function registerUser() {
   const fee = ethers.utils.parseEther("0.05");
 
   try {
-    const approveTx = await vinTokenContract.approve(vinSocialAddress, fee);
+    const approveTx = await frollTokenContract.approve(frollSocialAddress, fee);
     await approveTx.wait();
-    const tx = await vinSocialContract.register(name, bio, avatar, website);
+    const tx = await frollSocialContract.register(name, bio, avatar, website);
     await tx.wait();
     alert("Registration successful!");
     await updateUI();
